@@ -1,0 +1,8 @@
+[alias]
+firmware-build = "build --target thumbv7em-none-eabihf"
+firmware-check = "check --target thumbv7em-none-eabihf"
+
+[build]
+# Host tests intentionally use the host target. Use:
+#   cargo firmware-build
+# inside aris-embedded-dev for the STM32F446 Cortex-M4F target.

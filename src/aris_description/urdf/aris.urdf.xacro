@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<!--
+  ARIS vehicle model: the single source of truth for kinematics and sensor
+  extrinsics, shared by simulation and the real vehicle (Sim2Real Strategy 2).
+  robot_state_publisher turns this into the fixed part of the TF tree
+  (base_link -> sensors), identical in sim and on the car.
+-->
+<robot name="aris" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- Confirmed kinematics. Calibrate max_steer on the real vehicle and update here. -->
+  <xacro:property name="wheelbase" value="1.25"/>   <!-- m, rear axle to front axle -->
+  <xacro:property name="max_steer" value="0.6"/>    <!-- rad, steering limit -->
+  <xacro:property name="track" value="0.9"/>        <!-- m, approximate wheel track -->
+
+  <!-- Injects simulation-only additions (Gazebo sensor plugins) without touching
+       the kinematics/TF that the real vehicle also relies on. -->
+  <xacro:arg name="use_sim" default="true"/>
+
+  <material name="aris_body"><color rgba="0.15 0.18 0.22 1.0"/></material>
+  <material name="aris_sensor"><color rgba="0.85 0.40 0.15 1.0"/></material>
+
+  <!-- Vehicle base frame: origin at the rear axle on the ground plane. -->
+  <link name="base_link">
+    <visual>
+      <origin xyz="${wheelbase/2} 0 0.25" rpy="0 0 0"/>
+      <geometry><box size="${wheelbase + 0.4} ${track} 0.4"/></geometry>
+      <material name="aris_body"/>
+    </visual>
+  </link>
+
+  <!-- Fixed sensor frame with a small visual marker. -->
+  <xacro:macro name="sensor_frame" params="name xyz rpy">
+    <link name="${name}">
+      <visual>
+        <geometry><box size="0.08 0.08 0.08"/></geometry>
+        <material name="aris_sensor"/>
+      </visual>
+    </link>
+    <joint name="${name}_joint" type="fixed">
+      <parent link="base_link"/>
+      <child link="${name}"/>
+      <origin xyz="${xyz}" rpy="${rpy}"/>
+    </joint>
+  </xacro:macro>
+
+  <!-- Extrinsic calibration (PDF ch5). Initial estimates; refine with
+       LiDAR<->camera calibration on the real vehicle and commit back here. -->
+  <xacro:sensor_frame name="lidar_link"        xyz="0.6 0 0.9"     rpy="0 0 0"/>
+  <xacro:sensor_frame name="imu_link"          xyz="0.0 0 0.2"     rpy="0 0 0"/>
+  <xacro:sensor_frame name="gps_link"          xyz="-0.3 0 1.0"    rpy="0 0 0"/>
+  <xacro:sensor_frame name="camera_front_link" xyz="0.95 0 0.6"    rpy="0 0 0"/>
+  <xacro:sensor_frame name="camera_fl_link"    xyz="0.8 0.45 0.6"  rpy="0 0 0.785"/>
+  <xacro:sensor_frame name="camera_fr_link"    xyz="0.8 -0.45 0.6" rpy="0 0 -0.785"/>
+  <xacro:sensor_frame name="camera_left_link"  xyz="0.2 0.5 0.7"   rpy="0 0 1.571"/>
+  <xacro:sensor_frame name="camera_right_link" xyz="0.2 -0.5 0.7"  rpy="0 0 -1.571"/>
+  <xacro:sensor_frame name="camera_rear_link"  xyz="-0.4 0 0.7"    rpy="0 0 3.142"/>
+
+  <!--
+    Simulation-only sensor plugins (gpu_lidar publishing /scan_cloud, the six
+    cameras) get injected under <xacro:if value="$(arg use_sim)"> here. Deferred
+    until V2/V3 need those streams; the current world has no sensors. The real
+    vehicle uses hardware drivers, so this block never affects it.
+  -->
+
+</robot>

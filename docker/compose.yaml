@@ -1,0 +1,107 @@
+name: aris-dev-env
+
+x-aris-env: &aris-env
+  ARIS_HOME: ${ARIS_HOME:-/home/aris/aris}
+  ARIS_DATA: ${ARIS_DATA:-${ARIS_HOME:-/home/aris/aris}/data}
+  ARIS_LOGS: ${ARIS_LOGS:-${ARIS_HOME:-/home/aris/aris}/logs}
+  ARIS_MODELS: ${ARIS_MODELS:-${ARIS_HOME:-/home/aris/aris}/models}
+  ROS_DOMAIN_ID: ${ROS_DOMAIN_ID:-42}
+  ROS_LOCALHOST_ONLY: ${ROS_LOCALHOST_ONLY:-1}
+  RMW_IMPLEMENTATION: ${RMW_IMPLEMENTATION:-rmw_fastrtps_cpp}
+  FASTRTPS_DEFAULT_PROFILES_FILE: /workspaces/aris/docker/fastdds.xml
+  ARIS_ENABLE_REAL_ACTUATION: ${ARIS_ENABLE_REAL_ACTUATION:-0}
+  DISPLAY: ${DISPLAY:-}
+  XAUTHORITY: /tmp/.Xauthority
+
+x-aris-mounts: &aris-mounts
+  - ..:/workspaces/aris
+  - ${ARIS_HOME:-${HOME}/aris}/data:/aris/data
+  - ${ARIS_HOME:-${HOME}/aris}/logs:/aris/logs
+  - ${ARIS_HOME:-${HOME}/aris}/models:/aris/models
+  - /tmp/.X11-unix:/tmp/.X11-unix:rw
+  - ${ARIS_XAUTHORITY:-${HOME}/aris/.empty-Xauthority}:/tmp/.Xauthority:ro
+
+services:
+  aris-ros2-dev:
+    build:
+      context: ..
+      dockerfile: docker/ros2.Dockerfile
+    image: aris/ros2-dev:jazzy
+    user: "${ARIS_UID:-1000}:${ARIS_GID:-1000}"
+    network_mode: host
+    ipc: host
+    working_dir: /workspaces/aris
+    environment:
+      <<: *aris-env
+      HOME: /tmp/aris-home
+      ROS_LOG_DIR: /aris/logs/ros
+    volumes: *aris-mounts
+    command: bash
+    stdin_open: true
+    tty: true
+
+  aris-ai-dev:
+    build:
+      context: ..
+      dockerfile: docker/ai.Dockerfile
+      args:
+        NGC_PYTORCH_IMAGE: ${NGC_PYTORCH_IMAGE:-nvcr.io/nvidia/pytorch:<choose-current-arm64-dgx-spark-compatible-tag>}
+    image: aris/ai-dev:ngc-pytorch
+    network_mode: host
+    ipc: host
+    gpus: all
+    working_dir: /workspaces/aris
+    environment:
+      <<: *aris-env
+      HF_HOME: /aris/models/hf
+      TRANSFORMERS_CACHE: /aris/models/hf
+      TORCH_HOME: /aris/models/torch
+    volumes: *aris-mounts
+    command: bash
+    stdin_open: true
+    tty: true
+
+  aris-embedded-dev:
+    build:
+      context: ..
+      dockerfile: docker/embedded.Dockerfile
+    image: aris/embedded-dev:arm
+    working_dir: /workspaces/aris
+    environment: *aris-env
+    volumes: *aris-mounts
+    command: bash
+    stdin_open: true
+    tty: true
+
+  aris-ros2-gui:
+    profiles: [gui]
+    extends:
+      service: aris-ros2-dev
+    command: rviz2
+
+  aris-ros2-hardware:
+    profiles: [hardware]
+    extends:
+      service: aris-ros2-dev
+    volumes:
+      - ..:/workspaces/aris
+      - ${ARIS_HOME:-${HOME}/aris}/data:/aris/data
+      - ${ARIS_HOME:-${HOME}/aris}/logs:/aris/logs
+      - ${ARIS_HOME:-${HOME}/aris}/models:/aris/models
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - /dev/bus/usb:/dev/bus/usb
+      - /dev/serial/by-id:/dev/serial/by-id
+    devices:
+      - /dev/bus/usb
+    command: bash
+
+  aris-isaac:
+    profiles: [isaac]
+    image: ${ISAAC_SIM_IMAGE:-nvcr.io/nvidia/isaac-sim:<choose-current-arm64-compatible-tag>}
+    network_mode: host
+    ipc: host
+    gpus: all
+    working_dir: /workspaces/aris
+    environment: *aris-env
+    volumes: *aris-mounts
+    command: bash
