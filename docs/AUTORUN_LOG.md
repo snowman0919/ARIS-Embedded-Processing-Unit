@@ -263,3 +263,40 @@ Entry format:
   green (`44 passed`); `just auto-sim` green after adding `aris_mapping` and `aris_perception`.
 - Exact next step: choose one of two honest paths: repair full V2 Gazebo/real sensor localization,
   or continue only with explicitly labelled simulation scaffolds such as V4 route-graph planning.
+
+## 2026-06-21 18:40 KST — V3: Simulation Semantic Map Data Flow — WIP/BLOCKED
+- Built:        Added `semantic_map_node` in `aris_mapping`, `simulated_segmentation_node` in
+  `aris_perception`, `v3_semantic_map_sim.launch.py`, and `just v3-semantic-smoke`. The map node
+  consumes `/scan_cloud` for metric/occupancy cells and
+  `/aris/perception/semantic_observation` JSON for semantic/traversability/change-detection
+  updates, then publishes `/aris/mapping/semantic_map` summaries. The perception node is explicitly
+  simulation-only and deterministic; it is not a real camera segmentation model.
+- Verified:     `nix develop -c just v3-semantic-smoke` green. Final summary:
+  `metric_cells=267`, `semantic_cells=1`, `semantic_updates=66`, `change_events=55`,
+  `review_events=55`, `blocked_cells=1`, labels `road` and `debris` present. This proves the V3
+  simulation data path updates all five layers and triggers repeat-pass change detection.
+- Build/tests:  `nix develop -c just ros2-build` green (10 packages);
+  `python3 -m pytest src -q` green (`44 passed`); regressions `just v2a-route-smoke` and
+  `just v2a-drift-smoke` green (`max_filtered_error=0.025 m` in drift gate).
+- Commit:       `d7105af` — `V3: verify simulation semantic map flow`.
+- Stubbed/blocked: Production V3 is still blocked. There are no real camera topics, no
+  segmentation model, no mask projection from actual images, no calibrated multi-camera fusion, and
+  no repeat-pass dataset. Full V2 Gazebo/real LiDAR validation is also still WIP. This entry only
+  completes the simulation-only V3 algorithm/data-flow path.
+- Next:         To make V3 production-complete, provide or choose a segmentation model and camera
+  stream source, then replace `simulated_segmentation_node` with a real perception wrapper while
+  keeping the same map observation contract. In parallel, full V2 Gazebo/real LiDAR must still be
+  repaired/validated.
+
+## 2026-06-21 18:40 KST — SUMMARY
+- Truly passed: V1 teach-and-repeat; V2A simulation LiDAR localization stack; V3 simulation
+  semantic map data flow.
+- WIP/blocked: Full V2 is blocked on Gazebo gpu_lidar/real LiDAR validation and production
+  SLAM/NDT/EKF. Production V3 is blocked on real/sim camera streams, a segmentation model, mask
+  projection, and repeat-pass data. V4-V6 should not be claimed complete until those dependencies
+  are resolved or explicitly scoped as simulation-only scaffolds.
+- Current build/test state: `nix develop -c just ros2-build` green for 10 packages; unit suite
+  green (`44 passed`); `just v3-semantic-smoke`, `just v2a-route-smoke`, and
+  `just v2a-drift-smoke` green.
+- Exact next step: decide whether to invest next in productionizing V3 perception
+  (camera/model/dataset) or closing the remaining full V2 sensor-localization gap.
