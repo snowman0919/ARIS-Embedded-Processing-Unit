@@ -348,3 +348,19 @@ Entry format:
   operator goal selection, or production Nav2 integration.
 - Next:         User can now run the two-terminal manual demo. For a visual map overlay, add RViz
   config for `/global_path`, `/aris/planned_path`, `/scan_cloud`, and TF.
+
+## 2026-06-21 21:52 KST — V4: RViz Map/Path Visualization — WIP
+- Built:        Added V4 RViz config `v4_demo.rviz`, `v4_rviz.launch.py`,
+  `v4_goal_nav_rviz.launch.py`, `just v4-teach-rviz`, and `just v4-follow-rviz`. Teach mode now
+  publishes `/aris/recorded_path` live from `path_recorder_node`; follow mode shows `/global_path`,
+  `/aris/planned_path`, `/scan_cloud`, TF, robot model, and `/odometry/filtered`.
+- Verified:     `nix develop -c just ros2-build` green (10 packages);
+  `python3 -m pytest src -q` green (`47 passed`); `nix develop -c just v4-goal-smoke` green with an
+  isolated ROS domain (`goal_error=0.722 m`). Also confirmed
+  `v4_goal_nav_rviz.launch.py --show-args` is installed and launchable.
+- Commit:       `47951d0` — `V4: add RViz teach-follow visualization`.
+- Stubbed/blocked: This is RViz visualization, not Gazebo. Gazebo remains less reliable here
+  because the previous headless `gpu_lidar`/`ros_gz_sim create` path was blocked. RViz is the
+  recommended visualization path for the current simulator.
+- Next:         Use `just v4-teach-rviz <route.csv>`, `just teleop-key`, then
+  `just v4-follow-rviz <route.csv>` to inspect the full V1→V4 flow visually.
