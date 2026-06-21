@@ -300,3 +300,35 @@ Entry format:
   `just v2a-drift-smoke` green.
 - Exact next step: decide whether to invest next in productionizing V3 perception
   (camera/model/dataset) or closing the remaining full V2 sensor-localization gap.
+
+## 2026-06-21 21:33 KST — V4: Simulation Goal-Based Navigation — WIP
+- Built:        Added ROS-free `aris_planning.route_graph` with semantic route-graph planning,
+  semantic edge costs, nearest-node selection, bidirectional edges, and path densification. Added
+  `global_planner_node`, `/global_path` support in `local_planner_node`, `v4_goal_nav_sim.launch.py`,
+  and `just v4-goal-smoke`. The final control output remains `/cmd_drive`; PurePursuit behavior was
+  not changed.
+- Verified:     `nix develop -c just v4-goal-smoke` green. The global plan used a semantic detour
+  (`max_y_path=1.200 m`, `min_blocked_distance=3.000 m` from the blocked semantic cell), and the
+  vehicle reached `final=(9.152, 0.705)` with `goal_error=0.721 m` (< 1.2 m) and `max_x=9.152 m`.
+- Build/tests:  `nix develop -c just ros2-build` green (10 packages);
+  `python3 -m pytest src -q` green (`47 passed`); `just v3-semantic-smoke` green
+  (`metric_cells=259`, labels `road`/`debris`, `change_events=60`); `just auto-sim` green;
+  `just v2a-drift-smoke` green after measuring the intended lateral recovery gate
+  (`max_wheel_error=0.191 m`, `max_filtered_error=0.025 m`).
+- Commit:       `2318f7e` — `V4: add semantic goal navigation smoke`.
+- Stubbed/blocked: This is V4 simulation WIP, not full Nav2/production goal navigation. It uses a
+  deterministic demo route graph and simulated semantic obstacle, not a live operator goal UI,
+  Nav2 Smac planner, production map server, or real vehicle validation.
+- Next:         Either harden V4 with external goal input/map loading, or return to the remaining
+  production blockers: full V2 Gazebo/real LiDAR localization and production V3 camera perception.
+
+## 2026-06-21 21:33 KST — SUMMARY
+- Truly passed in simulation: V1 route repeat; V2A LiDAR localization/drift stack; V3 semantic map
+  data flow; V4 semantic route-graph goal navigation.
+- WIP/blocked for production: Full V2 Gazebo/real LiDAR localization, production V3 camera/model
+  perception, and production V4 Nav2/map-server/operator-goal integration.
+- Current build/test state: `nix develop -c just ros2-build` green for 10 packages; unit suite
+  green (`47 passed`); `just v4-goal-smoke`, `just v3-semantic-smoke`, `just v2a-drift-smoke`, and
+  `just auto-sim` green.
+- Exact next step: decide whether the next milestone should be V5 simulation-only dynamic obstacle
+  avoidance, or whether to pause roadmap progression and close the production V2/V3 gaps first.
