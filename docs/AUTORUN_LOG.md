@@ -332,3 +332,19 @@ Entry format:
   `just auto-sim` green.
 - Exact next step: decide whether the next milestone should be V5 simulation-only dynamic obstacle
   avoidance, or whether to pause roadmap progression and close the production V2/V3 gaps first.
+
+## 2026-06-21 21:40 KST — V4: Interactive Teach/Follow Demo Harness — WIP
+- Built:        Added `just v4-teach <route.csv>` and `just v4-follow <route.csv>`. Teach mode
+  launches sim teleop plus `path_recorder_node` so the operator can draw a route with
+  `just teleop-key`. Follow mode launches V2A LiDAR localization plus V4 `global_planner_node`,
+  converts the recorded CSV into a route graph, publishes `/global_path`, and lets
+  `local_planner_node` produce `/cmd_drive`.
+- Verified:     `nix develop -c just ros2-build` green (10 packages);
+  `python3 -m pytest src -q` green (`47 passed`); `just v4-goal-smoke` green
+  (`goal_error=0.726 m`). Also smoke-launched V4 follow with an existing recorded CSV and confirmed
+  `global_planner_node` loaded `46` route-graph nodes from the CSV.
+- Commit:       `ae47b44` — `V4: add interactive teach-follow demo`.
+- Stubbed/blocked: This is a developer demo harness. It does not provide a GUI map view, live
+  operator goal selection, or production Nav2 integration.
+- Next:         User can now run the two-terminal manual demo. For a visual map overlay, add RViz
+  config for `/global_path`, `/aris/planned_path`, `/scan_cloud`, and TF.
