@@ -9,6 +9,13 @@ from aris_planning.route import (
     select_lookahead_waypoint,
     write_route_csv,
 )
+from aris_planning.route_graph import (
+    build_bidirectional_edges,
+    densify_path,
+    nearest_route_node,
+    plan_route_graph,
+)
+from aris_mapping.semantic_map import RouteEdge, RouteNode, SemanticHDMap, SemanticObservation
 
 
 def test_astar_finds_path_around_obstacle():
@@ -138,3 +145,50 @@ def test_route_selects_last_forward_when_no_point_reaches_lookahead():
     )
 
     assert waypoint == route[-1]
+
+
+def test_route_graph_global_planner_avoids_semantic_penalty():
+    hd_map = SemanticHDMap(resolution_m=0.5)
+    for node in [
+        RouteNode("start", 0.0, 0.0),
+        RouteNode("mid", 1.0, 0.0),
+        RouteNode("goal", 2.0, 0.0),
+        RouteNode("detour_a", 1.0, 1.0),
+        RouteNode("detour_b", 2.0, 1.0),
+    ]:
+        hd_map.add_route_node(node)
+    for edge in build_bidirectional_edges(
+        [
+            RouteEdge("start", "mid", 1.0),
+            RouteEdge("mid", "goal", 1.0),
+            RouteEdge("start", "detour_a", 1.5),
+            RouteEdge("detour_a", "detour_b", 1.0),
+            RouteEdge("detour_b", "goal", 1.5),
+        ]
+    ):
+        hd_map.add_route_edge(edge)
+    hd_map.apply_semantic_observation(
+        SemanticObservation(x=1.0, y=0.0, label="debris", confidence=0.95)
+    )
+
+    plan = plan_route_graph(hd_map, "start", "goal", semantic_weight=10.0)
+
+    assert plan.node_ids == ["start", "detour_a", "detour_b", "goal"]
+    assert "mid" not in plan.node_ids
+
+
+def test_nearest_route_node_selects_closest_node():
+    nodes = {
+        "a": RouteNode("a", 0.0, 0.0),
+        "b": RouteNode("b", 5.0, 0.0),
+    }
+
+    assert nearest_route_node(nodes, 4.2, 0.2) == "b"
+
+
+def test_densify_path_interpolates_long_segments():
+    dense = densify_path([(0.0, 0.0), (1.0, 0.0)], spacing_m=0.25)
+
+    assert dense[0] == (0.0, 0.0)
+    assert dense[-1] == (1.0, 0.0)
+    assert len(dense) == 5

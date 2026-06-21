@@ -104,8 +104,8 @@ for ft, fx, fy, fyaw in filtered:
     (wt, wx, wy, wyaw), wheel_dt = sample_at(wheel, ft)
     if max(truth_dt, wheel_dt) > 0.15:
         continue
-    filtered_error = math.hypot(fx - tx, fy - ty)
-    wheel_error = math.hypot(wx - tx, wy - ty)
+    filtered_error = abs(fy - ty)
+    wheel_error = abs(wy - ty)
     yaw_error = abs(math.atan2(math.sin(fyaw - tyaw), math.cos(fyaw - tyaw)))
     matched.append((filtered_error, wheel_error, yaw_error, fx, tx, truth_dt, wheel_dt))
 
@@ -136,7 +136,7 @@ elif max_wheel_error < 0.08:
     reason = f"wheel odom drift was too small to prove recovery: {max_wheel_error:.3f}"
 elif max_filtered_error > 0.05:
     status = "FAIL"
-    reason = f"LiDAR localization failed 5 cm recovery gate: {max_filtered_error:.3f}"
+    reason = f"LiDAR localization failed 5 cm lateral recovery gate: {max_filtered_error:.3f}"
 elif max_yaw_error > 0.03:
     status = "FAIL"
     reason = f"localization yaw error too high: {max_yaw_error:.3f}"

@@ -61,6 +61,7 @@ class LocalPlannerNode(Node):
         self.path_pub = self.create_publisher(PoseArray, "/aris/planned_path", 10)
         self.create_subscription(Odometry, "/odometry/filtered", self._on_odom, 10)
         self.create_subscription(Bool, "/estop", self._on_estop, 10)
+        self.create_subscription(PoseArray, "/global_path", self._on_global_path, 10)
         self.create_timer(1.0, self._publish_path)
 
     def _on_estop(self, msg: Bool) -> None:
@@ -84,6 +85,11 @@ class LocalPlannerNode(Node):
         out.drive.speed = float(fields.speed_mps)
         out.drive.acceleration = float(fields.acceleration_mps2)
         self.cmd_pub.publish(out)
+
+    def _on_global_path(self, msg: PoseArray) -> None:
+        if len(msg.poses) < 2:
+            return
+        self.path = [(float(pose.position.x), float(pose.position.y)) for pose in msg.poses]
 
     def _near_goal(self, pose: Pose2D) -> bool:
         goal_x, goal_y = self.path[-1]

@@ -11,7 +11,7 @@ setup(
     packages=[package_name],
     data_files=[
         ("share/ament_index/resource_index/packages", [f"resource/{package_name}"]),
-        (f"share/{package_name}", ["package.xml"]),
+        (f"share/{package_name}", ["package.xml", "README.md"]),
         (join("share", package_name, "launch"), glob("launch/*.launch.py")),
     ],
     install_requires=["setuptools"],
@@ -25,6 +25,7 @@ setup(
         "console_scripts": [
             "local_planner_node = aris_planning.local_planner_node:main",
             "path_recorder_node = aris_planning.path_recorder_node:main",
+            "global_planner_node = aris_planning.global_planner_node:main",
         ],
     },
 )

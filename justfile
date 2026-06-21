@@ -77,6 +77,10 @@ v2a-route-smoke:
 v3-semantic-smoke:
     ./scripts/check_v3_semantic_map.sh
 
+# V4 simulation gate: semantic global path is followed to the goal.
+v4-goal-smoke:
+    ./scripts/check_v4_goal_nav.sh
+
 rviz:
     ./scripts/run_rviz.sh
 
