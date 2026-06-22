@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import math
+from pathlib import Path
 
 from geometry_msgs.msg import Pose, PoseArray, PoseStamped
 from nav_msgs.msg import Odometry
@@ -15,7 +16,13 @@ from aris_mapping.semantic_map import RouteEdge, RouteNode, SemanticHDMap, Seman
 
 from .local_planner_node import yaw_from_odom
 from .route import load_route_csv, resolve_route_file
-from .route_graph import build_bidirectional_edges, densify_path, nearest_route_node, plan_route_graph
+from .route_graph import (
+    build_bidirectional_edges,
+    densify_path,
+    load_semantic_map_graph,
+    nearest_route_node,
+    plan_route_graph,
+)
 
 
 class GlobalPlannerNode(Node):
@@ -27,17 +34,29 @@ class GlobalPlannerNode(Node):
         self.declare_parameter("path_spacing_m", 0.25)
         self.declare_parameter("route_file", "")
         self.declare_parameter("use_demo_graph", True)
+        self.declare_parameter("semantic_map_file", "")
         self.goal_x = float(self.get_parameter("goal_x_m").value)
         self.goal_y = float(self.get_parameter("goal_y_m").value)
         self.semantic_weight = float(self.get_parameter("semantic_weight").value)
         self.path_spacing_m = float(self.get_parameter("path_spacing_m").value)
         route_file = str(self.get_parameter("route_file").value).strip()
         use_demo_graph = bool(self.get_parameter("use_demo_graph").value)
+        semantic_map_file = str(self.get_parameter("semantic_map_file").value).strip()
         self.pose: tuple[float, float, float] | None = None
-        if not use_demo_graph and route_file and route_file != "__demo__":
+        self.map_source = "demo"
+        if semantic_map_file:
+            self.hd_map = load_semantic_map_graph(semantic_map_file)
+            self.goal_node = nearest_route_node(self.hd_map.route_nodes, self.goal_x, self.goal_y)
+            self.map_source = str(Path(semantic_map_file))
+            self.get_logger().info(
+                f"Loaded V4 route graph with {len(self.hd_map.route_nodes)} nodes "
+                f"from semantic map snapshot {semantic_map_file}"
+            )
+        elif not use_demo_graph and route_file and route_file != "__demo__":
             route_path = resolve_route_file(route_file)
             self.hd_map = _route_file_graph(route_path)
             self.goal_node = f"wp_{len(self.hd_map.route_nodes) - 1}"
+            self.map_source = str(route_path)
             self.get_logger().info(
                 f"Loaded V4 route graph with {len(self.hd_map.route_nodes)} nodes from {route_path}"
             )
@@ -112,6 +131,9 @@ class GlobalPlannerNode(Node):
                 "goal_x": self.goal_x,
                 "goal_y": self.goal_y,
                 "detour": any("detour" in node_id for node_id in node_ids),
+                "map_source": self.map_source,
+                "route_nodes": len(self.hd_map.route_nodes),
+                "route_edges": len(self.hd_map.route_edges),
             },
             sort_keys=True,
         )

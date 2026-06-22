@@ -82,6 +82,7 @@ def generate_launch_description():
                 "output_topic": "/scan_cloud",
                 "target_frame": "lidar_link",
                 "scan_period_s": 0.1,
+                "stamp_with_receive_time": True,
             }
         ],
         output="screen",

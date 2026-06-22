@@ -3,6 +3,15 @@ set dotenv-load := true
 check-host:
     ./scripts/check_host.sh
 
+bootstrap-doctor:
+    ./scripts/check_bootstrap_doctor.sh
+
+core-readiness:
+    ./scripts/check_core_readiness.sh
+
+core-readiness-report:
+    ./scripts/run_core_readiness_report.sh
+
 nix-shell-info:
     @printf 'ARIS_WS=%s\nARIS_HOME=%s\nARIS_DATA=%s\nARIS_LOGS=%s\nARIS_MODELS=%s\nROS_DOMAIN_ID=%s\nROS_LOCALHOST_ONLY=%s\n' "$ARIS_WS" "$ARIS_HOME" "$ARIS_DATA" "$ARIS_LOGS" "$ARIS_MODELS" "$ROS_DOMAIN_ID" "$ROS_LOCALHOST_ONLY"
 
@@ -30,11 +39,29 @@ ros2-test:
 python-test:
     ./scripts/check_python_tests.sh
 
+documented-commands:
+    ./scripts/check_documented_commands.sh
+
+architecture-contracts:
+    ./scripts/check_architecture_contracts.sh
+
+host-policy:
+    ./scripts/check_host_policy.sh
+
+branch-policy:
+    ./scripts/check_branch_policy.sh
+
 sim:
     ./scripts/check_sim.sh
 
 auto-sim:
     ./scripts/check_autonomous_sim.sh
+
+core-pipeline-flow:
+    ./scripts/check_core_pipeline_flow.sh
+
+core-pipeline-repeatability:
+    ./scripts/check_core_pipeline_repeatability.sh
 
 # V0 manual driving: bring up the sim stack in teleop mode (Ctrl-C to stop).
 teleop:
@@ -64,6 +91,42 @@ v2-lidar-smoke:
 v2-gazebo-localization-smoke:
     ./scripts/check_v2_gazebo_localization.sh
 
+# V2 probe: moving sim odom syncs Gazebo entity pose and drives gpu_lidar localization.
+v2-gazebo-moving-smoke:
+    ./scripts/check_v2_gazebo_moving_localization.sh
+
+# V2 probe: /cmd_drive moves the Gazebo URDF through its Ackermann physics plugin.
+v2-gazebo-physics-smoke:
+    ./scripts/check_v2_gazebo_physics.sh
+
+# V2 probe: Gazebo physics odom drives LiDAR localization without pose sync.
+v2-gazebo-physics-localization-smoke:
+    ./scripts/check_v2_gazebo_physics_localization.sh
+
+# V2 recorded-data gate: capture a physics-localization LiDAR bag and validate metadata.
+v2-recorded-lidar-bag-smoke:
+    ./scripts/check_v2_recorded_lidar_bag.sh
+
+# V2 recorded-data gate: capture a physics-localization LiDAR bag and replay-score it.
+v2-recorded-lidar-replay-smoke:
+    ./scripts/check_v2_recorded_lidar_replay.sh
+
+# V2 recorded-data gate: validate an existing operator-provided LiDAR bag.
+v2-lidar-bag-contract bag:
+    ./scripts/check_v2_lidar_bag_contract.sh "{{bag}}"
+
+# V2 recorded-data gate: replay-score an accepted operator-provided LiDAR bag.
+v2-lidar-bag-replay bag:
+    ./scripts/check_v2_lidar_bag_replay.sh "{{bag}}"
+
+# V2 probe: drifted wheel odom must be corrected by Gazebo gpu_lidar observations.
+v2-gazebo-drift-smoke:
+    ./scripts/check_v2_gazebo_drift_recovery.sh
+
+# V2 aggregate: run all headless Gazebo gpu_lidar localization smokes.
+v2-gazebo-stack-smoke:
+    ./scripts/check_v2_gazebo_stack.sh
+
 # V2 algorithm-development sensor surrogate: spec-driven 3D LiDAR sim -> /scan_cloud.
 lidar-sim-smoke:
     ./scripts/check_lidar_sim.sh
@@ -83,13 +146,29 @@ v2a-drift-smoke:
 v2a-route-smoke:
     ./scripts/check_v2a_route_repeat.sh
 
-# V3 simulation gate: perception observations update the five-layer semantic map.
+# V3 simulation gate: generate and validate a five-layer semantic map snapshot.
 v3-semantic-smoke:
     ./scripts/check_v3_semantic_map.sh
 
 # V4 simulation gate: semantic global path is followed to the goal.
 v4-goal-smoke:
     ./scripts/check_v4_goal_nav.sh
+
+# V5 simulation gate: dynamic obstacle advisory slows/stops the local planner.
+v5-dynamic-obstacle-smoke:
+    ./scripts/check_v5_dynamic_obstacle.sh
+
+# V5 operator-data gate: replay a LiDAR bag through the obstacle detector and score advisories.
+v5-obstacle-bag-replay bag:
+    ./scripts/check_v5_obstacle_bag_replay.sh "{{bag}}"
+
+# V5 replay aggregate: record a deterministic obstacle bag, then replay-score it.
+v5-recorded-obstacle-replay-smoke:
+    ./scripts/check_v5_recorded_obstacle_replay.sh
+
+# V6 offline gate: generate advisory-only semantic review from V3 map artifacts.
+v6-semantic-review-smoke:
+    ./scripts/check_v6_semantic_review.sh
 
 operator-goal-smoke:
     ./scripts/check_operator_goal.sh
@@ -125,8 +204,29 @@ protocol-test:
 mcu-serial-loopback:
     ./scripts/check_mcu_serial_loopback.sh
 
+hil-preflight:
+    ./scripts/check_hil_preflight.sh
+
+operational-readiness-audit:
+    ./scripts/check_operational_readiness_audit.sh
+
+headless-readiness-audit:
+    ./scripts/check_headless_readiness_audit.sh
+
+headless-status:
+    ./scripts/check_headless_status.sh
+
+headless-release-candidate:
+    ./scripts/check_headless_release_candidate.sh
+
+field-validation manifest:
+    ./scripts/check_field_validation.sh "{{manifest}}"
+
 firmware-test:
     ./scripts/firmware_test.sh
+
+embedded-dry-run:
+    ./scripts/check_embedded_dry_run.sh
 
 clean:
     ./scripts/clean.sh

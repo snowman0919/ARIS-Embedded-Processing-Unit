@@ -11,15 +11,6 @@ __pycache__/
 .venv/
 venv/
 
-# Flutter/local runtime
-.dart_tool/
-.idea/
-*.iml
-*.pid
-*.log
-src/aris_gui/build/
-src/aris_gui/linux/flutter/ephemeral/
-
 # ROS/colcon
 build/
 install/

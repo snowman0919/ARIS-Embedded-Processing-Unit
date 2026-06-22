@@ -45,6 +45,12 @@ Headless Gazebo LiDAR smoke:
 ```bash
 just v2-lidar-smoke
 just v2-gazebo-localization-smoke
+just v2-gazebo-moving-smoke
+just v2-gazebo-physics-smoke
+just v2-gazebo-physics-localization-smoke
+just v2-recorded-lidar-bag-smoke
+just v2-gazebo-drift-smoke
+just v2-gazebo-stack-smoke
 ```
 
 This launches `ros_gz`, spawns the shared ARIS URDF, bridges the Gazebo `gpu_lidar` raw
@@ -55,6 +61,45 @@ PointCloud2, and normalizes it through `aris_perception.gazebo_cloud_adapter_nod
 `just v2-gazebo-localization-smoke` extends that static Gazebo sensor path through
 `lidar_localization_node` and verifies `/odometry/filtered` plus `map -> odom`. It is a smoke test
 for data flow, not yet a moving Gazebo vehicle or production NDT/EKF proof.
+
+`just v2-gazebo-moving-smoke` adds `gazebo_pose_sync_node`, which follows `/wheel_odom` and updates
+the Gazebo ARIS entity through `/world/aris_lidar_smoke/set_pose`. The smoke publishes `/cmd_drive`
+and checks localization movement, Gazebo entity movement, and a changed forward LiDAR range as the
+vehicle moves through the smoke world. It is still a V2 integration scaffold; Gazebo physics is not
+yet the motion authority.
+
+`just v2-gazebo-physics-smoke` launches the same URDF and gpu_lidar path, but sends `/cmd_drive`
+through `gazebo_cmd_drive_bridge_node` and `ros_gz_bridge` into Gazebo's Ackermann steering system.
+This is the first pose-sync-free V2 gate: `/gazebo/odom` and Gazebo `/pose/info` must show the ARIS
+entity moving while `/scan_cloud` continues to publish.
+
+`just v2-gazebo-physics-localization-smoke` extends that pose-sync-free path by remapping
+`/gazebo/odom` into the localization wheel-odom contract. It verifies that Gazebo physics motion
+feeds `lidar_localization_node`, which then publishes `/odometry/filtered` from live gpu_lidar
+clouds.
+
+`just v2-recorded-lidar-bag-smoke` records the physics-localization path to an MCAP rosbag under
+`$ARIS_LOGS/bags/` and validates metadata counts for `/scan_cloud`, `/gazebo/odom`,
+`/odometry/filtered`, `/cmd_drive`, and `/tf`. This is the recorded-data acceptance harness that
+real LiDAR bags must later satisfy.
+
+Use `just v2-lidar-bag-contract /path/to/bag` to run the same metadata contract against an existing
+operator-provided bag before attempting replay or localization scoring.
+
+Use `just v2-lidar-bag-replay /path/to/bag` after that metadata gate to play an accepted bag back
+inside the ROS 2 container and score localization continuity. It checks that replayed clouds, TF,
+commands, Gazebo odometry, and filtered odometry are live and that filtered odometry stays bounded
+against the recorded Gazebo odometry. `just v2-recorded-lidar-replay-smoke` records a fresh
+synthetic bag and immediately runs that replay score.
+
+`just v2-gazebo-drift-smoke` syncs the Gazebo entity from ground truth while feeding intentionally
+drifted `/wheel_odom` to localization. It verifies that Gazebo gpu_lidar observations reduce the
+wheel-odom lateral error. Gazebo cloud stamps are normalized to ROS receive time in this launch so
+LiDAR, wheel odom, and ground-truth samples share a comparable time base.
+
+`just v2-gazebo-stack-smoke` runs the complete headless Gazebo V2 sequence: cloud contract,
+static localization, moving pose sync, pose-sync-free physics motion, physics-fed localization, and
+drift recovery.
 
 The deterministic software LiDAR surrogate remains available for algorithm development and CI-like
 checks that do not need Gazebo rendering:

@@ -12,7 +12,7 @@ from rclpy.node import Node
 from sensor_msgs.msg import PointCloud2
 from std_msgs.msg import String
 
-from .semantic_map import SemanticHDMap, SemanticObservation
+from .semantic_map import SemanticHDMap, SemanticObservation, load_route_csv_as_graph
 
 
 class SemanticMapNode(Node):
@@ -23,7 +23,9 @@ class SemanticMapNode(Node):
         self.declare_parameter("confirmation_threshold", 0.75)
         self.declare_parameter("max_cloud_points", 200)
         self.declare_parameter("snapshot_file", "")
+        self.declare_parameter("route_file", "")
         self.snapshot_file = str(self.get_parameter("snapshot_file").value).strip()
+        self.route_file = str(self.get_parameter("route_file").value).strip()
         if self.snapshot_file and Path(self.snapshot_file).exists():
             self.map = SemanticHDMap.load_snapshot(self.snapshot_file)
             self.get_logger().info(f"Loaded semantic map snapshot from {self.snapshot_file}")
@@ -32,6 +34,11 @@ class SemanticMapNode(Node):
                 resolution_m=float(self.get_parameter("resolution_m").value),
                 change_threshold=float(self.get_parameter("change_threshold").value),
                 confirmation_threshold=float(self.get_parameter("confirmation_threshold").value),
+            )
+        if self.route_file:
+            loaded_nodes, loaded_edges = load_route_csv_as_graph(self.map, Path(self.route_file))
+            self.get_logger().info(
+                f"Loaded route graph from {self.route_file}: nodes={loaded_nodes} edges={loaded_edges}"
             )
         self.max_cloud_points = int(self.get_parameter("max_cloud_points").value)
         self.semantic_updates = 0
@@ -90,6 +97,8 @@ class SemanticMapNode(Node):
                 "review_events": self.review_events,
                 "review_queue": len(self.map.review_queue),
                 "blocked_cells": blocked_cells,
+                "route_nodes": len(self.map.route_nodes),
+                "route_edges": len(self.map.route_edges),
                 "labels": label_counts,
             },
             sort_keys=True,

@@ -30,8 +30,69 @@ nix develop -c just v2-gazebo-localization-smoke
 ```
 
 It verifies `/scan_cloud`, `/odometry/filtered`, and `map->odom` in one launch. It does not yet
-sync a moving Gazebo entity pose with the vehicle simulator; that remains the next Gazebo
-integration gap.
+move the vehicle.
+
+The moving Gazebo smoke adds `gazebo_pose_sync_node`, synchronizing `/wheel_odom` into the Gazebo
+ARIS entity through the Gazebo `/world/aris_lidar_smoke/set_pose` service:
+
+```bash
+nix develop -c just v2-gazebo-moving-smoke
+```
+
+This verifies that a commanded vehicle simulation movement also moves the Gazebo entity and keeps
+the Gazebo gpu_lidar -> `/scan_cloud` -> localization path alive. The smoke also checks that the
+front LiDAR range changes as the vehicle moves through the Gazebo target scene. Gazebo physics is
+not yet the motion authority.
+
+The Gazebo physics smoke removes pose sync from the motion path:
+
+```bash
+nix develop -c just v2-gazebo-physics-smoke
+```
+
+It sends `/cmd_drive` through the simulation HAL bridge into Gazebo's Ackermann steering plugin,
+then requires `/gazebo/odom`, Gazebo `/pose/info`, and `/scan_cloud` to stay live. This is a
+physics-motion gate, not a full localization acceptance test yet.
+
+The Gazebo physics-localization smoke uses Gazebo's odometry as the localization prior:
+
+```bash
+nix develop -c just v2-gazebo-physics-localization-smoke
+```
+
+It remaps `/gazebo/odom` to the node's `/wheel_odom` input and requires `/odometry/filtered` to
+follow the physics-driven ARIS entity while the gpu_lidar cloud remains live.
+
+The recorded LiDAR bag smoke captures that same path as replayable evidence:
+
+```bash
+nix develop -c just v2-recorded-lidar-bag-smoke
+```
+
+It writes an MCAP rosbag under `$ARIS_LOGS/bags/` and validates that `/scan_cloud`,
+`/gazebo/odom`, `/odometry/filtered`, `/cmd_drive`, and `/tf` all have enough recorded samples.
+Run `nix develop -c just v2-lidar-bag-contract /path/to/bag` for the same metadata gate on an
+operator-provided real bag.
+
+Replay-score an accepted bag with:
+
+```bash
+nix develop -c just v2-lidar-bag-replay /path/to/bag
+```
+
+The replay gate plays the bag inside the ROS 2 container and checks that `/scan_cloud`, `/tf`,
+`/cmd_drive`, `/gazebo/odom`, and `/odometry/filtered` arrive with coherent motion and bounded
+filtered-vs-Gazebo pose gap. `nix develop -c just v2-recorded-lidar-replay-smoke` records a fresh
+synthetic V2 bag and immediately runs that same score.
+
+The Gazebo drift-recovery smoke uses the same gpu_lidar path as a correction source:
+
+```bash
+nix develop -c just v2-gazebo-drift-smoke
+```
+
+It synchronizes Gazebo from `/aris/sim/ground_truth`, injects lateral drift into `/wheel_odom`, and
+requires `/odometry/filtered` to reduce that drift using Gazebo `/scan_cloud` observations.
 
 This is still a V2 scaffold, not production localization. Full V2 still needs real Unitree profile
 values, recorded LiDAR data, map generation, NDT/EKF selection, and hardware validation.
