@@ -236,9 +236,10 @@ audit to `$ARIS_LOGS/readiness/latest_headless_readiness_audit.json`.
 `just headless-status` prints a concise human-readable summary of the latest headless release,
 audit, pipeline, and repeatability evidence, including whether that evidence was generated from the
 current Git `HEAD`, why the evidence is fresh or stale, each release step pass/fail result, the
-per-step evidence paths, and whether hardware scope or real actuation is active. It also reports
-the modification time and age of the latest release, audit, index, and repeatability evidence so
-headless operators can judge when a fresh release-candidate run is needed. Use
+per-step evidence paths, the headless audit acceptance thresholds, and whether hardware scope or
+real actuation is active. It also reports the modification time and age of the latest release,
+audit, index, and repeatability evidence so headless operators can judge when a fresh
+release-candidate run is needed. Use
 `./scripts/check_headless_status.sh --json` for the same summary as JSON.
 `just headless-release-candidate` runs the hardware-free evidence bundle end to end and writes
 `$ARIS_LOGS/readiness/latest_headless_release_candidate.json`.

@@ -42,6 +42,25 @@ def test_headless_status_summary_collects_latest_evidence(tmp_path):
         "hardware_scope_active": False,
         "safe_to_enable_real_actuation": False,
         "blockers": [],
+        "acceptance_thresholds": {
+            "core_pipeline_flow": {
+                "required_stages": [
+                    "mapping",
+                    "semantic_hd_map",
+                    "route_graph",
+                    "localization",
+                    "goal_based_planning",
+                    "autonomous_driving",
+                ]
+            },
+            "core_pipeline_repeatability": {
+                "min_runs_completed": 2,
+                "max_goal_error_m": 1.3,
+                "min_scan_cloud_samples": 5,
+                "min_global_path_points": 2,
+                "min_cmd_samples": 20,
+            },
+        },
         "criteria": {
             "core_pipeline_repeatability": {
                 "passed": True,
@@ -99,6 +118,7 @@ def test_headless_status_summary_collects_latest_evidence(tmp_path):
     assert summary["repeatability"]["scan_cloud_samples_min"] == 12
     assert summary["repeatability"]["global_path_points_min"] == 6
     assert summary["repeatability"]["cmd_samples_min"] == 24
+    assert summary["acceptance_thresholds"]["core_pipeline_repeatability"]["max_goal_error_m"] == 1.3
     assert summary["release_evidence"]["bootstrap_doctor"].endswith("bootstrap.json")
     assert summary["release_evidence"]["embedded_dry_run"].endswith("embedded.json")
     assert summary["evidence_age"]["headless_release_candidate"]["age_seconds"] is not None
@@ -122,6 +142,15 @@ def test_headless_status_summary_collects_latest_evidence(tmp_path):
     assert "scan_cloud_samples_min: 12" in text
     assert "global_path_points_min: 6" in text
     assert "cmd_samples_min: 24" in text
+    assert "Acceptance thresholds" in text
+    assert (
+        "required_stages: mapping -> semantic_hd_map -> route_graph -> localization -> "
+        "goal_based_planning -> autonomous_driving"
+    ) in text
+    assert (
+        "repeatability: min_runs=2 max_goal_error_m=1.3 min_scan_cloud_samples=5 "
+        "min_global_path_points=2 min_cmd_samples=20"
+    ) in text
 
 
 def test_headless_status_summary_marks_fresh_evidence_for_matching_head(tmp_path, monkeypatch):

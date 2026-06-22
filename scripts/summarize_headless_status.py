@@ -58,6 +58,7 @@ def summarize(logs_dir: Path, workspace: Path | None = None) -> dict[str, Any]:
     )
 
     criteria = (audit or {}).get("criteria") or {}
+    acceptance_thresholds = (audit or {}).get("acceptance_thresholds") or {}
     pipeline = (index or {}).get("core_pipeline_flow", {}).get("report") or {}
     pipeline_stages = pipeline.get("stages") or {}
     repeat_summary = (repeat or {}).get("summary") or {}
@@ -124,6 +125,7 @@ def summarize(logs_dir: Path, workspace: Path | None = None) -> dict[str, Any]:
             for name, criterion in criteria.items()
             if isinstance(criterion, dict)
         },
+        "acceptance_thresholds": acceptance_thresholds,
         "core_pipeline": {
             "valid": pipeline.get("valid"),
             "semantic_map_snapshot": pipeline.get("semantic_map_snapshot"),
@@ -329,8 +331,31 @@ def format_text(summary: dict[str, Any]) -> str:
         f"  global_path_points_min: {repeat.get('global_path_points_min')}",
         f"  cmd_samples_min: {repeat.get('cmd_samples_min')}",
         "",
-        "Release steps",
+        "Acceptance thresholds",
     ]
+    thresholds = summary.get("acceptance_thresholds") or {}
+    pipeline_thresholds = thresholds.get("core_pipeline_flow") or {}
+    repeat_thresholds = thresholds.get("core_pipeline_repeatability") or {}
+    required_stages = pipeline_thresholds.get("required_stages") or []
+    if required_stages:
+        lines.append(f"  required_stages: {' -> '.join(required_stages)}")
+    if repeat_thresholds:
+        lines.append(
+            "  repeatability: min_runs={} max_goal_error_m={} min_scan_cloud_samples={} "
+            "min_global_path_points={} min_cmd_samples={}".format(
+                repeat_thresholds.get("min_runs_completed"),
+                repeat_thresholds.get("max_goal_error_m"),
+                repeat_thresholds.get("min_scan_cloud_samples"),
+                repeat_thresholds.get("min_global_path_points"),
+                repeat_thresholds.get("min_cmd_samples"),
+            )
+        )
+    if not required_stages and not repeat_thresholds:
+        lines.append("  n/a")
+    lines.extend([
+        "",
+        "Release steps",
+    ])
     release_steps = summary.get("release_steps") or []
     if release_steps:
         for step in release_steps:
