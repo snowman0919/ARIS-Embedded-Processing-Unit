@@ -618,3 +618,29 @@ Entry format:
   depends on real sensor, HIL, and field evidence.
 - Next:         Continue future work directly on the active milestone branch (`v3`) unless the user
   explicitly asks to redefine a previous milestone baseline.
+
+## 2026-06-22 12:31 KST — Readiness: Machine-Readable Evidence Index — WIP
+- Built:        Added `scripts/generate_readiness_evidence_index.py` and wired
+  `scripts/run_core_readiness_report.sh` to write
+  `$ARIS_LOGS/readiness/evidence_index_<timestamp>.json` plus
+  `$ARIS_LOGS/readiness/latest_evidence_index.json`. Documented the index in `README.md` and
+  `docs/verification_plan.md`. The index points at the latest readiness report, latest V2 LiDAR
+  bag metadata, latest V3 semantic map manifest, and latest V3 repeat-pass compare report.
+- Verified:     `ARIS_CORE_READINESS_SKIP_GAZEBO=1 ./scripts/run_core_readiness_report.sh` passed
+  on branch `v3` at commit `e0dd2d2`, with `skip_v3=0`, `skip_gazebo=1`, and `result=PASS`. The
+  report is `/home/kotori9/aris/logs/readiness/core_readiness_20260622T033034Z.log`; the evidence
+  index is `/home/kotori9/aris/logs/readiness/evidence_index_20260622T033034Z.json`, and
+  `/home/kotori9/aris/logs/readiness/latest_evidence_index.json` points to it. The run included
+  Python tests (`76 passed`), MCU serial loopback, `/scan_cloud` contract, operator goal, V3
+  semantic map snapshot/manifest/compare (`metric_overlap=0.907`, `route_overlap=1.000`,
+  `label_changes=0`, `high_risk_delta=0`, `review_queue_delta=0`), and V4 goal navigation.
+- Build/tests:  `python3 -m py_compile scripts/generate_readiness_evidence_index.py` passed;
+  `bash -n scripts/run_core_readiness_report.sh` passed; `git diff --check` passed;
+  `./scripts/check_python_tests.sh tests/evidence/test_readiness_evidence_index.py
+  tests/mapping/test_semantic_map_snapshot_compare.py
+  tests/mapping/test_semantic_map_snapshot_validator.py` passed (`5 passed`).
+- Commit:       Pending evidence-index commit.
+- Stubbed/blocked: This is a skip-Gazebo readiness run, so it does not replace a future no-skip
+  Gazebo readiness report or real-sensor/HIL/field promotion evidence.
+- Next:         Commit and push this evidence-index increment to `origin/v3`, then run a full
+  no-skip readiness report when the Gazebo stack runtime is acceptable.

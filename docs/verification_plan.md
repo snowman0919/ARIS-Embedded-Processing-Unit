@@ -135,7 +135,17 @@ just core-readiness-report
 ```
 
 Reports are written to `$ARIS_LOGS/readiness/core_readiness_<timestamp>.log`, with
-`$ARIS_LOGS/readiness/latest.log` pointing at the most recent run.
+`$ARIS_LOGS/readiness/latest.log` pointing at the most recent run. The report wrapper also writes
+an evidence index:
+
+```text
+$ARIS_LOGS/readiness/evidence_index_<timestamp>.json
+$ARIS_LOGS/readiness/latest_evidence_index.json
+```
+
+The index points at the latest readiness report, latest V2 LiDAR bag metadata, latest V3 semantic
+map manifest, and latest V3 repeat-pass compare report. It is the quick machine-readable view of
+the current software evidence bundle.
 
 ## 12. Recorded LiDAR Acceptance Gate
 

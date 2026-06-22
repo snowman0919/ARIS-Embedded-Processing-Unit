@@ -195,6 +195,10 @@ just operator-goal-smoke # operator JSON goal -> /goal_pose -> V4 planner smoke
 just firmware-test   # Rust STM32 safety-core tests and thumbv7em-none-eabihf build
 ```
 
+`just core-readiness-report` writes both a text report and a machine-readable evidence index under
+`$ARIS_LOGS/readiness/`. The latest index is available at
+`$ARIS_LOGS/readiness/latest_evidence_index.json`.
+
 The Nix shell includes Rust host tools for editing, formatting, clippy, and unit tests. The embedded Docker image installs the STM32 Rust target `thumbv7em-none-eabihf` and is the canonical path for firmware target builds.
 
 ## Simulation

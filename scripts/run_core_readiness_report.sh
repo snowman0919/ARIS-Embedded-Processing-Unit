@@ -12,7 +12,9 @@ mkdir -p "$report_dir"
 
 timestamp="$(date -u +%Y%m%dT%H%M%SZ)"
 report_file="${report_dir}/core_readiness_${timestamp}.log"
+index_file="${report_dir}/evidence_index_${timestamp}.json"
 latest_file="${report_dir}/latest.log"
+latest_index_file="${report_dir}/latest_evidence_index.json"
 
 {
   printf 'ARIS Core Readiness Report\n'
@@ -37,4 +39,9 @@ status=0
 } | tee -a "$report_file"
 
 ln -sf "$report_file" "$latest_file"
+"${ARIS_WS}/scripts/generate_readiness_evidence_index.py" \
+  --workspace "$ARIS_WS" \
+  --logs-dir "$ARIS_LOGS" \
+  --out "$index_file" | tee -a "$report_file"
+ln -sf "$index_file" "$latest_index_file"
 exit "$status"
