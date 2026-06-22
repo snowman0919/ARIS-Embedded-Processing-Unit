@@ -1982,3 +1982,45 @@ Entry format:
   `/home/kotori9/aris/logs/readiness/branch_policy_20260622T121416Z.json`.
 - Next:         Merge PR #3 so `main` receives the latest v6 release evidence and branch-policy
   sync diagnostics, then continue headless simulation and embedded dry-run improvements.
+
+## 2026-06-22 KST — Headless Status Shows Main/V6 Sync
+
+- Built:        Extended `scripts/summarize_headless_status.py` so `just headless-status` and
+  `./scripts/check_headless_status.sh --json` read
+  `$ARIS_LOGS/readiness/latest_branch_policy.json`, expose the `main_sync` object, and print a
+  `Main sync` section with `base`, `head`, `main_ahead`, `v6_ahead`, and `main_contains_v6`.
+- Built:        Updated `tests/evidence/test_headless_status_summary.py` and `README.md` so the
+  status summary contract now covers branch-policy evidence age and the main/v6 sync delta.
+- Verified:     Targeted headless-status tests passed (`7 passed`); full
+  `./scripts/check_python_tests.sh` passed (`142 passed`);
+  `./scripts/check_documented_commands.sh` passed (`docs=25 references=201`);
+  reuse-mode `ARIS_HEADLESS_RELEASE_REUSE_EXISTING=1 ./scripts/check_headless_release_candidate.sh`
+  passed with `headless_release_candidate_valid`.
+- Verified:     Full `./scripts/check_headless_release_candidate.sh` passed on
+  `v6-headless-simulation-embedded@6a5775e` with `headless_release_candidate_valid`.
+  `./scripts/check_headless_status.sh` reported `headless_ready=yes`, `release_valid=yes`,
+  `evidence_fresh_for_head=yes`, `evidence_freshness_reason=matching_head`,
+  `hardware_scope_active=no`, `real_actuation_enabled=no`, `main_ahead=1`, `v6_ahead=3`, and
+  repeatability margins `runs=0`, `goal_error_m=0.571`, `scan_cloud=175`, `global_path=33`,
+  `cmd=160`.
+- Evidence:     Release report
+  `/home/kotori9/aris/logs/readiness/headless_release_candidate_20260622T122411Z.json`;
+  final evidence index
+  `/home/kotori9/aris/logs/readiness/evidence_index_20260622T122411Z_release.json`;
+  core readiness
+  `/home/kotori9/aris/logs/readiness/core_readiness_20260622T122531Z.log`;
+  headless audit
+  `/home/kotori9/aris/logs/readiness/headless_readiness_audit_20260622T122846Z.json`;
+  repeatability
+  `/home/kotori9/aris/logs/pipeline/core_pipeline_repeatability_20260622T122439Z.json`;
+  V3 compare
+  `/home/kotori9/aris/logs/maps/v3_semantic_map_20260622_122554.compare.json`;
+  branch policy
+  `/home/kotori9/aris/logs/readiness/branch_policy_20260622T122412Z.json`.
+- Blocked:      Local `git push origin v6-headless-simulation-embedded` failed because HTTPS
+  credentials are unavailable in this headless session (`could not read Username for
+  'https://github.com'`). Local commit `6a5775e` has author
+  `snowman0919 <dbsgur123321@gmail.com>` and is one commit ahead of
+  `origin/v6-headless-simulation-embedded`.
+- Next:         Push local commit `6a5775e` to `v6-headless-simulation-embedded`, refresh PR #3,
+  and merge it into `main` so `main` catches up with the latest v6 headless-status diagnostics.
