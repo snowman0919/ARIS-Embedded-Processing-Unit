@@ -20,6 +20,7 @@ latest_file="${report_dir}/latest.log"
   printf 'workspace=%s\n' "$ARIS_WS"
   printf 'git_branch=%s\n' "$(git -C "$ARIS_WS" branch --show-current 2>/dev/null || true)"
   printf 'git_commit=%s\n' "$(git -C "$ARIS_WS" rev-parse --short HEAD 2>/dev/null || true)"
+  printf 'skip_v3=%s\n' "${ARIS_CORE_READINESS_SKIP_V3:-0}"
   printf 'skip_gazebo=%s\n' "${ARIS_CORE_READINESS_SKIP_GAZEBO:-0}"
   printf 'real_actuation=%s\n' "${ARIS_ENABLE_REAL_ACTUATION:-0}"
   printf '\n'

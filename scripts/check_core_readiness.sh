@@ -11,8 +11,13 @@ checks=(
   "check_mcu_serial_loopback.sh"
   "check_scan_cloud_contract.sh"
   "check_operator_goal.sh"
-  "check_v4_goal_nav.sh"
 )
+
+if [[ "${ARIS_CORE_READINESS_SKIP_V3:-0}" != "1" ]]; then
+  checks+=("check_v3_semantic_map.sh")
+fi
+
+checks+=("check_v4_goal_nav.sh")
 
 if [[ "${ARIS_CORE_READINESS_SKIP_GAZEBO:-0}" != "1" ]]; then
   checks+=("check_v2_gazebo_stack.sh")

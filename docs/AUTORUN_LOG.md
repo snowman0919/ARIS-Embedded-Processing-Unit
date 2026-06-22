@@ -587,3 +587,20 @@ Entry format:
   evidence before map updates can be promoted for real driving.
 - Next:         Use the same compare report format with operator-provided datasets and add stricter
   layer-specific thresholds once real sensor noise envelopes are known.
+
+## 2026-06-22 12:23 KST — Readiness: V3 Map Artifact Gate Included — WIP
+- Built:        Added `check_v3_semantic_map.sh` to the default headless core readiness sequence,
+  between operator goal and V4 goal navigation. `run_core_readiness_report.sh` now records
+  `skip_v3`, matching the existing `skip_gazebo` evidence marker. `ARIS_CORE_READINESS_SKIP_V3=1`
+  remains available only for environments that cannot run the V3 map artifact gate.
+- Verified:     `ARIS_CORE_READINESS_SKIP_GAZEBO=1 ./scripts/run_core_readiness_report.sh` passed
+  with `skip_v3=0`, `skip_gazebo=1`, and `result=PASS`. The report was written to
+  `/home/kotori9/aris/logs/readiness/core_readiness_20260622T032252Z.log`. It ran Python tests
+  (`75 passed`), MCU serial loopback, `/scan_cloud` contract, operator goal, V3 semantic map
+  snapshot/manifest/compare (`metric_overlap=1.000`, `route_overlap=1.000`), and V4 goal
+  navigation; the final readiness line was `ARIS core readiness passed (6 checks).`
+- Commit:       Included with the readiness V3 map artifact gate change.
+- Stubbed/blocked: This was a skip-Gazebo readiness run, so V2 Gazebo evidence remains covered by
+  prior full Gazebo stack runs but not by this specific report.
+- Next:         Run a full no-skip core readiness report after the major-branch cleanup, or on the
+  next release candidate when the full Gazebo stack cost is acceptable.
