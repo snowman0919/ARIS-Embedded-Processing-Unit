@@ -1427,5 +1427,18 @@ Entry format:
   passed (`128 passed`); reuse-mode
   `ARIS_HEADLESS_RELEASE_REUSE_EXISTING=1 ./scripts/check_headless_release_candidate.sh` passed
   with `headless_release_candidate_valid`.
-- Next:         Commit and push the documented-script executable gate, then run full
-  `./scripts/check_headless_release_candidate.sh` on the committed HEAD.
+- Verified:     Full `./scripts/check_headless_release_candidate.sh` passed on
+  `milestone/headless-simulation-embedded@0a77e78` with `headless_release_candidate_valid`.
+  The release gate executed the tightened documented-command check before the simulation pipeline.
+- Evidence:     Release report
+  `/home/kotori9/aris/logs/readiness/headless_release_candidate_20260622T083203Z.json`;
+  final evidence index
+  `/home/kotori9/aris/logs/readiness/evidence_index_20260622T083203Z_release.json`;
+  core readiness
+  `/home/kotori9/aris/logs/readiness/core_readiness_20260622T083321Z.log`;
+  headless audit
+  `/home/kotori9/aris/logs/readiness/headless_readiness_audit_20260622T083630Z.json`;
+  repeatability
+  `/home/kotori9/aris/logs/pipeline/core_pipeline_repeatability_20260622T083230Z.json`.
+- Next:         Continue tightening documented bootstrap paths and headless runtime diagnostics on
+  `milestone/headless-simulation-embedded`.
