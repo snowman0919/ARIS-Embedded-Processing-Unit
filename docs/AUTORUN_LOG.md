@@ -456,3 +456,19 @@ Entry format:
   Unitree hardware driver validation, and HIL/field gates.
 - Next:         Promote the physics-fed launch toward the default moving V2 path and add a
   recorded-data localization gate that does not rely on synthetic Gazebo geometry.
+
+## 2026-06-22 11:17 KST — V2: Recorded LiDAR Bag Acceptance Gate — WIP
+- Built:        Added `./scripts/check_v2_recorded_lidar_bag.sh` and
+  `just v2-recorded-lidar-bag-smoke`. The gate launches the Gazebo physics-localization path,
+  records `/cmd_drive`, `/scan_cloud`, `/gazebo/odom`, `/odometry/filtered`, and `/tf` to an MCAP
+  rosbag, then validates `metadata.yaml` topic counts.
+- Verified:     `./scripts/check_v2_recorded_lidar_bag.sh` green. It wrote
+  `/home/kotori9/aris/logs/bags/v2_recorded_lidar_20260622T021652Z` with duration `11.427s`,
+  `721` messages, and counts `/cmd_drive=76`, `/gazebo/odom=321`,
+  `/odometry/filtered=107`, `/scan_cloud=108`, `/tf=109`.
+- Commit:       Included with the recorded LiDAR bag acceptance gate change.
+- Stubbed/blocked: This proves the recorded-data acceptance harness and a replayable synthetic
+  LiDAR bag, but it is not a real LiDAR dataset. Production V2 still needs real/recorded Unitree
+  LiDAR bags, map-generation acceptance, calibrated localization settings, and HIL/field gates.
+- Next:         Add a real-bag validation mode that accepts an operator-provided bag path and
+  applies the same topic/type/count contract before localization replay.

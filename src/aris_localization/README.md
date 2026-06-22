@@ -63,6 +63,15 @@ nix develop -c just v2-gazebo-physics-localization-smoke
 It remaps `/gazebo/odom` to the node's `/wheel_odom` input and requires `/odometry/filtered` to
 follow the physics-driven ARIS entity while the gpu_lidar cloud remains live.
 
+The recorded LiDAR bag smoke captures that same path as replayable evidence:
+
+```bash
+nix develop -c just v2-recorded-lidar-bag-smoke
+```
+
+It writes an MCAP rosbag under `$ARIS_LOGS/bags/` and validates that `/scan_cloud`,
+`/gazebo/odom`, `/odometry/filtered`, `/cmd_drive`, and `/tf` all have enough recorded samples.
+
 The Gazebo drift-recovery smoke uses the same gpu_lidar path as a correction source:
 
 ```bash

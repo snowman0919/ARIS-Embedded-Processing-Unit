@@ -121,3 +121,15 @@ just core-readiness-report
 
 Reports are written to `$ARIS_LOGS/readiness/core_readiness_<timestamp>.log`, with
 `$ARIS_LOGS/readiness/latest.log` pointing at the most recent run.
+
+## 11. Recorded LiDAR Acceptance Gate
+
+The current reproducible recorded-data command is:
+
+```bash
+just v2-recorded-lidar-bag-smoke
+```
+
+It records a short Gazebo physics-localization run to `$ARIS_LOGS/bags/` and validates the rosbag
+metadata for `/scan_cloud`, `/gazebo/odom`, `/odometry/filtered`, `/cmd_drive`, and `/tf`. Real
+LiDAR bags must pass the same topic/type/count contract before they can be accepted as V2 evidence.

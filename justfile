@@ -82,6 +82,10 @@ v2-gazebo-physics-smoke:
 v2-gazebo-physics-localization-smoke:
     ./scripts/check_v2_gazebo_physics_localization.sh
 
+# V2 recorded-data gate: capture a physics-localization LiDAR bag and validate metadata.
+v2-recorded-lidar-bag-smoke:
+    ./scripts/check_v2_recorded_lidar_bag.sh
+
 # V2 probe: drifted wheel odom must be corrected by Gazebo gpu_lidar observations.
 v2-gazebo-drift-smoke:
     ./scripts/check_v2_gazebo_drift_recovery.sh

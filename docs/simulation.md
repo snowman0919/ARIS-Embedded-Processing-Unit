@@ -48,6 +48,7 @@ just v2-gazebo-localization-smoke
 just v2-gazebo-moving-smoke
 just v2-gazebo-physics-smoke
 just v2-gazebo-physics-localization-smoke
+just v2-recorded-lidar-bag-smoke
 just v2-gazebo-drift-smoke
 just v2-gazebo-stack-smoke
 ```
@@ -76,6 +77,11 @@ entity moving while `/scan_cloud` continues to publish.
 `/gazebo/odom` into the localization wheel-odom contract. It verifies that Gazebo physics motion
 feeds `lidar_localization_node`, which then publishes `/odometry/filtered` from live gpu_lidar
 clouds.
+
+`just v2-recorded-lidar-bag-smoke` records the physics-localization path to an MCAP rosbag under
+`$ARIS_LOGS/bags/` and validates metadata counts for `/scan_cloud`, `/gazebo/odom`,
+`/odometry/filtered`, `/cmd_drive`, and `/tf`. This is the recorded-data acceptance harness that
+real LiDAR bags must later satisfy.
 
 `just v2-gazebo-drift-smoke` syncs the Gazebo entity from ground truth while feeding intentionally
 drifted `/wheel_odom` to localization. It verifies that Gazebo gpu_lidar observations reduce the
