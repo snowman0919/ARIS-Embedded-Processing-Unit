@@ -31,6 +31,10 @@ It runs these gates in sequence:
 6. `just core-readiness-report`
 7. `just headless-readiness-audit`
 
+After those steps, `scripts/validate_headless_release_candidate.py` checks that the final release
+report includes every required step, points at the final evidence index, and that the final index
+points back to the release report.
+
 The most recent full run passed and wrote:
 
 - `/home/kotori9/aris/logs/readiness/headless_release_candidate_20260622T064544Z.json`

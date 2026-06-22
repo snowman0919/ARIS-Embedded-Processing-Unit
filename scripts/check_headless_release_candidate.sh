@@ -144,4 +144,8 @@ report.setdefault("evidence", {})["readiness_evidence_index"] = str(index_path.r
 report_path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 PY
 
+"${ARIS_WS}/scripts/validate_headless_release_candidate.py" \
+  "$report_file" \
+  --index "$final_index_file"
+
 exit "$overall_status"

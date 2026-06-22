@@ -212,7 +212,9 @@ audit in sequence. It writes
 `$ARIS_LOGS/readiness/headless_release_candidate_<timestamp>.json` and updates
 `$ARIS_LOGS/readiness/latest_headless_release_candidate.json`. At the end of the run it also
 refreshes `$ARIS_LOGS/readiness/latest_evidence_index.json` so the index links back to the release
-candidate report that produced it.
+candidate report that produced it. The final report is validated by
+`scripts/validate_headless_release_candidate.py`, which requires every release step to pass and
+requires the release report and final evidence index to point at each other.
 
 ## 13. Operational Readiness Audit
 

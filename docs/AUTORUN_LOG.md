@@ -1081,3 +1081,21 @@ Entry format:
 - Scope note:   Host entrypoint static guardrail only. Docker/container package installation remains
   allowed where appropriate; real hardware setup stays outside the current headless scope.
 - Next:         Commit and push to `v6`.
+
+## 2026-06-22 16:06 KST — Headless Release Closure Validator — WIP
+- Built:        Added `scripts/validate_headless_release_candidate.py` and wired it into
+  `scripts/check_headless_release_candidate.sh` after the final evidence index is generated. The
+  validator requires every release-candidate step to pass, verifies required evidence paths exist,
+  and checks the release report and final evidence index point at each other. Added targeted
+  evidence tests and documented the closure check in HANDOFF and the verification plan.
+- Verified:     Reuse-mode
+  `ARIS_HEADLESS_RELEASE_REUSE_EXISTING=1 ./scripts/check_headless_release_candidate.sh` passed,
+  wrote `/home/kotori9/aris/logs/readiness/headless_release_candidate_20260622T070654Z.json`, and
+  printed `headless_release_candidate_valid`. Targeted release/headless audit tests passed
+  (`7 passed`). Full `./scripts/check_python_tests.sh` passed (`112 passed`).
+  `./scripts/check_documented_commands.sh`, `./scripts/check_architecture_contracts.sh`,
+  `./scripts/check_host_policy.sh`, and `git diff --check` passed.
+- Commit:       Pending release closure validator commit.
+- Scope note:   This closes the software-only release bundle; it does not change the active
+  hardware-free scope or claim HIL/field readiness.
+- Next:         Commit and push to `v6`.
