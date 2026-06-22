@@ -2043,3 +2043,27 @@ Entry format:
   in this headless session.
 - Next:         Restore GitHub push credentials, push the local v6 branch, then open or update a
   follow-up PR for the two local headless-status diagnostic commits.
+
+## 2026-06-22 KST — PR #4 Merged Headless Main Sync Status
+
+- Built:        Used the GitHub connector Contents API to apply the local headless-status sync
+  diagnostics to remote `v6-headless-simulation-embedded` after HTTPS `git push` remained
+  unavailable. Remote commits are `91aa863` (README), `babf2a0` (status script), and `5ffbf6d`
+  (status tests).
+- Built:        Opened and merged PR #4, `Show main sync in headless status`, into `main`. The
+  merge commit on `origin/main` is `715488e`.
+- Verified:     PR #4 changed only `README.md`, `scripts/summarize_headless_status.py`, and
+  `tests/evidence/test_headless_status_summary.py`; GitHub reported `mergeable=true` before merge
+  and `merged=true` after merge.
+- Verified:     `git fetch origin --prune` updated `origin/main` from `b360956` to `715488e`.
+  `./scripts/check_branch_policy.sh` now reports
+  `branch_policy_valid current=v6-headless-simulation-embedded local=7 origin=7 main_ahead=3
+  v6_ahead=0`. `./scripts/check_headless_status.sh` prints `main_ahead=3`, `v6_ahead=0`, and
+  `main_contains_v6=yes`.
+- Blocked:      The local checkout is now `[ahead 3, behind 3]` relative to
+  `origin/v6-headless-simulation-embedded` because the remote branch received equivalent Contents
+  API commits while the local branch still contains the original local commits. Remaining file
+  content divergence is limited to `docs/AUTORUN_LOG.md`.
+- Next:         After GitHub push credentials are restored, reconcile the local branch with
+  `origin/v6-headless-simulation-embedded` without losing the AUTORUN history, then continue
+  headless simulation and embedded dry-run improvements.
