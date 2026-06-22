@@ -70,4 +70,6 @@ just headless-release-candidate
 
 It records embedded dry-run, core pipeline flow, no-skip core readiness, and headless audit
 artifacts under `$ARIS_LOGS`. This is the authoritative software-only readiness bundle for the
-current `v6` branch. It does not claim HIL, real sensor, real actuator, or field readiness.
+current `milestone/headless-simulation-embedded` branch. It also records bootstrap doctor,
+documented command validation, host/branch policy gates, and sampled repeatability evidence. It
+does not claim HIL, real sensor, real actuator, or field readiness.

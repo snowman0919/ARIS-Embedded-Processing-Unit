@@ -47,6 +47,11 @@ just architecture-contracts
 ```bash
 just host-policy
 ```
+- Local and `origin/*` branches use approved ARIS feature/milestone names:
+
+```bash
+just branch-policy
+```
 
 ## 3. Communication Tests
 
@@ -128,15 +133,16 @@ Remote branches are ARIS feature/milestone baselines, not task branches:
 
 | Branch | Meaning |
 |---|---|
-| `v1` | V1 teach-and-repeat route replay baseline |
-| `v2` | V2 LiDAR localization, Gazebo, and recorded-bag evidence baseline |
-| `v3` | V3 semantic map artifact, manifest, and repeat-pass compare baseline |
-| `v4` | V4 route graph and goal-based navigation baseline |
-| `v5` | V5 dynamic obstacle advisory, tracking, and recorded replay baseline |
-| `v6` | V6 advisory-only semantic review and current headless integration baseline |
+| `milestone/teach-repeat-route-replay` | V1 teach-and-repeat route replay baseline |
+| `milestone/lidar-localization-gazebo` | V2 LiDAR localization, Gazebo, and recorded-bag evidence baseline |
+| `milestone/semantic-hd-map` | V3 semantic map artifact, manifest, and repeat-pass compare baseline |
+| `milestone/goal-based-navigation` | V4 route graph and goal-based navigation baseline |
+| `milestone/dynamic-obstacle-advisory` | V5 dynamic obstacle advisory, tracking, and recorded replay baseline |
+| `milestone/headless-simulation-embedded` | Current hardware-free simulation and embedded-software integration baseline |
 
-Task-level remote branches such as `codex/v2-*` or `codex/v3-*` should not be kept. New changes
-advance the relevant ARIS milestone branch after their evidence is recorded.
+Task-level remote branches such as `codex/v2-*` or `codex/v3-*`, and version-only branches such as
+`v6`, should not be kept. New changes advance the relevant ARIS milestone branch after their
+evidence is recorded. The `just branch-policy` gate enforces this local/origin branch set.
 
 Current hardware scope is headless. No serial, CAN, camera, LiDAR, actuator, or vehicle bench
 hardware is assumed to be attached. HIL and field sections below define future evidence contracts;
@@ -178,7 +184,8 @@ just core-pipeline-repeatability
 ```
 
 By default it runs `core-pipeline-flow` twice, requires both runs to pass all six stages, requires
-the route-graph node path to remain stable, and bounds final goal-error spread. Set
+the route-graph node path to remain stable, bounds final goal-error spread, and records minimum
+sample floors across the repeated runs for `/scan_cloud`, `/global_path`, and `/cmd_drive`. Set
 `ARIS_CORE_PIPELINE_REPEAT_RUNS=<N>` to increase the repeat count. It writes
 `$ARIS_LOGS/pipeline/core_pipeline_repeatability_<timestamp>.json`.
 
@@ -227,8 +234,8 @@ just headless-release-candidate
 ```
 
 It runs bootstrap doctor, embedded dry-run, documented-command validation, architecture-contract
-validation, host-policy validation, core pipeline flow, core pipeline repeatability, no-skip core
-readiness report, and headless readiness audit in sequence. It writes
+validation, host-policy validation, branch-policy validation, core pipeline flow, core pipeline
+repeatability, no-skip core readiness report, and headless readiness audit in sequence. It writes
 `$ARIS_LOGS/readiness/headless_release_candidate_<timestamp>.json` and updates
 `$ARIS_LOGS/readiness/latest_headless_release_candidate.json`. At the end of the run it also
 refreshes `$ARIS_LOGS/readiness/latest_evidence_index.json` so the index links back to the release
@@ -243,6 +250,8 @@ just headless-status
 ```
 
 The same summary is available as JSON with `./scripts/check_headless_status.sh --json`.
+The text and JSON summaries include repeatability sample floors so operators can see whether the
+latest repeated run observed enough LiDAR clouds, global-path points, and command samples.
 
 ## 13. Operational Readiness Audit
 

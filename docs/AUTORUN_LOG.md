@@ -1442,3 +1442,17 @@ Entry format:
   `/home/kotori9/aris/logs/pipeline/core_pipeline_repeatability_20260622T083230Z.json`.
 - Next:         Continue tightening documented bootstrap paths and headless runtime diagnostics on
   `milestone/headless-simulation-embedded`.
+
+## 2026-06-22 KST — Verification Docs Match Named Milestone Branches — WIP
+
+- Built:        Updated `docs/verification_plan.md` and `docs/architecture_mapping.md` to remove
+  stale version-only branch policy text, name `milestone/headless-simulation-embedded` as the
+  current hardware-free integration branch, and describe the current release-candidate sequence
+  including branch-policy validation and sampled repeatability floors.
+- Verified:     `./scripts/check_documented_commands.sh` passed (`docs=25 references=190`).
+  Targeted documented-command/branch-policy tests passed (`4 passed`); full
+  `./scripts/check_python_tests.sh` passed (`128 passed`); reuse-mode
+  `ARIS_HEADLESS_RELEASE_REUSE_EXISTING=1 ./scripts/check_headless_release_candidate.sh` passed
+  with `headless_release_candidate_valid`.
+- Next:         Commit and push the verification-document refresh, then run full
+  `./scripts/check_headless_release_candidate.sh` on the committed HEAD.
