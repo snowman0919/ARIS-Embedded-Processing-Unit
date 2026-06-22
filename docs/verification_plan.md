@@ -136,6 +136,17 @@ skip weakens the evidence and must be recorded in the run log. Set
 `ARIS_CORE_READINESS_SKIP_GAZEBO=1` only when the environment cannot run headless Gazebo; that skip
 weakens the evidence and must be recorded in the run log.
 
+The cross-milestone pipeline flow command is:
+
+```bash
+just core-pipeline-flow
+```
+
+It generates a Semantic HD Map snapshot, validates its route graph, launches the V4 planner with
+that snapshot as `semantic_map_file`, and verifies Mapping -> Semantic HD Map -> Route Graph ->
+Localization -> Goal Based Planning -> Autonomous Driving evidence in one JSON report under
+`$ARIS_LOGS/pipeline/`.
+
 To store timestamped evidence:
 
 ```bash

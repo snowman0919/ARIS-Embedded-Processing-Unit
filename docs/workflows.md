@@ -47,6 +47,17 @@ sequenceDiagram
     HAL->>GUI: /vehicle/state
 ```
 
+Current headless integration evidence:
+
+```bash
+just core-pipeline-flow
+```
+
+This creates a V3 `SemanticHDMap` snapshot artifact, validates its semantic and route-graph layers,
+launches the V4 goal-navigation stack with that snapshot as the planner map source, and verifies
+LiDAR localization, `/global_path`, and `/cmd_drive` samples through the simulator. The report is
+written to `$ARIS_LOGS/pipeline/core_pipeline_flow_<timestamp>.json`.
+
 ## 3. Boot Workflow
 
 1. Power on.

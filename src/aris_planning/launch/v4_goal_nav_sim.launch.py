@@ -14,6 +14,7 @@ def generate_launch_description():
     route_file = LaunchConfiguration("route_file")
     use_demo_graph = LaunchConfiguration("use_demo_graph")
     enable_dynamic_obstacles = LaunchConfiguration("enable_dynamic_obstacles")
+    semantic_map_file = LaunchConfiguration("semantic_map_file")
     description_launch = str(
         Path(get_package_share_directory("aris_description")) / "launch" / "description.launch.py"
     )
@@ -33,6 +34,11 @@ def generate_launch_description():
                 "enable_dynamic_obstacles",
                 default_value="false",
                 description="Enable V5 /scan_cloud dynamic-obstacle advisory publishing.",
+            ),
+            DeclareLaunchArgument(
+                "semantic_map_file",
+                default_value="",
+                description="Optional V3 SemanticHDMap snapshot used as the V4 route graph source.",
             ),
             IncludeLaunchDescription(
                 PythonLaunchDescriptionSource(description_launch),
@@ -101,6 +107,7 @@ def generate_launch_description():
                         "semantic_weight": 10.0,
                         "route_file": route_file,
                         "use_demo_graph": ParameterValue(use_demo_graph, value_type=bool),
+                        "semantic_map_file": semantic_map_file,
                     }
                 ],
             ),

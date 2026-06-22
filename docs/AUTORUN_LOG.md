@@ -948,3 +948,27 @@ Entry format:
 - Scope note:   This does not claim real-actuation readiness. No hardware is connected; HIL and
   field validation remain inactive until the project enters a hardware-attached milestone.
 - Next:         Commit and push to `v6`.
+
+## 2026-06-22 15:42 KST — Core Pipeline Flow: V3 Map Artifact Feeds V4 Planner — WIP
+- Built:        Added `semantic_map_file` support to `global_planner_node` and
+  `v4_goal_nav_sim.launch.py`, plus ROS-free `load_semantic_map_graph()` validation in
+  `route_graph.py`. Added `scripts/check_core_pipeline_flow.sh` and `just core-pipeline-flow` so
+  the current headless stack verifies Mapping -> Semantic HD Map -> Route Graph -> Localization ->
+  Goal Based Planning -> Autonomous Driving in one report. The headless readiness audit now
+  requires this core pipeline flow report.
+- Verified:     `./scripts/check_core_pipeline_flow.sh` passed and wrote
+  `/home/kotori9/aris/logs/pipeline/core_pipeline_flow_20260622T064223Z.json` with `valid=true`.
+  The route graph came from
+  `/aris/logs/maps/core_pipeline_semantic_map_20260622T064223Z.json`, selected detour node path
+  `approach -> detour_a -> detour_b -> detour_c -> goal`, observed `173` `/scan_cloud` samples,
+  `180` `/cmd_drive` samples, max command speed `1.386 m/s`, and final goal error `0.715 m`.
+  A refreshed headless audit at
+  `/home/kotori9/aris/logs/readiness/headless_readiness_audit_20260622T064302Z.json` reports
+  `headless_ready=true` with zero blockers and includes the core pipeline flow criterion.
+- Build/tests:  Full `./scripts/check_python_tests.sh` passed (`106 passed`); targeted planner and
+  evidence tests passed (`7 passed`); `python3 -m py_compile`, `bash -n`, and `git diff --check`
+  passed.
+- Commit:       Pending core pipeline flow commit.
+- Scope note:   This is headless simulation and software evidence. It does not claim HIL, real
+  sensor, real actuator, or field readiness.
+- Next:         Commit and push to `v6`.

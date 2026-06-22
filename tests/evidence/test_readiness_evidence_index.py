@@ -16,6 +16,7 @@ def test_readiness_evidence_index_collects_latest_artifacts(tmp_path):
     hil = logs / "hil"
     field = logs / "field"
     embedded = logs / "embedded"
+    pipeline = logs / "pipeline"
     readiness.mkdir(parents=True)
     bags.mkdir(parents=True)
     maps.mkdir(parents=True)
@@ -23,6 +24,7 @@ def test_readiness_evidence_index_collects_latest_artifacts(tmp_path):
     hil.mkdir(parents=True)
     field.mkdir(parents=True)
     embedded.mkdir(parents=True)
+    pipeline.mkdir(parents=True)
 
     (readiness / "core_readiness_20260101T000000Z.log").write_text(
         "timestamp_utc=20260101T000000Z\n"
@@ -98,6 +100,11 @@ def test_readiness_evidence_index_collects_latest_artifacts(tmp_path):
         "valid": True,
         "hardware_required": False,
     }
+    pipeline_report = {
+        "artifact_type": "aris_core_pipeline_flow_report",
+        "valid": True,
+        "stages": {"autonomous_driving": {"passed": True}},
+    }
     field_report = {
         "artifact_type": "aris_field_validation_report",
         "valid": False,
@@ -134,6 +141,10 @@ def test_readiness_evidence_index_collects_latest_artifacts(tmp_path):
         json.dumps(embedded_report),
         encoding="utf-8",
     )
+    (pipeline / "core_pipeline_flow_20260101T000000Z.json").write_text(
+        json.dumps(pipeline_report),
+        encoding="utf-8",
+    )
 
     index = generate_index(tmp_path / "workspace", logs)
 
@@ -162,3 +173,5 @@ def test_readiness_evidence_index_collects_latest_artifacts(tmp_path):
     assert index["headless_readiness_audit"]["report_path"].endswith(".json")
     assert index["embedded_dry_run"]["report"]["valid"] is True
     assert index["embedded_dry_run"]["report_path"].endswith(".json")
+    assert index["core_pipeline_flow"]["report"]["valid"] is True
+    assert index["core_pipeline_flow"]["report_path"].endswith(".json")

@@ -42,6 +42,9 @@ sim:
 auto-sim:
     ./scripts/check_autonomous_sim.sh
 
+core-pipeline-flow:
+    ./scripts/check_core_pipeline_flow.sh
+
 # V0 manual driving: bring up the sim stack in teleop mode (Ctrl-C to stop).
 teleop:
     ./scripts/run_ros2.sh ros2 launch aris_bringup bringup.launch.py use_sim:=true mode:=teleop

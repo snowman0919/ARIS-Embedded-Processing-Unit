@@ -104,6 +104,7 @@ def generate_index(workspace: Path, logs_dir: Path) -> dict[str, Any]:
     hil_preflight = _latest(list((logs_dir / "hil").glob("hil_preflight_*.json")))
     field_validation = _latest(list((logs_dir / "field").glob("field_validation_*.json")))
     embedded_dry_run = _latest(list((logs_dir / "embedded").glob("embedded_dry_run_*.json")))
+    core_pipeline_flow = _latest(list((logs_dir / "pipeline").glob("core_pipeline_flow_*.json")))
     operational_audit = _latest(list((logs_dir / "readiness").glob("operational_readiness_audit_*.json")))
     headless_audit = _latest(list((logs_dir / "readiness").glob("headless_readiness_audit_*.json")))
     bag_metadata = _latest_bag_metadata(logs_dir)
@@ -149,6 +150,10 @@ def generate_index(workspace: Path, logs_dir: Path) -> dict[str, Any]:
         "embedded_dry_run": {
             "report": _read_json(embedded_dry_run),
             "report_path": str(embedded_dry_run) if embedded_dry_run else None,
+        },
+        "core_pipeline_flow": {
+            "report": _read_json(core_pipeline_flow),
+            "report_path": str(core_pipeline_flow) if core_pipeline_flow else None,
         },
         "operational_readiness_audit": {
             "report": _read_json(operational_audit),

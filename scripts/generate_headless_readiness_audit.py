@@ -55,6 +55,7 @@ def generate_audit(workspace: Path, logs_dir: Path) -> dict[str, Any]:
         "v5_obstacle_bag_replay_*.json",
     )
     v6_path, latest_v6_report = _latest_json(logs_dir, "maps", "v3_semantic_map_*.v6_review.json")
+    pipeline_path, latest_pipeline_report = _latest_json(logs_dir, "pipeline", "core_pipeline_flow_*.json")
 
     criteria: dict[str, dict[str, Any]] = {}
     readiness = (index or {}).get("readiness") or {}
@@ -111,6 +112,35 @@ def generate_audit(workspace: Path, logs_dir: Path) -> dict[str, Any]:
             "control_authority": review.get("control_authority"),
         },
         [] if semantic_passed else ["valid V3 manifest/compare and advisory-only V6 review evidence are required"],
+    )
+
+    pipeline_index = (index or {}).get("core_pipeline_flow") or {}
+    pipeline_report = pipeline_index.get("report") or latest_pipeline_report or {}
+    pipeline_stages = pipeline_report.get("stages") or {}
+    required_pipeline_stages = (
+        "mapping",
+        "semantic_hd_map",
+        "route_graph",
+        "localization",
+        "goal_based_planning",
+        "autonomous_driving",
+    )
+    pipeline_passed = pipeline_report.get("valid") is True and all(
+        (pipeline_stages.get(stage) or {}).get("passed") is True
+        for stage in required_pipeline_stages
+    )
+    criteria["core_pipeline_flow"] = _criterion(
+        pipeline_passed,
+        {
+            "report_path": pipeline_index.get("report_path") or (str(pipeline_path) if pipeline_path else None),
+            "valid": pipeline_report.get("valid"),
+            "semantic_map_snapshot": pipeline_report.get("semantic_map_snapshot"),
+            "stages": {
+                stage: (pipeline_stages.get(stage) or {}).get("passed")
+                for stage in required_pipeline_stages
+            },
+        },
+        [] if pipeline_passed else ["valid core pipeline flow report is missing"],
     )
 
     v5 = (index or {}).get("v5_dynamic_obstacle") or {}
