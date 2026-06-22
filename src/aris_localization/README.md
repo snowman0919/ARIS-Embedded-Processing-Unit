@@ -23,6 +23,16 @@ publish a normalized PointCloud2 sample with the ARIS `/scan_cloud` contract:
 nix develop -c just v2-lidar-smoke
 ```
 
+The static Gazebo localization smoke extends that path into `lidar_localization_node`:
+
+```bash
+nix develop -c just v2-gazebo-localization-smoke
+```
+
+It verifies `/scan_cloud`, `/odometry/filtered`, and `map->odom` in one launch. It does not yet
+sync a moving Gazebo entity pose with the vehicle simulator; that remains the next Gazebo
+integration gap.
+
 This is still a V2 scaffold, not production localization. Full V2 still needs real Unitree profile
 values, recorded LiDAR data, map generation, NDT/EKF selection, and hardware validation.
 

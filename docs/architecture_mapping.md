@@ -14,7 +14,7 @@ This document maps the PDF requirements to the current repository and identifies
 | 500 m x 500 m ODD | architecture docs | Needs detailed ODD limits |
 | Semantic HD Map | `aris_mapping` target package | Scaffold/target, production map incomplete |
 | Route Graph | `aris_planning` target logic, route graph references | Simulation scaffold, production graph incomplete |
-| LiDAR-first localization | `aris_localization`, Gazebo `/scan_cloud`, V2A known-map localization scaffold | Real Unitree/NDT/EKF work remains |
+| LiDAR-first localization | `aris_localization`, Gazebo `/scan_cloud`, static Gazebo localization smoke, V2A known-map localization scaffold | Real Unitree/NDT/EKF work remains |
 | Goal-based planning | `aris_planning` | Simulation/early route work, GUI goal flow incomplete |
 | Pure Pursuit baseline | `aris_planning` | Present in current stack |
 | MPC advanced local planner | none | Future work |
@@ -36,7 +36,7 @@ This document maps the PDF requirements to the current repository and identifies
 |---|---|---|---|
 | V0 | Manual/sim/dry-run contract foundation | Hardware-safe manual bench flow | `/cmd_drive`, `/vehicle/state`, E-stop evidence |
 | V1 | Teach-and-repeat route replay | Drift-bounded real/sensor-backed replay | route load, tracking error report |
-| V2 | Gazebo gpu_lidar `/scan_cloud`, deterministic LiDAR surrogate, V2A known-map localization scaffold | Unitree L2 driver, production NDT/EKF, GPS/camera correction, real map generation | Gazebo/real drift and relocalization metrics |
+| V2 | Gazebo gpu_lidar `/scan_cloud`, static Gazebo localization smoke, deterministic LiDAR surrogate, V2A known-map localization scaffold | Moving Gazebo pose sync, Unitree L2 driver, production NDT/EKF, GPS/camera correction, real map generation | Gazebo/real drift and relocalization metrics |
 | V3 | Semantic map target/scaffold | 5-layer persisted map, camera segmentation, review workflow | map version with layers and confidence |
 | V4 | Goal navigation target/scaffold | GUI goal selection, production route graph, no-go handling | multiple goals, route differences, arrival |
 | V5 | Obstacle avoidance target | dynamic obstacle detection and local replan | stop/avoid timing and false positive report |

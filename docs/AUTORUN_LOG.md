@@ -369,17 +369,23 @@ Entry format:
 - Built:        Added physical inertial/collision properties to the shared ARIS URDF so Gazebo
   can spawn the model from xacro. Added `aris_perception.gazebo_cloud_adapter_node`, changed
   `v2_gazebo_lidar.launch.py` to bridge raw Gazebo cloud data to `/gazebo/scan_cloud`, and
-  normalized it back to the ARIS `/scan_cloud` contract.
+  normalized it back to the ARIS `/scan_cloud` contract. Added a matching Gazebo smoke map,
+  `v2_gazebo_localization.launch.py`, `just v2-gazebo-localization-smoke`, and the direct script
+  `./scripts/check_v2_gazebo_localization.sh`.
 - Verified:     `./scripts/check_v2_gazebo_lidar.sh` green. The headless Gazebo world spawned
   the URDF, generated a gpu_lidar cloud, and the normalized ROS sample had
   `frame=lidar_link`, `width=10240`, `point_step=24`, fields
   `x/y/z/intensity/ring/time`, and `finite_samples=128`.
+  `./scripts/check_v2_gazebo_localization.sh` green: `cloud_width=10240`,
+  `filtered=(0.000,0.000,0.000)`, `map_to_odom=(0.000,0.000)`.
 - Build/tests:  `./scripts/check_python_tests.sh` green (`60 passed`);
   `./scripts/check_scan_cloud_contract.sh` green for the deterministic LiDAR surrogate
   (`frame=lidar_link`, `width=868`, `point_step=24`, TF `(0.600,0.000,0.900)`).
 - Commit:       not committed in this run.
 - Stubbed/blocked: Full V2 is still not production complete. This repairs the Gazebo sensor
-  smoke path, but does not add real Unitree driver validation, recorded data, SLAM map generation,
-  production NDT/EKF selection, or hardware-in-the-loop localization acceptance.
-- Next:         Use the now-working Gazebo `/scan_cloud` path to add a Gazebo-backed localization
-  smoke, then compare it against the deterministic LiDAR surrogate and tighten V2A toward full V2.
+  smoke path and static localization data flow, but does not add moving Gazebo entity pose sync,
+  real Unitree driver validation, recorded data, SLAM map generation, production NDT/EKF selection,
+  or hardware-in-the-loop localization acceptance.
+- Next:         Add Gazebo entity pose sync or a Gazebo-controlled odometry source so the
+  localization smoke can move through the world, then compare it against the deterministic LiDAR
+  surrogate and tighten V2A toward full V2.
