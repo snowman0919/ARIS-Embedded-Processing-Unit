@@ -106,8 +106,29 @@ def test_headless_status_summary_collects_latest_evidence(tmp_path):
             "main_contains_v6": False,
         },
     }
+    operational_audit = {
+        "artifact_type": "aris_operational_readiness_audit",
+        "achieved": False,
+        "scope_status": {
+            "current_scope": "headless_simulation_embedded",
+            "headless_simulation_embedded_ready": True,
+            "hardware_evidence_ready": False,
+            "full_operational_ready": False,
+            "remaining_evidence": [
+                {"criterion": "hil_preflight", "blockers": ["HIL preflight is not ready"]},
+                {
+                    "criterion": "field_validation",
+                    "blockers": ["closed-site field validation evidence is missing"],
+                },
+            ],
+        },
+    }
     (readiness / "latest_headless_release_candidate.json").write_text(json.dumps(release), encoding="utf-8")
     (readiness / "latest_headless_readiness_audit.json").write_text(json.dumps(audit), encoding="utf-8")
+    (readiness / "latest_operational_readiness_audit.json").write_text(
+        json.dumps(operational_audit),
+        encoding="utf-8",
+    )
     (readiness / "latest_evidence_index.json").write_text(json.dumps(index), encoding="utf-8")
     (readiness / "latest_branch_policy.json").write_text(json.dumps(branch_policy), encoding="utf-8")
     (pipeline / "latest_core_pipeline_repeatability.json").write_text(json.dumps(repeat), encoding="utf-8")
@@ -126,6 +147,7 @@ def test_headless_status_summary_collects_latest_evidence(tmp_path):
         "real_actuation_enabled": False,
         "safe_to_enable_real_actuation": False,
     }
+    assert summary["operational_scope"] == operational_audit["scope_status"]
     assert summary["core_pipeline"]["node_path"] == ["approach", "goal"]
     assert summary["repeatability"]["runs_completed"] == 2
     assert summary["repeatability"]["scan_cloud_samples_min"] == 12
@@ -157,7 +179,11 @@ def test_headless_status_summary_collects_latest_evidence(tmp_path):
     assert summary["release_evidence"]["embedded_dry_run"].endswith("embedded.json")
     assert summary["evidence_age"]["headless_release_candidate"]["age_seconds"] is not None
     assert summary["evidence_age"]["headless_release_candidate"]["mtime_utc"].endswith("Z")
+    assert summary["evidence_age"]["operational_readiness_audit"]["age_seconds"] is not None
     assert summary["evidence_age"]["branch_policy"]["age_seconds"] is not None
+    assert summary["evidence"]["operational_readiness_audit"].endswith(
+        "latest_operational_readiness_audit.json"
+    )
     assert summary["evidence"]["branch_policy"].endswith("latest_branch_policy.json")
     assert "headless_ready: yes" in text
     assert "evidence_fresh_for_head: no" in text
@@ -165,6 +191,12 @@ def test_headless_status_summary_collects_latest_evidence(tmp_path):
     assert "hardware_scope_active: no" in text
     assert "real_actuation_enabled: no" in text
     assert "safe_to_enable_real_actuation: no" in text
+    assert "Operational scope" in text
+    assert "current_scope: headless_simulation_embedded" in text
+    assert "headless_simulation_embedded_ready: yes" in text
+    assert "hardware_evidence_ready: no" in text
+    assert "full_operational_ready: no" in text
+    assert "remaining_evidence: hil_preflight, field_validation" in text
     assert "Release steps" in text
     assert "embedded_dry_run: pass exit_code=0" in text
     assert "core_pipeline_repeatability: pass exit_code=0" in text
