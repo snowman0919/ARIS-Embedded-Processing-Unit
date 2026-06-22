@@ -24,9 +24,10 @@ just headless-release-candidate
 It runs these gates in sequence:
 
 1. `just embedded-dry-run`
-2. `just core-pipeline-flow`
-3. `just core-readiness-report`
-4. `just headless-readiness-audit`
+2. `just documented-commands`
+3. `just core-pipeline-flow`
+4. `just core-readiness-report`
+5. `just headless-readiness-audit`
 
 The most recent full run passed and wrote:
 
@@ -87,6 +88,7 @@ Build and test:
 just docker-build
 just ros2-build
 just python-test
+just documented-commands
 just core-readiness-report
 just core-pipeline-flow
 just headless-release-candidate

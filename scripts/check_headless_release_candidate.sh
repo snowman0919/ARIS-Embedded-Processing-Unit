@@ -37,11 +37,15 @@ run_step() {
 overall_status=0
 if [[ "${ARIS_HEADLESS_RELEASE_REUSE_EXISTING:-0}" == "1" ]]; then
   printf '%s\t%s\t%s\t%s\n' embedded_dry_run 0 "$timestamp" "$timestamp" >>"$steps_file"
+  printf '%s\t%s\t%s\t%s\n' documented_commands 0 "$timestamp" "$timestamp" >>"$steps_file"
   printf '%s\t%s\t%s\t%s\n' core_pipeline_flow 0 "$timestamp" "$timestamp" >>"$steps_file"
   printf '%s\t%s\t%s\t%s\n' core_readiness_report 0 "$timestamp" "$timestamp" >>"$steps_file"
   printf '%s\t%s\t%s\t%s\n' headless_readiness_audit 0 "$timestamp" "$timestamp" >>"$steps_file"
 else
   run_step embedded_dry_run "${ARIS_WS}/scripts/check_embedded_dry_run.sh" || overall_status=$?
+  if [[ "$overall_status" == "0" ]]; then
+    run_step documented_commands "${ARIS_WS}/scripts/check_documented_commands.sh" || overall_status=$?
+  fi
   if [[ "$overall_status" == "0" ]]; then
     run_step core_pipeline_flow "${ARIS_WS}/scripts/check_core_pipeline_flow.sh" || overall_status=$?
   fi

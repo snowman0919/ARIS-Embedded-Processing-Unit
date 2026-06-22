@@ -36,6 +36,9 @@ ros2-test:
 python-test:
     ./scripts/check_python_tests.sh
 
+documented-commands:
+    ./scripts/check_documented_commands.sh
+
 sim:
     ./scripts/check_sim.sh
 

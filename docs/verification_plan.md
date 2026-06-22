@@ -23,6 +23,11 @@ This document defines the verification checklist for the final architecture fram
 - `/vehicle/state` is published by sim HAL and MCU HAL.
 - `map -> odom -> base_link` TF tree exists.
 - AI layer has no publisher path to `/cmd_drive` or MCU control commands.
+- Current README/docs command references resolve to real Just recipes or scripts:
+
+```bash
+just documented-commands
+```
 
 ## 3. Communication Tests
 
@@ -191,8 +196,8 @@ For a release-candidate style run on a headless machine, use:
 just headless-release-candidate
 ```
 
-It runs embedded dry-run, core pipeline flow, no-skip core readiness report, and headless readiness
-audit in sequence. It writes
+It runs embedded dry-run, documented-command validation, core pipeline flow, no-skip core readiness
+report, and headless readiness audit in sequence. It writes
 `$ARIS_LOGS/readiness/headless_release_candidate_<timestamp>.json` and updates
 `$ARIS_LOGS/readiness/latest_headless_release_candidate.json`. At the end of the run it also
 refreshes `$ARIS_LOGS/readiness/latest_evidence_index.json` so the index links back to the release

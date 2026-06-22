@@ -1029,3 +1029,19 @@ Entry format:
 - Commit:       Pending handoff refresh commit.
 - Scope note:   Documentation-only change; no runtime behavior changed.
 - Next:         Commit and push to `v6`.
+
+## 2026-06-22 15:55 KST — Documented Command Consistency Gate — WIP
+- Built:        Added `scripts/check_documented_commands.py`,
+  `scripts/check_documented_commands.sh`, and `just documented-commands`. The checker scans the
+  current README/docs command references, excluding the historical AUTORUN log, and verifies that
+  documented `just` recipes and `./scripts/...` paths resolve locally. Added this gate to
+  `just headless-release-candidate`.
+- Verified:     `./scripts/check_documented_commands.sh` passed with `docs=25` and
+  `references=155`. `ARIS_HEADLESS_RELEASE_REUSE_EXISTING=1 ./scripts/check_headless_release_candidate.sh`
+  passed and the release report includes a passing `documented_commands` step. Full
+  `./scripts/check_python_tests.sh` passed (`107 passed`); targeted documented-command/evidence
+  tests passed (`2 passed`); `bash -n`, `python3 -m py_compile`, and `git diff --check` passed.
+- Commit:       Pending documented-command gate commit.
+- Scope note:   This is a reproducibility guard for current docs and scripts; it does not exercise
+  the full ROS/Gazebo runtime by itself.
+- Next:         Commit and push to `v6`.
