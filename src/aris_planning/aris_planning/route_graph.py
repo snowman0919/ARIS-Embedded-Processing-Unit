@@ -5,6 +5,7 @@ from __future__ import annotations
 import heapq
 import math
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Iterable
 
 from aris_mapping.semantic_map import RouteEdge, RouteNode, SemanticHDMap
@@ -97,6 +98,15 @@ def build_bidirectional_edges(edges: Iterable[RouteEdge]) -> list[RouteEdge]:
             )
         )
     return graph_edges
+
+
+def load_semantic_map_graph(semantic_map_file: str | Path) -> SemanticHDMap:
+    hd_map = SemanticHDMap.load_snapshot(semantic_map_file)
+    if not hd_map.route_nodes:
+        raise ValueError(f"semantic map snapshot has no route nodes: {semantic_map_file}")
+    if not hd_map.route_edges:
+        raise ValueError(f"semantic map snapshot has no route edges: {semantic_map_file}")
+    return hd_map
 
 
 def densify_path(points: list[tuple[float, float]], spacing_m: float = 0.3) -> list[tuple[float, float]]:

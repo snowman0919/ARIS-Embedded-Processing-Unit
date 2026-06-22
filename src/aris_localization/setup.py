@@ -25,6 +25,7 @@ setup(
     tests_require=["pytest"],
     entry_points={
         "console_scripts": [
+            "gazebo_pose_sync_node = aris_localization.gazebo_pose_sync_node:main",
             "lidar_localization_node = aris_localization.lidar_localization_node:main",
         ],
     },

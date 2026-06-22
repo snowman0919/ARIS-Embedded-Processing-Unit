@@ -126,11 +126,15 @@ class GazeboCloudAdapterNode(Node):
         self.declare_parameter("output_topic", "/scan_cloud")
         self.declare_parameter("target_frame", "lidar_link")
         self.declare_parameter("scan_period_s", 0.1)
+        self.declare_parameter("stamp_with_receive_time", False)
 
         input_topic = str(self.get_parameter("input_topic").value)
         output_topic = str(self.get_parameter("output_topic").value)
         self.target_frame = str(self.get_parameter("target_frame").value)
         self.scan_period_s = float(self.get_parameter("scan_period_s").value)
+        self.stamp_with_receive_time = bool(
+            self.get_parameter("stamp_with_receive_time").value
+        )
 
         self.pub = self.create_publisher(PointCloud2, output_topic, 10)
         self.create_subscription(PointCloud2, input_topic, self._on_cloud, 10)
@@ -140,13 +144,14 @@ class GazeboCloudAdapterNode(Node):
 
     def _on_cloud(self, msg: PointCloud2) -> None:
         try:
-            self.pub.publish(
-                normalize_cloud(
-                    msg,
-                    target_frame=self.target_frame,
-                    scan_period_s=self.scan_period_s,
-                )
+            cloud = normalize_cloud(
+                msg,
+                target_frame=self.target_frame,
+                scan_period_s=self.scan_period_s,
             )
+            if self.stamp_with_receive_time:
+                cloud.header.stamp = self.get_clock().now().to_msg()
+            self.pub.publish(cloud)
         except ValueError as exc:
             self.get_logger().warn(f"discarding Gazebo cloud: {exc}", throttle_duration_sec=5.0)
 

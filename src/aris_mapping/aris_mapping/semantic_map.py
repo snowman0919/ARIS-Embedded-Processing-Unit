@@ -7,6 +7,7 @@ can be tested before those external assets exist.
 
 from __future__ import annotations
 
+import csv
 import json
 import math
 from dataclasses import dataclass, field
@@ -288,6 +289,34 @@ def traversability_for_label(label: str, confidence: float) -> float:
     else:
         base = 0.5
     return _clamp01(0.5 * (1.0 - confidence) + base * confidence)
+
+
+def load_route_csv_as_graph(hd_map: SemanticHDMap, route_file: str | Path) -> tuple[int, int]:
+    """Load a V1 route CSV into the semantic map route-graph layer."""
+    target = Path(route_file)
+    if not target.exists():
+        raise FileNotFoundError(f"route_file does not exist: {target}")
+    if hd_map.route_nodes or hd_map.route_edges:
+        return len(hd_map.route_nodes), len(hd_map.route_edges)
+
+    rows: list[tuple[float, float]] = []
+    with target.open("r", newline="") as handle:
+        for row in csv.DictReader(handle):
+            rows.append((float(row["x"]), float(row["y"])))
+    if not rows:
+        return 0, 0
+
+    node_ids: list[str] = []
+    for idx, (x, y) in enumerate(rows):
+        node_id = f"route_{idx:04d}"
+        hd_map.add_route_node(RouteNode(node_id=node_id, x=x, y=y))
+        node_ids.append(node_id)
+    for idx, (from_node, to_node) in enumerate(zip(node_ids, node_ids[1:], strict=False)):
+        from_x, from_y = rows[idx]
+        to_x, to_y = rows[idx + 1]
+        cost = math.hypot(to_x - from_x, to_y - from_y)
+        hd_map.add_route_edge(RouteEdge(from_node=from_node, to_node=to_node, cost=cost))
+    return len(node_ids), max(0, len(node_ids) - 1)
 
 
 def _clamp01(value: float) -> float:

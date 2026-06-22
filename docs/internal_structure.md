@@ -132,6 +132,17 @@ Required actions:
 - Inspect localization confidence.
 - Inspect fault state.
 
+Processing-unit handoff artifacts:
+
+- `scripts/export_gui_snapshot.py` exports route CSV or V3 `SemanticHDMap` snapshots into compact
+  JSON for the external Flutter console.
+- `scripts/serve_gui_snapshot.py` serves that JSON at `/snapshot` for local browsers or lab tablets;
+  it defaults to localhost and should bind `0.0.0.0` only for intentional LAN handoff.
+- Snapshot fields include `vehicle_pose`, `goal`, `global_path`, `local_path`, `semantic_cells`,
+  and `lidar_returns`.
+- This repository owns the artifact contract and headless export tests; the standalone Flutter app
+  remains in `snowman0919/ARIS-Flutter-Interface`.
+
 ## 9. AI Layer Structure
 
 Allowed: semantic indexing, map annotation suggestions, change detection review, event explanation, log analysis.

@@ -1,13 +1,27 @@
 # Embedded
 
-The embedded container provides Rust for STM32, ARM embedded GCC/binutils for low-level support, OpenOCD, probe-rs where available, and native firmware simulation tests.
+This processing-unit repository owns the ROS 2 MCU bridge, binary protocol implementation, and
+hardware-free serial loopback checks. Standalone STM32 firmware sources live in
+`snowman0919/ARIS-Embedded-MCU`.
 
-Run:
+For current repository readiness evidence, run:
+
+```bash
+just embedded-dry-run
+```
+
+This runs the MCU bridge protocol tests, protocol reference tests, and PTY serial loopback transport
+test. It writes `$ARIS_LOGS/embedded/embedded_dry_run_<timestamp>.json` and updates
+`$ARIS_LOGS/embedded/latest_embedded_dry_run.json`. It does not require hardware.
+
+If a checkout includes `firmware/stm32f446_safety_mcu`, the legacy firmware target can be exercised
+with:
 
 ```bash
 just firmware-test
 ```
 
-This runs host-side Rust tests, formatting, clippy, and a `thumbv7em-none-eabihf` build for STM32F446 inside `aris-embedded-dev`. It does not require hardware.
+That path runs Rust tests, formatting, clippy, and a `thumbv7em-none-eabihf` build inside
+`aris-embedded-dev`.
 
 Flashing and HIL require explicit USB access through hardware mode and must keep real actuators disconnected until safe-stop behavior has been validated.

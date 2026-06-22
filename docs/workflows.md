@@ -22,6 +22,19 @@ Milestone order:
 V0 manual control -> V1 trajectory replay -> V2 LiDAR localization -> V3 Semantic HD Map -> V4 goal-based navigation -> V5 dynamic obstacle avoidance -> V6 multimodal semantic update
 ```
 
+Remote branches use descriptive `v{num}-{context}` names instead of task branches or version-only
+aliases:
+
+```text
+v1-teach-repeat-route-replay -> v2-lidar-localization-gazebo -> v3-semantic-hd-map -> v4-goal-based-navigation -> v5-dynamic-obstacle-advisory -> v6-headless-simulation-embedded
+```
+
+The branch policy gate is:
+
+```bash
+just branch-policy
+```
+
 ## 2. Runtime Autonomy Sequence
 
 ```mermaid
@@ -46,6 +59,29 @@ sequenceDiagram
     MCU->>HAL: STATE_REPORT / FAULT_REPORT
     HAL->>GUI: /vehicle/state
 ```
+
+Current headless integration evidence:
+
+```bash
+just core-pipeline-flow
+```
+
+This creates a V3 `SemanticHDMap` snapshot artifact, validates its semantic and route-graph layers,
+launches the V4 goal-navigation stack with that snapshot as the planner map source, and verifies
+LiDAR localization, `/global_path`, and `/cmd_drive` samples through the simulator. The report is
+written to `$ARIS_LOGS/pipeline/core_pipeline_flow_<timestamp>.json`.
+
+For repeated headless verification of the same flow:
+
+```bash
+just core-pipeline-repeatability
+```
+
+This reruns the complete pipeline, checks that every run passes the six-stage flow, and records
+route-path stability plus goal-error spread in
+`$ARIS_LOGS/pipeline/core_pipeline_repeatability_<timestamp>.json`.
+Route stability is evaluated on the final detour suffix: progress from `detour_a -> detour_b` to
+`detour_b -> detour_c -> goal` remains stable, while a different final detour does not.
 
 ## 3. Boot Workflow
 
@@ -128,6 +164,27 @@ Acceptance: localization owns `/odometry/filtered` and `map -> odom`; planner no
 5. Local planner slows, stops, or detours.
 6. If blocked, report event to GUI.
 
+Current simulation gate:
+
+1. `dynamic_obstacle_node` reads `/scan_cloud`.
+2. It filters points inside the forward driving corridor.
+3. It tracks corridor obstacles across frames and estimates simple approach velocity.
+4. It publishes `/aris/perception/dynamic_obstacle` as a JSON advisory with `clear`, `detour`,
+   `slow`, or `stop`, plus track metadata when available.
+5. `local_planner_node` applies the advisory before publishing `/cmd_drive`. `detour` inserts a
+   short local bypass waypoint, `slow` caps speed, and `stop` commands full braking.
+6. `just v5-dynamic-obstacle-smoke` verifies that `detour` changes steering toward a local bypass,
+   `slow` caps speed, and `stop` commands full braking through the same `/cmd_drive` contract used
+   by the simulator and HAL. It also records persistent-track age, persistence time, and approach
+   velocity in readiness evidence.
+7. The smoke writes `$ARIS_LOGS/obstacles/v5_dynamic_obstacle_<timestamp>.json`, and the readiness
+   evidence index links to the latest V5 obstacle report.
+8. Operator or real sensor obstacle bags are replay-scored with
+   `just v5-obstacle-bag-replay /path/to/bag`, which writes
+   `$ARIS_LOGS/obstacles/v5_obstacle_bag_replay_<timestamp>.json`.
+9. `just v5-recorded-obstacle-replay-smoke` records a deterministic obstacle cloud bag and runs
+   the same replay scorer to verify the recorded-data path.
+
 ## 10. V6 Multimodal Semantic Update Workflow
 
 1. Collect logs, images, map deltas, and change candidates.
@@ -135,6 +192,16 @@ Acceptance: localization owns `/odometry/filtered` and `map -> odom`; planner no
 3. Explain events such as blocked road, crowding, or new obstacle.
 4. Present suggestions to an operator or map review process.
 5. Commit reviewed map changes with provenance.
+
+Current offline gate:
+
+1. `just v6-semantic-review-smoke` reads the latest V3 semantic map manifest and repeat-pass
+   compare report.
+2. It writes `v3_semantic_map_<timestamp>.v6_review.json`.
+3. The report is `advisory_only=true` and `control_authority=none`.
+4. It creates operator review items for high-risk traversability cells, semantic review queue
+   entries, and repeat-pass map changes.
+5. The readiness evidence index links to the latest V6 review report.
 
 Prohibited: AI publishing `/cmd_drive`, releasing E-stop, clearing safety faults, or enabling real actuation.
 
@@ -156,6 +223,16 @@ Hardware progression:
 ```text
 simulation -> dry-run bridge -> bench without motors -> bench with disabled motor -> low-power actuator test -> closed-site low-speed test
 ```
+
+Closed-site validation evidence is promoted with:
+
+```bash
+just field-validation /path/to/field_validation_manifest.json
+```
+
+The manifest must cite the HIL preflight report, V5 obstacle bag replay report, and field bag/run
+log, and it must record route completion, speed, goal error, E-stop/fault counts, operator takeover
+count, ODD constraints, and operator/safety approvals.
 
 ## 12. Map Update Review Workflow
 

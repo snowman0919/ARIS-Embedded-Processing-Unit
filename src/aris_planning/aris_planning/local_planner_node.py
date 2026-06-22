@@ -15,9 +15,15 @@ from ackermann_msgs.msg import AckermannDriveStamped
 from geometry_msgs.msg import Pose, PoseArray
 from nav_msgs.msg import Odometry
 from rclpy.node import Node
-from std_msgs.msg import Bool
+from std_msgs.msg import Bool, String
 
 from .cmd_drive import local_plan_to_ackermann
+from .dynamic_obstacle_advisory import (
+    DynamicObstacleAdvisory,
+    apply_dynamic_obstacle_advisory,
+    path_with_dynamic_detour,
+    parse_dynamic_obstacle_advisory,
+)
 from .pure_pursuit import Pose2D, PurePursuit
 from .route import load_route_csv, path_xy, resolve_route_file
 
@@ -36,6 +42,9 @@ class LocalPlannerNode(Node):
         self.declare_parameter("lookahead_m", 2.0)
         self.declare_parameter("max_speed_mps", 1.8)
         self.declare_parameter("goal_tolerance_m", 0.8)
+        self.declare_parameter("dynamic_obstacle_timeout_s", 0.6)
+        self.declare_parameter("dynamic_obstacle_slow_speed_mps", 0.4)
+        self.declare_parameter("dynamic_obstacle_detour_lateral_m", 1.0)
         self.declare_parameter("route_file", "")
         self.planner = PurePursuit(
             wheelbase_m=float(self.get_parameter("wheelbase_m").value),
@@ -43,7 +52,18 @@ class LocalPlannerNode(Node):
             max_speed_mps=float(self.get_parameter("max_speed_mps").value),
         )
         self.goal_tolerance_m = float(self.get_parameter("goal_tolerance_m").value)
+        self.dynamic_obstacle_timeout_s = float(
+            self.get_parameter("dynamic_obstacle_timeout_s").value
+        )
+        self.dynamic_obstacle_slow_speed_mps = float(
+            self.get_parameter("dynamic_obstacle_slow_speed_mps").value
+        )
+        self.dynamic_obstacle_detour_lateral_m = float(
+            self.get_parameter("dynamic_obstacle_detour_lateral_m").value
+        )
         self.estop = False
+        self.dynamic_obstacle: DynamicObstacleAdvisory | None = None
+        self.dynamic_obstacle_time_s: float | None = None
         route_file = str(self.get_parameter("route_file").value)
         if route_file.strip():
             route_path = resolve_route_file(route_file)
@@ -62,6 +82,9 @@ class LocalPlannerNode(Node):
         self.create_subscription(Odometry, "/odometry/filtered", self._on_odom, 10)
         self.create_subscription(Bool, "/estop", self._on_estop, 10)
         self.create_subscription(PoseArray, "/global_path", self._on_global_path, 10)
+        self.create_subscription(
+            String, "/aris/perception/dynamic_obstacle", self._on_dynamic_obstacle, 10
+        )
         self.create_timer(1.0, self._publish_path)
 
     def _on_estop(self, msg: Bool) -> None:
@@ -73,8 +96,20 @@ class LocalPlannerNode(Node):
             y=float(msg.pose.pose.position.y),
             yaw=yaw_from_odom(msg),
         )
+        dynamic_obstacle = self._current_dynamic_obstacle_advisory()
+        active_path = path_with_dynamic_detour(
+            pose,
+            self.path,
+            dynamic_obstacle,
+            default_lateral_m=self.dynamic_obstacle_detour_lateral_m,
+        )
         command = self.planner.command(
-            pose, self.path, estop=self.estop or self._near_goal(pose)
+            pose, active_path, estop=self.estop or self._near_goal(pose)
+        )
+        command = apply_dynamic_obstacle_advisory(
+            command,
+            dynamic_obstacle,
+            slow_speed_mps=self.dynamic_obstacle_slow_speed_mps,
         )
         fields = local_plan_to_ackermann(command)
 
@@ -91,9 +126,24 @@ class LocalPlannerNode(Node):
             return
         self.path = [(float(pose.position.x), float(pose.position.y)) for pose in msg.poses]
 
+    def _on_dynamic_obstacle(self, msg: String) -> None:
+        try:
+            self.dynamic_obstacle = parse_dynamic_obstacle_advisory(msg.data)
+            self.dynamic_obstacle_time_s = self.get_clock().now().nanoseconds / 1e9
+        except (ValueError, TypeError) as exc:
+            self.get_logger().warn(f"Ignoring malformed dynamic-obstacle advisory: {exc}")
+
     def _near_goal(self, pose: Pose2D) -> bool:
         goal_x, goal_y = self.path[-1]
         return math.hypot(goal_x - pose.x, goal_y - pose.y) < self.goal_tolerance_m
+
+    def _current_dynamic_obstacle_advisory(self) -> DynamicObstacleAdvisory | None:
+        if self.dynamic_obstacle is None or self.dynamic_obstacle_time_s is None:
+            return None
+        age_s = self.get_clock().now().nanoseconds / 1e9 - self.dynamic_obstacle_time_s
+        if age_s > self.dynamic_obstacle_timeout_s:
+            return None
+        return self.dynamic_obstacle
 
     def _publish_path(self) -> None:
         path = PoseArray()

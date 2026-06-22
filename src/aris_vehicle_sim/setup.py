@@ -38,6 +38,7 @@ setup(
         "console_scripts": [
             "vehicle_sim_node = aris_vehicle_sim.vehicle_sim_node:main",
             "lidar_sim_node = aris_vehicle_sim.lidar_sim_node:main",
+            "gazebo_cmd_drive_bridge_node = aris_vehicle_sim.gazebo_cmd_drive_bridge_node:main",
         ],
     },
 )

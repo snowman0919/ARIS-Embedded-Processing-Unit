@@ -41,20 +41,18 @@ pub = node.create_publisher(String, "/aris/operator/goal_request", 10)
 node.create_subscription(String, "/aris/planning/global_plan", on_summary, 10)
 node.create_subscription(String, "/aris/operator/events", on_event, 10)
 
-deadline = time.monotonic() + 4.0
-while time.monotonic() < deadline and not summaries:
+deadline = time.monotonic() + 8.0
+while time.monotonic() < deadline and (not summaries or pub.get_subscription_count() < 1):
     rclpy.spin_once(node, timeout_sec=0.1)
 
 msg = String()
 msg.data = json.dumps({"x": 3.0, "y": 1.2, "source": "smoke"})
-for _ in range(5):
-    pub.publish(msg)
-    rclpy.spin_once(node, timeout_sec=0.1)
 
-deadline = time.monotonic() + 8.0
+deadline = time.monotonic() + 12.0
 accepted = False
 updated = False
 while time.monotonic() < deadline:
+    pub.publish(msg)
     rclpy.spin_once(node, timeout_sec=0.1)
     accepted = accepted or any(event.get("event") == "goal_accepted" for event in events)
     updated = updated or any(summary.get("goal_x") == 3.0 and summary.get("goal_y") == 1.2 for summary in summaries)
