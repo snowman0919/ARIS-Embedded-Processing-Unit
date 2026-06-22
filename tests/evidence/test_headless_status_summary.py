@@ -100,6 +100,8 @@ def test_headless_status_summary_collects_latest_evidence(tmp_path):
     assert summary["repeatability"]["cmd_samples_min"] == 24
     assert summary["release_evidence"]["bootstrap_doctor"].endswith("bootstrap.json")
     assert summary["release_evidence"]["embedded_dry_run"].endswith("embedded.json")
+    assert summary["evidence_age"]["headless_release_candidate"]["age_seconds"] is not None
+    assert summary["evidence_age"]["headless_release_candidate"]["mtime_utc"].endswith("Z")
     assert "headless_ready: yes" in text
     assert "evidence_fresh_for_head: no" in text
     assert "hardware_scope_active: no" in text
@@ -111,6 +113,8 @@ def test_headless_status_summary_collects_latest_evidence(tmp_path):
     assert "Release evidence" in text
     assert "bootstrap_doctor:" in text
     assert "embedded_dry_run:" in text
+    assert "Evidence age" in text
+    assert "headless_release_candidate:" in text
     assert "run: just headless-release-candidate" in text
     assert "node_path: approach -> goal" in text
     assert "scan_cloud_samples_min: 12" in text

@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+from datetime import datetime, timezone
 import json
 import os
 from pathlib import Path
@@ -19,6 +20,7 @@ FRESHNESS_IGNORED_PATHS = {
 
 
 def summarize(logs_dir: Path, workspace: Path | None = None) -> dict[str, Any]:
+    now = datetime.now(timezone.utc)
     readiness_dir = logs_dir / "readiness"
     pipeline_dir = logs_dir / "pipeline"
     release_path = _resolve(readiness_dir / "latest_headless_release_candidate.json")
@@ -125,6 +127,12 @@ def summarize(logs_dir: Path, workspace: Path | None = None) -> dict[str, Any]:
         },
         "release_steps": release_steps,
         "release_evidence": release_evidence,
+        "evidence_age": {
+            "headless_release_candidate": _artifact_age(release_path, now),
+            "headless_readiness_audit": _artifact_age(audit_path, now),
+            "readiness_evidence_index": _artifact_age(index_path, now),
+            "core_pipeline_repeatability": _artifact_age(repeat_path, now),
+        },
         "evidence": {
             "headless_release_candidate": str(release_path) if release_path else None,
             "headless_readiness_audit": str(audit_path) if audit_path else None,
@@ -145,6 +153,21 @@ def _read_json(path: Path | None) -> dict[str, Any] | None:
     if not isinstance(data, dict):
         raise ValueError(f"JSON artifact must be an object: {path}")
     return data
+
+
+def _artifact_age(path: Path | None, now: datetime) -> dict[str, Any]:
+    if path is None or not path.exists():
+        return {
+            "path": None,
+            "mtime_utc": None,
+            "age_seconds": None,
+        }
+    mtime = datetime.fromtimestamp(path.stat().st_mtime, timezone.utc)
+    return {
+        "path": str(path),
+        "mtime_utc": mtime.isoformat().replace("+00:00", "Z"),
+        "age_seconds": max(0, int((now - mtime).total_seconds())),
+    }
 
 
 def _current_git(workspace: Path | None) -> dict[str, str | None]:
@@ -184,6 +207,22 @@ def _changed_since(workspace: Path, evidence_commit: str) -> list[str]:
 
 def _format_bool(value: bool) -> str:
     return "yes" if value else "no"
+
+
+def _format_age(age: dict[str, Any] | None) -> str:
+    if not age or age.get("age_seconds") is None:
+        return "n/a"
+    seconds = int(age["age_seconds"])
+    if seconds < 60:
+        return f"{seconds}s"
+    minutes, seconds = divmod(seconds, 60)
+    if minutes < 60:
+        return f"{minutes}m {seconds}s"
+    hours, minutes = divmod(minutes, 60)
+    if hours < 24:
+        return f"{hours}h {minutes}m"
+    days, hours = divmod(hours, 24)
+    return f"{days}d {hours}h"
 
 
 def format_text(summary: dict[str, Any]) -> str:
@@ -256,6 +295,12 @@ def format_text(summary: dict[str, Any]) -> str:
     ])
     for name, path in summary["evidence"].items():
         lines.append(f"  {name}: {path}")
+    lines.extend([
+        "",
+        "Evidence age",
+    ])
+    for name, age in (summary.get("evidence_age") or {}).items():
+        lines.append(f"  {name}: {_format_age(age)} mtime_utc={age.get('mtime_utc') if age else None}")
     if summary["blockers"]:
         lines.append("")
         lines.append("Blockers")
