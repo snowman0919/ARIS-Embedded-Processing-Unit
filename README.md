@@ -198,6 +198,7 @@ just scan-cloud-contract # validate /scan_cloud PointCloud2 fields, frame, and T
 just operator-goal-smoke # operator JSON goal -> /goal_pose -> V4 planner smoke
 just hil-preflight # hardware/HIL readiness inventory without enabling actuators
 just operational-readiness-audit # aggregate evidence and report achieved/practical-use status
+just field-validation /path/to/manifest.json # validate closed-site field-run evidence
 just firmware-test   # Rust STM32 safety-core tests and thumbv7em-none-eabihf build
 ```
 

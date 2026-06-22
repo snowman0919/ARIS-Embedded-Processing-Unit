@@ -860,3 +860,25 @@ Entry format:
   provided yet, so the new replay criterion correctly remains unpassed.
 - Next:         Commit and push this replay gate to `origin/v3`; then run it against a real or
   operator-provided obstacle bag and use the generated report as V5 replay evidence.
+
+## 2026-06-22 15:16 KST — Field: Closed-Site Validation Report Gate — WIP
+- Built:        Added `scripts/generate_field_validation_report.py`, `scripts/check_field_validation.sh`,
+  and `just field-validation`. The field report validates an operator manifest for closed-site ODD,
+  route completion, goal error, speed limit, zero E-stop/fault/operator takeover counts, cited HIL
+  and V5 obstacle replay evidence, field bag/run-log citation, and operator/safety approvals.
+  The readiness evidence index now links the latest field validation report, and the operational
+  readiness audit exposes the field run summary when present.
+- Verified:     Targeted field/evidence tests validate both a passing manifest and unsafe/incomplete
+  manifests. `./scripts/check_operational_readiness_audit.sh` wrote
+  `/home/kotori9/aris/logs/readiness/operational_readiness_audit_20260622T060900Z.json` with
+  `achieved=false`; the field criterion remains unpassed because no real closed-site field
+  manifest/report exists. A refreshed evidence index at
+  `/home/kotori9/aris/logs/readiness/evidence_index_20260622T060907Z.json` links the latest audit.
+- Build/tests:  `python3 -m py_compile` passed for field/audit/evidence scripts; `bash -n
+  scripts/check_field_validation.sh` passed; targeted field/evidence tests passed (`9 passed`);
+  full `./scripts/check_python_tests.sh` passed (`100 passed`); `git diff --check` passed.
+- Commit:       Pending field validation report gate commit.
+- Stubbed/blocked: This defines the contract for field evidence. It does not create real field
+  evidence without a closed-site run manifest and associated logs/bags.
+- Next:         Run full tests, commit, and push to `origin/v3`; then use the gate against a real
+  closed-site manifest when hardware and operator evidence are available.

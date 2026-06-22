@@ -148,3 +148,30 @@ def test_operational_audit_accepts_latest_v5_obstacle_replay_report(tmp_path):
 
     assert report["criteria"]["v5_obstacle_bag_replay"]["passed"] is True
     assert report["criteria"]["v5_obstacle_bag_replay"]["evidence"]["advisory_samples"] == 3
+
+
+def test_operational_audit_exposes_field_validation_summary(tmp_path):
+    logs = tmp_path / "logs"
+    _write_index(logs, ready_for_hil=True)
+    field = logs / "field"
+    field.mkdir()
+    (field / "field_validation_20260101T000001Z.json").write_text(
+        json.dumps(
+            {
+                "valid": True,
+                "summary": {
+                    "field_run_id": "field-001",
+                    "route_completed": True,
+                    "goal_error_m": 0.4,
+                    "estop_count": 0,
+                    "fault_count": 0,
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    report = generate_audit(tmp_path / "workspace", logs)
+
+    assert report["criteria"]["field_validation"]["passed"] is True
+    assert report["criteria"]["field_validation"]["evidence"]["field_run_id"] == "field-001"

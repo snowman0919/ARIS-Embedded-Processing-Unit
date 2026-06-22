@@ -14,11 +14,13 @@ def test_readiness_evidence_index_collects_latest_artifacts(tmp_path):
     maps = logs / "maps"
     obstacles = logs / "obstacles"
     hil = logs / "hil"
+    field = logs / "field"
     readiness.mkdir(parents=True)
     bags.mkdir(parents=True)
     maps.mkdir(parents=True)
     obstacles.mkdir(parents=True)
     hil.mkdir(parents=True)
+    field.mkdir(parents=True)
 
     (readiness / "core_readiness_20260101T000000Z.log").write_text(
         "timestamp_utc=20260101T000000Z\n"
@@ -85,6 +87,11 @@ def test_readiness_evidence_index_collects_latest_artifacts(tmp_path):
         "achieved": False,
         "practical_use_ready": False,
     }
+    field_report = {
+        "artifact_type": "aris_field_validation_report",
+        "valid": False,
+        "summary": {"field_run_id": "field-001"},
+    }
     (maps / "v3_semantic_map_20260101.manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
     (maps / "v3_semantic_map_20260101.compare.json").write_text(json.dumps(compare), encoding="utf-8")
     (maps / "v3_semantic_map_20260101.v6_review.json").write_text(json.dumps(review), encoding="utf-8")
@@ -98,6 +105,10 @@ def test_readiness_evidence_index_collects_latest_artifacts(tmp_path):
     )
     (hil / "hil_preflight_20260101T000000Z.json").write_text(
         json.dumps(hil_report),
+        encoding="utf-8",
+    )
+    (field / "field_validation_20260101T000000Z.json").write_text(
+        json.dumps(field_report),
         encoding="utf-8",
     )
     (readiness / "operational_readiness_audit_20260101T000000Z.json").write_text(
@@ -124,5 +135,7 @@ def test_readiness_evidence_index_collects_latest_artifacts(tmp_path):
     assert index["v6_semantic_review"]["report_path"].endswith(".v6_review.json")
     assert index["hil_preflight"]["report"]["safe_to_enable_real_actuation"] is False
     assert index["hil_preflight"]["report_path"].endswith(".json")
+    assert index["field_validation"]["report"]["summary"]["field_run_id"] == "field-001"
+    assert index["field_validation"]["report_path"].endswith(".json")
     assert index["operational_readiness_audit"]["report"]["achieved"] is False
     assert index["operational_readiness_audit"]["report_path"].endswith(".json")

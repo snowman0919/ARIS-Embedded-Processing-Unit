@@ -295,3 +295,34 @@ snapshot pairs can be scored with:
 This is simulation-only V3 map artifact evidence. Production V3 still requires camera streams,
 segmentation model selection, calibrated camera/LiDAR projection, review tooling, and real
 repeat-pass map data.
+
+## 17. Closed-Site Field Validation Gate
+
+The field validation command is:
+
+```bash
+just field-validation /path/to/field_validation_manifest.json
+```
+
+It writes:
+
+```text
+$ARIS_LOGS/field/field_validation_<timestamp>.json
+$ARIS_LOGS/field/latest_field_validation.json
+```
+
+The manifest must describe a closed-site run and include:
+
+- `site_id`, `operator`, `route_id`, and `field_run_id`.
+- `odd.closed_site=true` and `odd.pedestrian_separated=true`.
+- `metrics.route_completed=true`.
+- `metrics.goal_error_m <= metrics.max_goal_error_m`.
+- `metrics.max_speed_mps <= metrics.speed_limit_mps`.
+- zero `estop_count`, `fault_count`, and `operator_takeover_count`.
+- cited `evidence.hil_preflight_report`, `evidence.v5_obstacle_bag_replay_report`, and
+  `evidence.field_bag`.
+- `approvals.operator_reviewed=true` and `approvals.safety_reviewed=true`.
+
+The generated report records `valid`, failures, run summary, the original manifest, and the latest
+linked HIL/V5 replay artifacts visible under `$ARIS_LOGS`. The operational readiness audit only
+accepts field evidence when this report is valid.

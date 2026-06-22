@@ -180,11 +180,17 @@ def generate_audit(workspace: Path, logs_dir: Path) -> dict[str, Any]:
     )
 
     field_passed = field_report is not None and field_report.get("valid") is True
+    field_summary = field_report.get("summary", {}) if field_report else {}
     criteria["field_validation"] = _criterion(
         field_passed,
         {
             "report_path": str(field_path) if field_path else None,
             "valid": field_report.get("valid") if field_report else None,
+            "field_run_id": field_summary.get("field_run_id"),
+            "route_completed": field_summary.get("route_completed"),
+            "goal_error_m": field_summary.get("goal_error_m"),
+            "estop_count": field_summary.get("estop_count"),
+            "fault_count": field_summary.get("fault_count"),
         },
         [] if field_passed else ["closed-site field validation evidence is missing"],
     )

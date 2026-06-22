@@ -186,6 +186,16 @@ Hardware progression:
 simulation -> dry-run bridge -> bench without motors -> bench with disabled motor -> low-power actuator test -> closed-site low-speed test
 ```
 
+Closed-site validation evidence is promoted with:
+
+```bash
+just field-validation /path/to/field_validation_manifest.json
+```
+
+The manifest must cite the HIL preflight report, V5 obstacle bag replay report, and field bag/run
+log, and it must record route completion, speed, goal error, E-stop/fault counts, operator takeover
+count, ODD constraints, and operator/safety approvals.
+
 ## 12. Map Update Review Workflow
 
 1. Store observation with timestamp and pose.

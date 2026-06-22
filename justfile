@@ -185,6 +185,9 @@ hil-preflight:
 operational-readiness-audit:
     ./scripts/check_operational_readiness_audit.sh
 
+field-validation manifest:
+    ./scripts/check_field_validation.sh "{{manifest}}"
+
 firmware-test:
     ./scripts/firmware_test.sh
 
