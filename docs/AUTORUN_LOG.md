@@ -437,3 +437,22 @@ Entry format:
   SLAM map generation, calibrated NDT/EKF settings, Unitree driver validation, or HIL acceptance.
 - Next:         Use the physics motion launch as the basis for a localization smoke that consumes
   Gazebo `/gazebo/odom` or physics-derived wheel odometry instead of pose-sync scaffolding.
+
+## 2026-06-22 11:05 KST — V2: Gazebo Physics-Fed Localization Gate — WIP
+- Built:        Added `v2_gazebo_physics_localization.launch.py`,
+  `just v2-gazebo-physics-localization-smoke`, and
+  `./scripts/check_v2_gazebo_physics_localization.sh`. This launch keeps Gazebo Ackermann physics
+  as the motion authority, remaps `/gazebo/odom` into the localization `/wheel_odom` contract, and
+  verifies that `lidar_localization_node` publishes `/odometry/filtered` from live gpu_lidar data.
+- Verified:     `./scripts/check_v2_gazebo_physics_localization.sh` green:
+  `gazebo_delta_x=1.914`, `filtered_delta_x=1.914`, `final_gap=(0.000,0.000)`,
+  `gazebo_aris_pose_x=1.914`. `./scripts/check_v2_gazebo_stack.sh` green with 6 checks; the new
+  physics-localization subcheck reported `gazebo_delta_x=3.553`, `filtered_delta_x=3.553`.
+  `./scripts/run_core_readiness_report.sh` green without Gazebo skip and wrote
+  `/home/kotori9/aris/logs/readiness/core_readiness_20260622T020521Z.log` with `result=PASS`.
+- Commit:       Included with the Gazebo physics-fed localization gate change.
+- Stubbed/blocked: This removes pose sync from one moving localization path, but production V2
+  still needs recorded/real LiDAR bags, map-generation acceptance, calibrated NDT/EKF settings,
+  Unitree hardware driver validation, and HIL/field gates.
+- Next:         Promote the physics-fed launch toward the default moving V2 path and add a
+  recorded-data localization gate that does not rely on synthetic Gazebo geometry.
