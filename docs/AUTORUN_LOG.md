@@ -1338,5 +1338,21 @@ Entry format:
   (`docs=25 references=188`); reuse-mode
   `ARIS_HEADLESS_RELEASE_REUSE_EXISTING=1 ./scripts/check_headless_release_candidate.sh` passed
   with `headless_release_candidate_valid`.
-- Next:         Commit and push this bootstrap-doctor increment, then run a full headless
-  release-candidate on the committed HEAD.
+- Verified:     Full `./scripts/check_headless_release_candidate.sh` passed on
+  `milestone/headless-simulation-embedded@8000979` with `headless_release_candidate_valid`.
+  The run proved the updated bootstrap doctor, branch-policy gate, embedded dry-run, core pipeline
+  flow, repeatability, full core readiness, and headless readiness audit.
+- Evidence:     Release report
+  `/home/kotori9/aris/logs/readiness/headless_release_candidate_20260622T080941Z.json`;
+  final evidence index
+  `/home/kotori9/aris/logs/readiness/evidence_index_20260622T080941Z_release.json`;
+  bootstrap doctor
+  `/home/kotori9/aris/logs/readiness/bootstrap_doctor_20260622T080941Z.json`;
+  branch policy
+  `/home/kotori9/aris/logs/readiness/branch_policy_20260622T080942Z.json`;
+  headless audit
+  `/home/kotori9/aris/logs/readiness/headless_readiness_audit_20260622T081413Z.json`;
+  repeatability
+  `/home/kotori9/aris/logs/pipeline/core_pipeline_repeatability_20260622T081007Z.json`.
+- Next:         Continue headless simulation and embedded dry-run reproducibility work on
+  `milestone/headless-simulation-embedded`.
