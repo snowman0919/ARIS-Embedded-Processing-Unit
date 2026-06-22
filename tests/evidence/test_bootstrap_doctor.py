@@ -10,10 +10,14 @@ from generate_bootstrap_doctor import generate_report
 def _workspace(tmp_path: Path) -> Path:
     workspace = tmp_path / "workspace"
     (workspace / "docker").mkdir(parents=True)
+    (workspace / "docs").mkdir()
     (workspace / "scripts").mkdir()
     for relative in (
+        "README.md",
         "flake.nix",
         "justfile",
+        "docs/environment.md",
+        "docs/verification_plan.md",
         "docker/compose.yaml",
         "docker/ros2.Dockerfile",
         "docker/embedded.Dockerfile",
@@ -127,6 +131,16 @@ def test_bootstrap_doctor_requires_branch_policy_entrypoint(tmp_path):
 
     assert report["valid"] is False
     assert "missing required file: scripts/check_branch_policy.sh" in report["blockers"]
+
+
+def test_bootstrap_doctor_requires_reproducibility_docs(tmp_path):
+    workspace = _workspace(tmp_path)
+    (workspace / "docs/environment.md").unlink()
+
+    report = generate_report(workspace, _env(workspace, tmp_path))
+
+    assert report["valid"] is False
+    assert "missing required file: docs/environment.md" in report["blockers"]
 
 
 def test_bootstrap_doctor_requires_release_gate_fallback_entrypoints(tmp_path):

@@ -12,9 +12,12 @@ from typing import Any
 
 
 REQUIRED_FILES = (
+    "README.md",
     "flake.nix",
     "justfile",
     ".env.example",
+    "docs/environment.md",
+    "docs/verification_plan.md",
     "docker/compose.yaml",
     "docker/ros2.Dockerfile",
     "docker/embedded.Dockerfile",
