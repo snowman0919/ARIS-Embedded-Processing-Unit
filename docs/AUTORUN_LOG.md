@@ -1869,3 +1869,42 @@ Entry format:
   `/home/kotori9/aris/logs/maps/v3_semantic_map_20260622_112839.compare.json`.
 - Next:         Continue improving headless evidence traceability and simulation reproducibility
   while hardware/HIL remains out of scope.
+
+## 2026-06-22 KST — Release Candidate Records Acceptance Criteria
+
+- Built:        Updated `scripts/check_headless_release_candidate.sh` so the release-candidate
+  JSON copies the latest headless audit acceptance thresholds, criterion pass/fail states, scope,
+  blockers, future out-of-scope blockers, and real-actuation safety flags. A release candidate is
+  now valid only when the release steps pass and the headless acceptance criteria pass.
+- Built:        Strengthened `scripts/validate_headless_release_candidate.py` to require the
+  self-contained acceptance summary, non-empty thresholds, and all required criteria:
+  core readiness no-skip, V2 Gazebo stack, V3/V6 mapping review, core pipeline flow,
+  repeatability, V5 obstacle, recorded obstacle replay, and embedded dry-run.
+- Built:        Updated `docs/verification_plan.md` and validator tests for the new release report
+  contract.
+- Verified:     Targeted release-candidate validator tests passed (`4 passed`);
+  `./scripts/check_documented_commands.sh` passed (`docs=25 references=190`);
+  full `./scripts/check_python_tests.sh` passed (`138 passed`);
+  reuse-mode `ARIS_HEADLESS_RELEASE_REUSE_EXISTING=1 ./scripts/check_headless_release_candidate.sh`
+  passed with `headless_release_candidate_valid`.
+- Verified:     Full `./scripts/check_headless_release_candidate.sh` passed on
+  `milestone/headless-simulation-embedded@4b7e517` with `headless_release_candidate_valid`.
+  `./scripts/check_headless_status.sh` reported `headless_ready=yes`, `release_valid=yes`,
+  `evidence_fresh_for_head=yes`, `evidence_freshness_reason=matching_head`,
+  `hardware_scope_active=no`, `real_actuation_enabled=no`, and repeatability margins
+  `runs=0`, `goal_error_m=0.57`, `scan_cloud=147`, `global_path=33`, `cmd=132`.
+- Evidence:     Release report
+  `/home/kotori9/aris/logs/readiness/headless_release_candidate_20260622T113606Z.json`;
+  final evidence index
+  `/home/kotori9/aris/logs/readiness/evidence_index_20260622T113606Z_release.json`;
+  core readiness
+  `/home/kotori9/aris/logs/readiness/core_readiness_20260622T113725Z.log`;
+  headless audit
+  `/home/kotori9/aris/logs/readiness/headless_readiness_audit_20260622T114034Z.json`;
+  repeatability
+  `/home/kotori9/aris/logs/pipeline/core_pipeline_repeatability_20260622T113633Z.json`;
+  V3 compare
+  `/home/kotori9/aris/logs/maps/v3_semantic_map_20260622_113750.compare.json`.
+- Next:         Continue improving hardware-free simulation and embedded dry-run reproducibility
+  on `milestone/headless-simulation-embedded` while HIL and field validation remain future
+  evidence contracts.
