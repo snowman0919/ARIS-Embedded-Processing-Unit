@@ -882,3 +882,29 @@ Entry format:
   evidence without a closed-site run manifest and associated logs/bags.
 - Next:         Run full tests, commit, and push to `origin/v3`; then use the gate against a real
   closed-site manifest when hardware and operator evidence are available.
+
+## 2026-06-22 15:18 KST — V5: Recorded Obstacle Replay Smoke — WIP
+- Built:        Added `scripts/check_v5_recorded_obstacle_replay.sh` and
+  `just v5-recorded-obstacle-replay-smoke`. The smoke records a deterministic `/scan_cloud`
+  obstacle bag under `$ARIS_LOGS/bags/v5_recorded_obstacle_<timestamp>/`, then runs the existing
+  V5 obstacle bag replay scorer against the recorded bag. `check_v5_obstacle_bag_replay.sh` also
+  now force-cleans the detector process so replay containers exit reliably after scoring.
+- Verified:     `./scripts/check_v5_recorded_obstacle_replay.sh` passed. It recorded
+  `/home/kotori9/aris/logs/bags/v5_recorded_obstacle_20260622T061708Z` with `/scan_cloud` count
+  `49`, then wrote
+  `/home/kotori9/aris/logs/obstacles/v5_obstacle_bag_replay_20260622T061721Z.json` with
+  `valid=true`, `cloud_samples=48`, `advisory_samples=46`, action counts `detour=21` and
+  `stop=25`, and `max_track_age=25`. `./scripts/check_operational_readiness_audit.sh` then wrote
+  `/home/kotori9/aris/logs/readiness/operational_readiness_audit_20260622T061758Z.json` with
+  `achieved=false` and two remaining blockers: HIL preflight not ready and missing closed-site
+  field validation. A refreshed evidence index at
+  `/home/kotori9/aris/logs/readiness/evidence_index_20260622T061805Z.json` links the latest
+  readiness/audit/replay evidence.
+- Build/tests:  `bash -n` passed for V5 replay scripts; targeted replay validator tests passed
+  (`2 passed`); full `./scripts/check_python_tests.sh` passed (`100 passed`); `git diff --check`
+  passed.
+- Commit:       Pending V5 recorded obstacle replay smoke commit.
+- Stubbed/blocked: This is deterministic recorded-data SIL evidence, not an operator-provided real
+  obstacle bag. It removes the replay-path blocker but does not replace HIL or field validation.
+- Next:         Run full tests, commit, and push to `origin/v3`; then use the same replay scorer on
+  operator/real obstacle bags when available.

@@ -141,6 +141,10 @@ v5-dynamic-obstacle-smoke:
 v5-obstacle-bag-replay bag:
     ./scripts/check_v5_obstacle_bag_replay.sh "{{bag}}"
 
+# V5 replay aggregate: record a deterministic obstacle bag, then replay-score it.
+v5-recorded-obstacle-replay-smoke:
+    ./scripts/check_v5_recorded_obstacle_replay.sh
+
 # V6 offline gate: generate advisory-only semantic review from V3 map artifacts.
 v6-semantic-review-smoke:
     ./scripts/check_v6_semantic_review.sh

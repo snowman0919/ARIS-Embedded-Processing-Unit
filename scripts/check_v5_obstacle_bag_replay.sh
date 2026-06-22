@@ -197,6 +197,24 @@ PY
     wait "$probe_pid" || code=$?
 
     kill -INT "$detector_pid" >/dev/null 2>&1 || true
+    for _ in $(seq 1 20); do
+      if ! kill -0 "$detector_pid" >/dev/null 2>&1; then
+        break
+      fi
+      sleep 0.1
+    done
+    if kill -0 "$detector_pid" >/dev/null 2>&1; then
+      kill -TERM "$detector_pid" >/dev/null 2>&1 || true
+    fi
+    for _ in $(seq 1 20); do
+      if ! kill -0 "$detector_pid" >/dev/null 2>&1; then
+        break
+      fi
+      sleep 0.1
+    done
+    if kill -0 "$detector_pid" >/dev/null 2>&1; then
+      kill -KILL "$detector_pid" >/dev/null 2>&1 || true
+    fi
     wait "$detector_pid" >/dev/null 2>&1 || true
 
     if [[ "$code" != "0" ]]; then

@@ -234,6 +234,16 @@ The operator-data obstacle replay command is:
 just v5-obstacle-bag-replay /path/to/bag
 ```
 
+The deterministic recorded-obstacle replay smoke is:
+
+```bash
+just v5-recorded-obstacle-replay-smoke
+```
+
+It records a short `/scan_cloud` rosbag with corridor obstacle points under
+`$ARIS_LOGS/bags/v5_recorded_obstacle_<timestamp>/`, then runs the same
+`v5-obstacle-bag-replay` scorer against that bag.
+
 This gate accepts a rosbag directory or `metadata.yaml`, validates a sensor-focused `/scan_cloud`
 contract, replays the bag inside the ROS 2 container, runs `dynamic_obstacle_node`, and scores
 `/aris/perception/dynamic_obstacle` advisories. It writes:

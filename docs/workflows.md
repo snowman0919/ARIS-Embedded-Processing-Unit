@@ -146,6 +146,8 @@ Current simulation gate:
 8. Operator or real sensor obstacle bags are replay-scored with
    `just v5-obstacle-bag-replay /path/to/bag`, which writes
    `$ARIS_LOGS/obstacles/v5_obstacle_bag_replay_<timestamp>.json`.
+9. `just v5-recorded-obstacle-replay-smoke` records a deterministic obstacle cloud bag and runs
+   the same replay scorer to verify the recorded-data path.
 
 ## 10. V6 Multimodal Semantic Update Workflow
 
