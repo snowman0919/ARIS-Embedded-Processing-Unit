@@ -13,8 +13,11 @@ from std_msgs.msg import String
 
 from .dynamic_obstacles import (
     DynamicObstacleConfig,
+    DynamicObstacleTracker,
     PointXYZ,
     evaluate_dynamic_obstacle,
+    obstacle_observation,
+    with_track,
 )
 
 
@@ -86,6 +89,7 @@ class DynamicObstacleNode(Node):
         self.sample_stride = int(self.get_parameter("sample_stride").value)
         self.previous_closest_m: float | None = None
         self.previous_stamp_s: float | None = None
+        self.tracker = DynamicObstacleTracker(self.config)
 
         input_topic = str(self.get_parameter("input_topic").value)
         output_topic = str(self.get_parameter("output_topic").value)
@@ -103,12 +107,18 @@ class DynamicObstacleNode(Node):
             else None
         )
         try:
+            points = list(cloud_points(msg, sample_stride=self.sample_stride))
             decision = evaluate_dynamic_obstacle(
-                cloud_points(msg, sample_stride=self.sample_stride),
+                points,
                 config=self.config,
                 previous_closest_m=self.previous_closest_m,
                 dt_s=dt_s,
             )
+            track = self.tracker.update(
+                obstacle_observation(points, config=self.config),
+                timestamp_s=stamp_s if stamp_s > 0.0 else self.get_clock().now().nanoseconds / 1e9,
+            )
+            decision = with_track(decision, track)
         except ValueError as exc:
             self.get_logger().warn(f"discarding cloud for dynamic obstacle detection: {exc}")
             return

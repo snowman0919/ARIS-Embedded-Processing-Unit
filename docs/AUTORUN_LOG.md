@@ -692,9 +692,34 @@ Entry format:
 - Build/tests:  `python3 -m py_compile` passed for the changed V5/evidence modules; `bash -n
   scripts/check_v5_dynamic_obstacle.sh` passed; targeted V5/evidence tests passed (`25 passed`);
   full `./scripts/check_python_tests.sh` passed (`84 passed`); `git diff --check` passed.
-- Commit:       Pending V5 local detour advisory commit.
+- Commit:       `b5f6754` — `Add V5 local detour advisory`.
 - Stubbed/blocked: This is still local simulation evidence. It does not yet track persistent
   objects, perform full route-graph replanning, replay real LiDAR obstacle bags, validate camera
   fusion, or prove behavior in HIL/field runs.
 - Next:         Commit and push the local detour increment to `origin/v3`; then connect V5 obstacle
   evidence to recorded/replayed bags and add object persistence/replan scoring.
+
+## 2026-06-22 14:01 KST — V5: Persistent Obstacle Track Evidence — WIP
+- Built:        Added ROS-free `DynamicObstacleTracker`, `TrackedObstacle`, and
+  `ObstacleObservation` to keep corridor obstacles persistent across frames with `track_id`,
+  `track_age`, persistence time, and simple velocity estimates. `dynamic_obstacle_node` now
+  attaches track metadata to `/aris/perception/dynamic_obstacle` advisories. The V5 smoke and
+  readiness evidence index now include tracking metrics alongside detour/slow/stop control metrics.
+- Verified:     `./scripts/check_v5_dynamic_obstacle.sh` passed with
+  `baseline_speed=1.301`, `detour_min_speed=0.270`, `detour_min_accel=-0.100`,
+  `detour_min_steering=-0.927`, `slow_min_speed=0.320`, `stop_min_speed=0.000`,
+  `track_age=2`, `track_persistence_s=0.200`, and `track_velocity_x_mps=-1.000`. Then
+  `ARIS_CORE_READINESS_SKIP_GAZEBO=1 ./scripts/run_core_readiness_report.sh` passed with
+  `skip_v3=0`, `skip_gazebo=1`, `result=PASS`, and `ARIS core readiness passed (7 checks).` The
+  report is `/home/kotori9/aris/logs/readiness/core_readiness_20260622T050121Z.log`; the evidence
+  index is `/home/kotori9/aris/logs/readiness/evidence_index_20260622T050121Z.json` and includes
+  `track_age=2.0`, `track_persistence_s=0.2`, and `track_velocity_x_mps=-1.0`.
+- Build/tests:  `python3 -m py_compile` passed for changed V5/evidence modules; `bash -n
+  scripts/check_v5_dynamic_obstacle.sh` passed; targeted V5/evidence tests passed (`8 passed`);
+  full `./scripts/check_python_tests.sh` passed (`87 passed`); `git diff --check` passed.
+- Commit:       Pending V5 persistent obstacle track evidence commit.
+- Stubbed/blocked: This is a nearest-neighbor single-corridor tracker for simulation evidence. It
+  is not yet a production multi-object tracker, static-map differencer, route-graph replan scorer,
+  real LiDAR replay gate, HIL, or field validation.
+- Next:         Commit and push the tracking increment to `origin/v3`; then add recorded/replayed
+  obstacle-bag scoring and route-graph replan evidence.

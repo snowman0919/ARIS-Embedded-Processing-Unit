@@ -24,8 +24,8 @@ This keeps Gazebo simulation and the pure LiDAR surrogate behind the same downst
 localization topic contract.
 
 `dynamic_obstacle_node` is the first V5 dynamic-obstacle avoidance gate. It reads `/scan_cloud`,
-filters points inside the forward driving corridor, and publishes
-`/aris/perception/dynamic_obstacle` as a JSON advisory:
+filters points inside the forward driving corridor, tracks persistent corridor obstacles across
+frames, and publishes `/aris/perception/dynamic_obstacle` as a JSON advisory:
 
 - `clear`: no local speed limit.
 - `detour`: local planner inserts a short bypass waypoint and caps speed.
@@ -33,5 +33,6 @@ filters points inside the forward driving corridor, and publishes
 - `stop`: local planner commands zero speed and full braking.
 
 The smoke gate `just v5-dynamic-obstacle-smoke` verifies that detour/slow/stop advisories affect
-`/cmd_drive` without changing the existing simulator/HAL control contract. It is still simulation
-evidence, not a field-validated tracker or full dynamic replan.
+`/cmd_drive` without changing the existing simulator/HAL control contract. It also records track
+age, persistence, and approach velocity in readiness evidence. It is still simulation evidence, not
+a field-validated multi-object tracker or full dynamic replan.

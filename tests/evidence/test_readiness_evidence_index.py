@@ -28,7 +28,8 @@ def test_readiness_evidence_index_collects_latest_artifacts(tmp_path):
         "v5_dynamic_obstacle baseline_speed=1.280 baseline_min_steering=0.100 "
         "detour_min_speed=0.320 detour_min_accel=-0.100 detour_min_steering=-0.200 "
         "slow_min_speed=0.320 "
-        "slow_min_accel=-0.200 stop_min_speed=0.000 stop_min_accel=-1.000\n",
+        "slow_min_accel=-0.200 stop_min_speed=0.000 stop_min_accel=-1.000 "
+        "track_age=2 track_persistence_s=0.200 track_velocity_x_mps=-1.000\n",
         encoding="utf-8",
     )
     (bags / "metadata.yaml").write_text(
@@ -67,3 +68,4 @@ def test_readiness_evidence_index_collects_latest_artifacts(tmp_path):
     assert index["v5_dynamic_obstacle"]["baseline_speed"] == 1.28
     assert index["v5_dynamic_obstacle"]["detour_min_steering"] == -0.2
     assert index["v5_dynamic_obstacle"]["stop_min_accel"] == -1.0
+    assert index["v5_dynamic_obstacle"]["track_age"] == 2

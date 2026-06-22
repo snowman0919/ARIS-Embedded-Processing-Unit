@@ -27,6 +27,12 @@ import time
 
 import rclpy
 from ackermann_msgs.msg import AckermannDriveStamped
+from aris_perception.dynamic_obstacles import (
+    DynamicObstacleConfig,
+    DynamicObstacleTracker,
+    PointXYZ,
+    obstacle_observation,
+)
 from std_msgs.msg import String
 
 samples = []
@@ -124,6 +130,21 @@ if not stop_samples:
 stop_min_speed = min(speed for _, speed, _, _ in stop_samples)
 stop_min_accel = min(accel for _, _, accel, _ in stop_samples)
 
+tracking_config = DynamicObstacleConfig()
+tracker = DynamicObstacleTracker(tracking_config)
+first_observation = obstacle_observation(
+    [PointXYZ(3.0, 0.1, 0.0), PointXYZ(3.1, 0.0, 0.0), PointXYZ(3.2, -0.1, 0.0)],
+    config=tracking_config,
+)
+second_observation = obstacle_observation(
+    [PointXYZ(2.8, 0.1, 0.0), PointXYZ(2.9, 0.0, 0.0), PointXYZ(3.0, -0.1, 0.0)],
+    config=tracking_config,
+)
+tracker.update(first_observation, timestamp_s=1.0)
+track = tracker.update(second_observation, timestamp_s=1.2)
+if track is None:
+    raise SystemExit("dynamic obstacle tracker did not create a persistent track")
+
 node.destroy_node()
 rclpy.shutdown()
 
@@ -131,7 +152,8 @@ print(
     "v5_dynamic_obstacle baseline_speed={:.3f} baseline_min_steering={:.3f} "
     "detour_min_speed={:.3f} detour_min_accel={:.3f} detour_min_steering={:.3f} "
     "slow_min_speed={:.3f} slow_min_accel={:.3f} "
-    "stop_min_speed={:.3f} stop_min_accel={:.3f}".format(
+    "stop_min_speed={:.3f} stop_min_accel={:.3f} "
+    "track_age={} track_persistence_s={:.3f} track_velocity_x_mps={:.3f}".format(
         baseline_speed,
         baseline_min_steering,
         detour_min_speed,
@@ -141,6 +163,9 @@ print(
         slow_min_accel,
         stop_min_speed,
         stop_min_accel,
+        track.age,
+        track.persistence_s,
+        track.velocity_x_mps,
     )
 )
 
@@ -161,6 +186,12 @@ if stop_min_speed > 0.05:
     failures.append(f"stop advisory did not command near-zero speed: {stop_min_speed:.3f}")
 if stop_min_accel > -0.99:
     failures.append(f"stop advisory did not request full brake: {stop_min_accel:.3f}")
+if track.age < 2:
+    failures.append(f"tracker did not persist obstacle across frames: age={track.age}")
+if track.persistence_s < 0.19:
+    failures.append(f"tracker persistence too short: {track.persistence_s:.3f}")
+if track.velocity_x_mps >= 0.0:
+    failures.append(f"tracker did not estimate closing obstacle velocity: {track.velocity_x_mps:.3f}")
 if failures:
     raise SystemExit("; ".join(failures))
 PY
