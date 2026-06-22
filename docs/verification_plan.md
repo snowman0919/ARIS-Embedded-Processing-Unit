@@ -184,8 +184,10 @@ just core-pipeline-repeatability
 ```
 
 By default it runs `core-pipeline-flow` twice, requires both runs to pass all six stages, requires
-the route-graph node path to remain stable, bounds final goal-error spread, and records minimum
-sample floors across the repeated runs for `/scan_cloud`, `/global_path`, and `/cmd_drive`. Set
+the route-graph signature to remain stable, bounds final goal-error spread, and records minimum
+sample floors across the repeated runs for `/scan_cloud`, `/global_path`, and `/cmd_drive`. Route
+stability is evaluated on the final detour suffix, so a later run may start at `detour_b` instead
+of `detour_a` after vehicle progress, but a different final detour still fails. Set
 `ARIS_CORE_PIPELINE_REPEAT_RUNS=<N>` to increase the repeat count. It writes
 `$ARIS_LOGS/pipeline/core_pipeline_repeatability_<timestamp>.json`.
 

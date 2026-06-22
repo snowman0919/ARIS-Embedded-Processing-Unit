@@ -79,6 +79,8 @@ just core-pipeline-repeatability
 This reruns the complete pipeline, checks that every run passes the six-stage flow, and records
 route-path stability plus goal-error spread in
 `$ARIS_LOGS/pipeline/core_pipeline_repeatability_<timestamp>.json`.
+Route stability is evaluated on the final detour suffix: progress from `detour_a -> detour_b` to
+`detour_b -> detour_c -> goal` remains stable, while a different final detour does not.
 
 ## 3. Boot Workflow
 
