@@ -1374,5 +1374,18 @@ Entry format:
   passed (`docs=25 references=188`); reuse-mode
   `ARIS_HEADLESS_RELEASE_REUSE_EXISTING=1 ./scripts/check_headless_release_candidate.sh` passed
   with `headless_release_candidate_valid`.
-- Next:         Commit and push the repeatability sample-floor gate, then run full
-  `./scripts/check_headless_release_candidate.sh` on the committed HEAD.
+- Verified:     Full `./scripts/check_headless_release_candidate.sh` passed on
+  `milestone/headless-simulation-embedded@c7ecb7c` with `headless_release_candidate_valid`.
+  The repeatability step wrote sampled-run evidence with `goal_error_max_m=0.7303608412692553`
+  and `goal_error_spread_m=0.0012324659010648498`; the following headless readiness audit passed
+  with zero blockers.
+- Evidence:     Release report
+  `/home/kotori9/aris/logs/readiness/headless_release_candidate_20260622T081822Z.json`;
+  final evidence index
+  `/home/kotori9/aris/logs/readiness/evidence_index_20260622T081822Z_release.json`;
+  repeatability
+  `/home/kotori9/aris/logs/pipeline/core_pipeline_repeatability_20260622T081849Z.json`;
+  headless audit
+  `/home/kotori9/aris/logs/readiness/headless_readiness_audit_20260622T082245Z.json`.
+- Next:         Continue strengthening headless simulation evidence and embedded dry-run usability
+  on `milestone/headless-simulation-embedded`.
