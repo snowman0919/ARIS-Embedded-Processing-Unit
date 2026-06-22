@@ -188,15 +188,18 @@ ln -sf "$report_file" "$latest_file"
   --out "$final_index_file"
 ln -sf "$final_index_file" "$latest_index_file"
 
-python3 - "$report_file" "$final_index_file" <<'PY'
+python3 - "$report_file" "$final_index_file" "$status_file" <<'PY'
 import json
 import sys
 from pathlib import Path
 
 report_path = Path(sys.argv[1])
 index_path = Path(sys.argv[2])
+status_path = Path(sys.argv[3])
 report = json.loads(report_path.read_text(encoding="utf-8"))
-report.setdefault("evidence", {})["readiness_evidence_index"] = str(index_path.resolve())
+evidence = report.setdefault("evidence", {})
+evidence["readiness_evidence_index"] = str(index_path.resolve())
+evidence["headless_status"] = str(status_path.resolve())
 report_path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 PY
 
@@ -205,18 +208,6 @@ python3 "${ARIS_WS}/scripts/summarize_headless_status.py" \
   --workspace "$ARIS_WS" \
   --json >"$status_file"
 ln -sf "$status_file" "$latest_status_file"
-
-python3 - "$report_file" "$status_file" <<'PY'
-import json
-import sys
-from pathlib import Path
-
-report_path = Path(sys.argv[1])
-status_path = Path(sys.argv[2])
-report = json.loads(report_path.read_text(encoding="utf-8"))
-report.setdefault("evidence", {})["headless_status"] = str(status_path.resolve())
-report_path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-PY
 
 "${ARIS_WS}/scripts/validate_headless_release_candidate.py" \
   "$report_file" \
