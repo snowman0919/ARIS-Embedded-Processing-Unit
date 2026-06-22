@@ -112,6 +112,14 @@ just branch-policy
 - Map editing requires proper authority.
 - Vehicle monitor shows velocity, battery, localization confidence, dry-run, E-stop, and fault.
 - Operator can see why autonomy stopped.
+- Processing-unit route and V3 SemanticHDMap artifacts can be exported to a compact GUI snapshot
+  JSON for the external Flutter operator console:
+
+```bash
+just gui-snapshot-route /path/to/route.csv /tmp/gui_snapshot.json
+just gui-snapshot-map /path/to/v3_semantic_map.json /tmp/gui_snapshot.json
+just gui-snapshot-serve /tmp/gui_snapshot.json
+```
 
 ## 9. Acceptance Traceability
 

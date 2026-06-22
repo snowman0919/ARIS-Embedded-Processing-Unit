@@ -173,6 +173,18 @@ v6-semantic-review-smoke:
 operator-goal-smoke:
     ./scripts/check_operator_goal.sh
 
+# Operator GUI handoff: export a route CSV to compact JSON.
+gui-snapshot-route route out:
+    ./scripts/export_gui_snapshot.py --route "{{route}}" --out "{{out}}"
+
+# Operator GUI handoff: export a V3 SemanticHDMap snapshot to compact JSON.
+gui-snapshot-map snapshot out:
+    ./scripts/export_gui_snapshot.py --semantic-map-snapshot "{{snapshot}}" --out "{{out}}"
+
+# Operator GUI handoff: serve a compact snapshot JSON to a tablet or local browser.
+gui-snapshot-serve snapshot host="127.0.0.1" port="8765":
+    ./scripts/serve_gui_snapshot.py --snapshot "{{snapshot}}" --host "{{host}}" --port "{{port}}"
+
 # Interactive V4 demo, step 1: drive manually while recording a route CSV.
 v4-teach route="manual_v4_route.csv":
     ./scripts/manual_v4_teach.sh "{{route}}"

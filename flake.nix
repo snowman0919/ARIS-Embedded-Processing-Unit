@@ -9,7 +9,11 @@
   outputs = { self, nixpkgs, flake-utils }:
     flake-utils.lib.eachSystem [ "aarch64-linux" "x86_64-linux" ] (system:
       let
-        pkgs = import nixpkgs { inherit system; };
+        pkgs = import nixpkgs {
+          inherit system;
+          config.allowUnfree = true;
+          config.android_sdk.accept_license = true;
+        };
         lib = pkgs.lib;
         pick = names:
           let found = lib.findFirst (name: builtins.hasAttr name pkgs) null names;
@@ -17,6 +21,12 @@
         maybe = names:
           let p = pick names;
           in lib.optional (p != null) p;
+        androidComposition = pkgs.androidenv.composeAndroidPackages {
+          platformVersions = [ "36" ];
+          buildToolsVersions = [ "36.0.0" "35.0.0" "28.0.3" ];
+          includeEmulator = false;
+          includeSystemImages = false;
+        };
       in {
         devShells.default = pkgs.mkShell {
           packages = with pkgs; [
@@ -40,6 +50,9 @@
             pre-commit
             flutter
             dart
+            jdk17
+            android-tools
+            androidComposition.androidsdk
             cmake
             ninja
             pkg-config
@@ -81,6 +94,10 @@
             export ROS_LOCALHOST_ONLY="''${ROS_LOCALHOST_ONLY:-1}"
             export RMW_IMPLEMENTATION="''${RMW_IMPLEMENTATION:-rmw_fastrtps_cpp}"
             export ARIS_ENABLE_REAL_ACTUATION="''${ARIS_ENABLE_REAL_ACTUATION:-0}"
+            export ANDROID_HOME="${androidComposition.androidsdk}/libexec/android-sdk"
+            export ANDROID_SDK_ROOT="$ANDROID_HOME"
+            export JAVA_HOME="${pkgs.jdk17.home}"
+            export PATH="${pkgs.android-tools}/bin:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH"
 
             mkdir -p "$ARIS_DATA" "$ARIS_LOGS" "$ARIS_MODELS" "$HF_HOME" "$TORCH_HOME"
 

@@ -13,6 +13,9 @@ This repository contains the ROS 2 processing-unit stack:
 - processing-unit verification scripts and documentation
 
 It should not contain the standalone Flutter operator interface or standalone MCU firmware sources.
+It may contain processing-unit handoff artifacts and exporters, such as GUI snapshot JSON produced
+from route CSV or V3 SemanticHDMap snapshots, plus the localhost snapshot bridge used by the
+external Flutter operator console.
 
 ## ARIS-Flutter-Interface
 

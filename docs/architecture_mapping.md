@@ -28,7 +28,7 @@ This document maps the PDF requirements to the current repository and identifies
 | CAN final transport | docs/bridge target | Design and validation pending |
 | Heartbeat 200 ms | protocol code/tests | Present |
 | AI advisory only | `docs/ai_layer.md`, `aris_ai_semantics` | Policy present; Cosmos pipeline pending |
-| GUI map/goal/edit/monitor | operator API smoke and external Flutter interface boundary | Full GUI requirements and implementation pending |
+| GUI map/goal/edit/monitor | operator API smoke, GUI snapshot exporter/bridge, and external Flutter interface boundary | Full interactive GUI implementation pending |
 
 ## 2. Production Gap Matrix
 

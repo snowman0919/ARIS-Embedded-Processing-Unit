@@ -219,6 +219,9 @@ just v5-recorded-obstacle-replay-smoke # record then replay-score a deterministi
 just v6-semantic-review-smoke # V6 advisory-only semantic map review report
 just scan-cloud-contract # validate /scan_cloud PointCloud2 fields, frame, and TF
 just operator-goal-smoke # operator JSON goal -> /goal_pose -> V4 planner smoke
+just gui-snapshot-route /path/to/route.csv /tmp/gui_snapshot.json # route CSV -> GUI snapshot JSON
+just gui-snapshot-map /path/to/semantic_map.json /tmp/gui_snapshot.json # V3 map -> GUI snapshot JSON
+just gui-snapshot-serve /tmp/gui_snapshot.json # serve GUI snapshot on localhost:8765
 just hil-preflight # hardware/HIL readiness inventory without enabling actuators
 just operational-readiness-audit # aggregate repeatability, HIL, field evidence, and practical-use status
 just field-validation /path/to/manifest.json # validate closed-site field-run evidence
@@ -266,10 +269,18 @@ GUI tools:
 just auto-rviz
 just rviz
 just gazebo
+just gui-snapshot-route /path/to/route.csv /tmp/gui_snapshot.json
+just gui-snapshot-map /path/to/v3_semantic_map.json /tmp/gui_snapshot.json
+just gui-snapshot-serve /tmp/gui_snapshot.json
 ```
 
 These mount `/tmp/.X11-unix` and pass `DISPLAY` when available.
 `just auto-rviz` starts the closed-loop simulator, local planner, simulated MCU bridge, and RViz with the ARIS visualization config. If X11 authorization fails, run the command from a terminal inside the active desktop login or set `ARIS_XAUTHORITY` to a readable Xauthority file.
+The `gui-snapshot-*` commands are headless-safe handoff tools: they export route or V3
+SemanticHDMap artifacts to compact JSON containing `vehicle_pose`, `goal`, `global_path`,
+`local_path`, `semantic_cells`, and `lidar_returns` for the external Flutter operator UI. The
+serve command defaults to `127.0.0.1:8765`; bind `0.0.0.0` only when intentionally exposing the
+snapshot to an Android tablet on the lab network.
 
 ## Hardware Mode Warning
 
@@ -290,3 +301,19 @@ It uses a privileged helper container only for virtual CAN setup and is not part
 - Ensure NVIDIA GPU container runtime is configured by the host owner.
 - Configure X11 permissions for GUI forwarding if needed.
 - Hardware device access depends on group permissions and machine policy.
+
+
+## Android Tablet GUI Bridge
+
+The Flutter tablet app lives at `/home/sbeen/aris/aris-flutter-interface`. The Nix dev shell
+provides Flutter, Dart, JDK 17, Android platform tools, and an accepted Android SDK composition for
+local tablet builds. Dev-env can export route or V3 SemanticHDMap artifacts into the GUI snapshot
+schema and serve them over HTTP for Android lab testing:
+
+```bash
+nix develop --command just gui-snapshot-route /path/to/route.csv /tmp/aris_gui_snapshot.json
+nix develop --command just gui-snapshot-serve /tmp/aris_gui_snapshot.json 0.0.0.0 8765
+```
+
+Use `gui-snapshot-map /path/to/v3_semantic_map.json /tmp/aris_gui_snapshot.json` when starting from
+the V3 `SemanticHDMap.save_snapshot` output.
