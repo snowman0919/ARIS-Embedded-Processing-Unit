@@ -1270,3 +1270,23 @@ Entry format:
   data, ROS 2 processing software, and embedded-interface dry-run software only.
 - Next:         Continue headless simulation and embedded dry-run work on
   `milestone/headless-simulation-embedded`.
+
+## 2026-06-22 KST — Fresh Release Evidence After Branch Rename
+
+- Verified:     Full `./scripts/check_headless_release_candidate.sh` passed on
+  `milestone/headless-simulation-embedded@2ca4812` with `headless_release_candidate_valid`.
+  The run included bootstrap doctor, embedded dry-run, documented command validation,
+  architecture contracts, host policy, core pipeline flow, repeatability, full core readiness, and
+  headless readiness audit.
+- Evidence:     Release report
+  `/home/kotori9/aris/logs/readiness/headless_release_candidate_20260622T075350Z.json`;
+  final evidence index
+  `/home/kotori9/aris/logs/readiness/evidence_index_20260622T075350Z_release.json`;
+  headless audit
+  `/home/kotori9/aris/logs/readiness/headless_readiness_audit_20260622T075820Z.json`;
+  core readiness
+  `/home/kotori9/aris/logs/readiness/core_readiness_20260622T075509Z.log`;
+  repeatability
+  `/home/kotori9/aris/logs/pipeline/core_pipeline_repeatability_20260622T075417Z.json`.
+- Scope note:   This proves the current named milestone branch in the hardware-free scope only.
+  HIL, real sensors, real actuators, and closed-site field validation remain future milestones.
