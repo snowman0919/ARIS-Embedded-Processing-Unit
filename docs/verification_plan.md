@@ -246,8 +246,8 @@ just operational-readiness-audit
 It writes `$ARIS_LOGS/readiness/operational_readiness_audit_<timestamp>.json` and updates
 `$ARIS_LOGS/readiness/latest_operational_readiness_audit.json`. The audit aggregates the latest
 readiness index, V2 Gazebo/LiDAR evidence, V3 map manifest and repeat-pass compare, V5 dynamic
-obstacle report, V5 obstacle bag replay score, V6 advisory-only semantic review, HIL preflight,
-and field-validation evidence.
+obstacle report, V5 obstacle bag replay score, V6 advisory-only semantic review, repeated core
+pipeline evidence, HIL preflight, and field-validation evidence.
 It records `achieved`, `practical_use_ready`, `safe_to_enable_real_actuation`, per-criterion pass
 states, and blockers. This audit is the machine-readable guardrail for deciding whether the
 project can be considered practically usable; current simulation evidence can pass while HIL or

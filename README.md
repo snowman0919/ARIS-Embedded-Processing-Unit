@@ -213,7 +213,7 @@ just v6-semantic-review-smoke # V6 advisory-only semantic map review report
 just scan-cloud-contract # validate /scan_cloud PointCloud2 fields, frame, and TF
 just operator-goal-smoke # operator JSON goal -> /goal_pose -> V4 planner smoke
 just hil-preflight # hardware/HIL readiness inventory without enabling actuators
-just operational-readiness-audit # aggregate final HIL/field evidence and report practical-use status
+just operational-readiness-audit # aggregate repeatability, HIL, field evidence, and practical-use status
 just field-validation /path/to/manifest.json # validate closed-site field-run evidence
 just embedded-dry-run # MCU bridge/protocol tests plus timestamped hardware-free evidence report
 just firmware-test   # standalone STM32 crate test path if firmware/ is present in this checkout

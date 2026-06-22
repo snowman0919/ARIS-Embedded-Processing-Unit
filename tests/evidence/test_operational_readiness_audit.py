@@ -26,6 +26,18 @@ def _write_index(logs: Path, *, ready_for_hil: bool) -> None:
                     "message_count": 12,
                     "topics": {"/scan_cloud": {"count": 12}},
                 },
+                "core_pipeline_repeatability": {
+                    "report": {
+                        "valid": True,
+                        "summary": {
+                            "runs_completed": 2,
+                            "node_path_stable": True,
+                            "goal_error_max_m": 0.8,
+                            "goal_error_spread_m": 0.1,
+                        },
+                    },
+                    "report_path": str(logs / "pipeline" / "core_pipeline_repeatability.json"),
+                },
                 "v3_semantic_map": {
                     "manifest": {"valid": True},
                     "manifest_path": str(logs / "maps" / "v3.manifest.json"),
@@ -75,6 +87,7 @@ def test_operational_audit_keeps_goal_unachieved_without_hil_and_field(tmp_path)
 
     assert report["artifact_type"] == "aris_operational_readiness_audit"
     assert report["criteria"]["core_pipeline_3d_sim"]["passed"] is True
+    assert report["criteria"]["core_pipeline_repeatability"]["passed"] is True
     assert report["criteria"]["v3_v6_mapping_review"]["passed"] is True
     assert report["criteria"]["v5_obstacle"]["passed"] is True
     assert report["criteria"]["v5_obstacle_bag_replay"]["passed"] is False
@@ -97,6 +110,34 @@ def test_operational_audit_requires_field_and_real_actuation_safety(tmp_path):
     assert report["criteria"]["field_validation"]["passed"] is False
     assert report["safe_to_enable_real_actuation"] is False
     assert report["achieved"] is False
+
+
+def test_operational_audit_requires_core_pipeline_repeatability(tmp_path):
+    logs = tmp_path / "logs"
+    _write_index(logs, ready_for_hil=True)
+    index_path = logs / "readiness" / "evidence_index_20260101T000000Z.json"
+    index = json.loads(index_path.read_text(encoding="utf-8"))
+    index["core_pipeline_repeatability"] = {"report": None, "report_path": None}
+    index_path.write_text(json.dumps(index), encoding="utf-8")
+
+    report = generate_audit(tmp_path / "workspace", logs)
+
+    assert report["criteria"]["core_pipeline_repeatability"]["passed"] is False
+    assert any("core_pipeline_repeatability" in blocker for blocker in report["blockers"])
+
+
+def test_operational_audit_rejects_malformed_repeatability_goal_error(tmp_path):
+    logs = tmp_path / "logs"
+    _write_index(logs, ready_for_hil=True)
+    index_path = logs / "readiness" / "evidence_index_20260101T000000Z.json"
+    index = json.loads(index_path.read_text(encoding="utf-8"))
+    index["core_pipeline_repeatability"]["report"]["summary"]["goal_error_max_m"] = "not-a-number"
+    index_path.write_text(json.dumps(index), encoding="utf-8")
+
+    report = generate_audit(tmp_path / "workspace", logs)
+
+    assert report["criteria"]["core_pipeline_repeatability"]["passed"] is False
+    assert any("core_pipeline_repeatability" in blocker for blocker in report["blockers"])
 
 
 def test_operational_audit_falls_back_to_latest_v5_and_hil_artifacts(tmp_path):

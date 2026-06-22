@@ -1140,3 +1140,21 @@ Entry format:
 - Scope note:   This improves operator/developer usability for latest headless evidence. It does
   not claim hardware/HIL/field readiness.
 - Next:         Commit and push to `v6`.
+
+## 2026-06-22 16:19 KST — Operational Audit Repeatability Criterion — WIP
+- Built:        Updated `scripts/generate_operational_readiness_audit.py` so final practical-use
+  readiness now requires the core-pipeline repeatability report in addition to no-skip readiness,
+  V2/V3/V5/V6 evidence, HIL preflight, and field validation. Added regression coverage for missing
+  repeatability evidence and documented the new audit input in README and the verification plan.
+- Verified:     `python3 -m pytest tests/evidence/test_operational_readiness_audit.py` passed
+  (`7 passed`). `./scripts/check_operational_readiness_audit.sh` wrote
+  `/home/kotori9/aris/logs/readiness/operational_readiness_audit_20260622T072009Z.json` with
+  `core_pipeline_repeatability.passed=true`, `achieved=false`, and blockers limited to
+  `hil_preflight` and `field_validation`, matching the current no-hardware scope. Full
+  `./scripts/check_python_tests.sh` passed (`117 passed`). `./scripts/check_documented_commands.sh`,
+  `./scripts/check_architecture_contracts.sh`, `./scripts/check_host_policy.sh`, and
+  `git diff --check` passed.
+- Commit:       Pending operational-audit repeatability criterion commit.
+- Scope note:   This makes final readiness stricter. It does not change the active headless-only
+  hardware scope or claim HIL/field readiness.
+- Next:         Commit and push to `v6`.

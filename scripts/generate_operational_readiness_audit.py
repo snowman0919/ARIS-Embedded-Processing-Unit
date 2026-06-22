@@ -40,6 +40,13 @@ def _int_value(value: Any, default: int = 0) -> int:
         return default
 
 
+def _float_value(value: Any, default: float = float("inf")) -> float:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return default
+
+
 def _readiness_index(logs_dir: Path) -> tuple[Path | None, dict[str, Any] | None]:
     path = _latest(list((logs_dir / "readiness").glob("evidence_index_*.json")))
     return path, _read_json(path)
@@ -66,6 +73,11 @@ def generate_audit(workspace: Path, logs_dir: Path) -> dict[str, Any]:
     )
     v6_path, latest_v6_report = _latest_json(logs_dir, "maps", "v3_semantic_map_*.v6_review.json")
     hil_path, latest_hil_report = _latest_json(logs_dir, "hil", "hil_preflight_*.json")
+    repeat_path, latest_repeat_report = _latest_json(
+        logs_dir,
+        "pipeline",
+        "core_pipeline_repeatability_*.json",
+    )
     criteria: dict[str, dict[str, Any]] = {}
 
     readiness = (index or {}).get("readiness") or {}
@@ -109,6 +121,29 @@ def generate_audit(workspace: Path, logs_dir: Path) -> dict[str, Any]:
             "message_count": (v2_bag or {}).get("message_count") if isinstance(v2_bag, dict) else None,
         },
         [] if v2_gazebo_passed else ["latest no-skip Gazebo readiness and V2 LiDAR bag evidence are required"],
+    )
+
+    repeat_index = (index or {}).get("core_pipeline_repeatability") or {}
+    repeat_report = repeat_index.get("report") or latest_repeat_report or {}
+    repeat_summary = repeat_report.get("summary") or {}
+    repeat_goal_error_max = _float_value(repeat_summary.get("goal_error_max_m"))
+    repeat_passed = (
+        repeat_report.get("valid") is True
+        and _int_value(repeat_summary.get("runs_completed")) >= 2
+        and repeat_summary.get("node_path_stable") is True
+        and repeat_goal_error_max <= 1.3
+    )
+    criteria["core_pipeline_repeatability"] = _criterion(
+        repeat_passed,
+        {
+            "report_path": repeat_index.get("report_path") or (str(repeat_path) if repeat_path else None),
+            "valid": repeat_report.get("valid"),
+            "runs_completed": repeat_summary.get("runs_completed"),
+            "node_path_stable": repeat_summary.get("node_path_stable"),
+            "goal_error_max_m": repeat_summary.get("goal_error_max_m"),
+            "goal_error_spread_m": repeat_summary.get("goal_error_spread_m"),
+        },
+        [] if repeat_passed else ["valid repeated core pipeline evidence with at least 2 stable runs is required"],
     )
 
     v3 = (index or {}).get("v3_semantic_map") or {}
