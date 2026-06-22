@@ -104,6 +104,9 @@ def summarize(logs_dir: Path, workspace: Path | None = None) -> dict[str, Any]:
             "node_path_stable": repeat_summary.get("node_path_stable"),
             "goal_error_max_m": repeat_summary.get("goal_error_max_m"),
             "goal_error_spread_m": repeat_summary.get("goal_error_spread_m"),
+            "scan_cloud_samples_min": repeat_summary.get("scan_cloud_samples_min"),
+            "global_path_points_min": repeat_summary.get("global_path_points_min"),
+            "cmd_samples_min": repeat_summary.get("cmd_samples_min"),
         },
         "release_steps": release_steps,
         "evidence": {
@@ -201,6 +204,9 @@ def format_text(summary: dict[str, Any]) -> str:
         f"  node_path_stable: {_format_bool(repeat.get('node_path_stable') is True)}",
         f"  goal_error_max_m: {repeat.get('goal_error_max_m')}",
         f"  goal_error_spread_m: {repeat.get('goal_error_spread_m')}",
+        f"  scan_cloud_samples_min: {repeat.get('scan_cloud_samples_min')}",
+        f"  global_path_points_min: {repeat.get('global_path_points_min')}",
+        f"  cmd_samples_min: {repeat.get('cmd_samples_min')}",
         "",
         "Evidence",
     ]

@@ -1389,3 +1389,18 @@ Entry format:
   `/home/kotori9/aris/logs/readiness/headless_readiness_audit_20260622T082245Z.json`.
 - Next:         Continue strengthening headless simulation evidence and embedded dry-run usability
   on `milestone/headless-simulation-embedded`.
+
+## 2026-06-22 KST — Headless Status Shows Repeatability Sample Floors — WIP
+
+- Built:        Updated `scripts/summarize_headless_status.py` so `just headless-status` and the
+  JSON summary expose repeatability sample floors: `scan_cloud_samples_min`,
+  `global_path_points_min`, and `cmd_samples_min`.
+- Verified:     `./scripts/check_headless_status.sh` now prints the sampled-run floors from the
+  latest repeatability report: `scan_cloud_samples_min=180`, `global_path_points_min=35`,
+  and `cmd_samples_min=178`. Targeted status tests passed (`5 passed`); full
+  `./scripts/check_python_tests.sh` passed (`127 passed`); `./scripts/check_documented_commands.sh`
+  passed (`docs=25 references=188`); reuse-mode
+  `ARIS_HEADLESS_RELEASE_REUSE_EXISTING=1 ./scripts/check_headless_release_candidate.sh` passed
+  with `headless_release_candidate_valid`.
+- Next:         Commit and push the status visibility improvement, then run a full headless
+  release-candidate on the committed HEAD.

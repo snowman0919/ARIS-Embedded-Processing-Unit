@@ -56,6 +56,9 @@ def test_headless_status_summary_collects_latest_evidence(tmp_path):
             "node_path_stable": True,
             "goal_error_max_m": 0.5,
             "goal_error_spread_m": 0.1,
+            "scan_cloud_samples_min": 12,
+            "global_path_points_min": 6,
+            "cmd_samples_min": 24,
         },
     }
     (readiness / "latest_headless_release_candidate.json").write_text(json.dumps(release), encoding="utf-8")
@@ -72,10 +75,16 @@ def test_headless_status_summary_collects_latest_evidence(tmp_path):
     assert summary["safe_to_enable_real_actuation"] is False
     assert summary["core_pipeline"]["node_path"] == ["approach", "goal"]
     assert summary["repeatability"]["runs_completed"] == 2
+    assert summary["repeatability"]["scan_cloud_samples_min"] == 12
+    assert summary["repeatability"]["global_path_points_min"] == 6
+    assert summary["repeatability"]["cmd_samples_min"] == 24
     assert "headless_ready: yes" in text
     assert "evidence_fresh_for_head: no" in text
     assert "run: just headless-release-candidate" in text
     assert "node_path: approach -> goal" in text
+    assert "scan_cloud_samples_min: 12" in text
+    assert "global_path_points_min: 6" in text
+    assert "cmd_samples_min: 24" in text
 
 
 def test_headless_status_summary_marks_fresh_evidence_for_matching_head(tmp_path, monkeypatch):
