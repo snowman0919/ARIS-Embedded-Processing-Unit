@@ -79,6 +79,21 @@ def _write_index(logs: Path, *, ready_for_hil: bool) -> None:
     )
 
 
+def _write_valid_v5_replay(logs: Path) -> None:
+    obstacles = logs / "obstacles"
+    obstacles.mkdir(exist_ok=True)
+    (obstacles / "v5_obstacle_bag_replay_20260101T000001Z.json").write_text(
+        json.dumps(
+            {
+                "valid": True,
+                "bag_path": "/bags/operator_obstacle",
+                "metrics": {"advisory_samples": 3, "action_counts": {"detour": 3}},
+            }
+        ),
+        encoding="utf-8",
+    )
+
+
 def test_operational_audit_keeps_goal_unachieved_without_hil_and_field(tmp_path):
     logs = tmp_path / "logs"
     _write_index(logs, ready_for_hil=False)
@@ -93,10 +108,35 @@ def test_operational_audit_keeps_goal_unachieved_without_hil_and_field(tmp_path)
     assert report["criteria"]["v5_obstacle_bag_replay"]["passed"] is False
     assert report["criteria"]["hil_preflight"]["passed"] is False
     assert report["criteria"]["field_validation"]["passed"] is False
+    assert report["scope_status"]["headless_simulation_embedded_ready"] is False
+    assert report["scope_status"]["hardware_evidence_ready"] is False
+    assert report["scope_status"]["full_operational_ready"] is False
     assert report["achieved"] is False
     assert any("hil_preflight" in blocker for blocker in report["blockers"])
     assert any("v5_obstacle_bag_replay" in blocker for blocker in report["blockers"])
     assert any("field_validation" in blocker for blocker in report["blockers"])
+
+
+def test_operational_audit_separates_headless_scope_from_hardware_scope(tmp_path):
+    logs = tmp_path / "logs"
+    _write_index(logs, ready_for_hil=False)
+    _write_valid_v5_replay(logs)
+
+    report = generate_audit(tmp_path / "workspace", logs)
+
+    assert report["scope_status"]["current_scope"] == "headless_simulation_embedded"
+    assert report["scope_status"]["headless_simulation_embedded_ready"] is True
+    assert report["scope_status"]["hardware_scope_active"] is False
+    assert report["scope_status"]["hardware_evidence_ready"] is False
+    assert report["scope_status"]["full_operational_ready"] is False
+    assert report["scope_status"]["remaining_evidence"] == [
+        {"criterion": "hil_preflight", "blockers": ["HIL preflight is not ready"]},
+        {
+            "criterion": "field_validation",
+            "blockers": ["closed-site field validation evidence is missing"],
+        },
+    ]
+    assert report["achieved"] is False
 
 
 def test_operational_audit_requires_field_and_real_actuation_safety(tmp_path):
@@ -172,18 +212,7 @@ def test_operational_audit_falls_back_to_latest_v5_and_hil_artifacts(tmp_path):
 def test_operational_audit_accepts_latest_v5_obstacle_replay_report(tmp_path):
     logs = tmp_path / "logs"
     _write_index(logs, ready_for_hil=True)
-    obstacles = logs / "obstacles"
-    obstacles.mkdir()
-    (obstacles / "v5_obstacle_bag_replay_20260101T000001Z.json").write_text(
-        json.dumps(
-            {
-                "valid": True,
-                "bag_path": "/bags/operator_obstacle",
-                "metrics": {"advisory_samples": 3, "action_counts": {"detour": 3}},
-            }
-        ),
-        encoding="utf-8",
-    )
+    _write_valid_v5_replay(logs)
 
     report = generate_audit(tmp_path / "workspace", logs)
 

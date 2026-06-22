@@ -233,7 +233,9 @@ just firmware-test   # standalone STM32 crate test path if firmware/ is present 
 `$ARIS_LOGS/readiness/`. The latest index is available at
 `$ARIS_LOGS/readiness/latest_evidence_index.json`.
 `just operational-readiness-audit` writes the current completion audit to
-`$ARIS_LOGS/readiness/latest_operational_readiness_audit.json`.
+`$ARIS_LOGS/readiness/latest_operational_readiness_audit.json`. Its `scope_status` separates the
+current headless simulation and embedded dry-run scope from the future HIL/field evidence required
+before full practical-use readiness can be claimed.
 `just headless-readiness-audit` writes the current hardware-free simulation and embedded software
 audit to `$ARIS_LOGS/readiness/latest_headless_readiness_audit.json`.
 `just headless-status` prints a concise human-readable summary of the latest headless release,
