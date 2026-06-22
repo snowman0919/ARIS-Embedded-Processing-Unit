@@ -44,6 +44,7 @@ directly:
 ./scripts/check_v2_gazebo_physics.sh
 ./scripts/check_v2_gazebo_physics_localization.sh
 ./scripts/check_v2_recorded_lidar_bag.sh
+./scripts/check_v2_lidar_bag_contract.sh /path/to/bag
 ./scripts/check_v2_gazebo_drift_recovery.sh
 ./scripts/check_v2_gazebo_stack.sh
 ./scripts/check_lidar_sim.sh
@@ -169,6 +170,7 @@ just v2-gazebo-moving-smoke # moving sim pose -> Gazebo entity -> localization s
 just v2-gazebo-physics-smoke # /cmd_drive -> Gazebo Ackermann physics motion smoke
 just v2-gazebo-physics-localization-smoke # Gazebo physics odom -> localization smoke
 just v2-recorded-lidar-bag-smoke # record and validate a V2 LiDAR acceptance bag
+just v2-lidar-bag-contract /path/to/bag # validate an existing real/operator LiDAR bag
 just v2-gazebo-drift-smoke # Gazebo gpu_lidar corrects drifted wheel odom
 just v2-gazebo-stack-smoke # run all headless Gazebo V2 checks
 just scan-cloud-contract # validate /scan_cloud PointCloud2 fields, frame, and TF

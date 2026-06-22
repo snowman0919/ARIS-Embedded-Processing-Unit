@@ -71,58 +71,7 @@ PY
   kill -INT "$launch_pid" >/dev/null 2>&1 || true
   wait "$launch_pid" || true
 
-  python3 - <<PY >>"$probe_log" 2>&1 || code=$?
-from pathlib import Path
-import sys
-import yaml
-
-bag_dir = Path("$bag_dir")
-metadata_path = bag_dir / "metadata.yaml"
-if not metadata_path.exists():
-    raise SystemExit(f"missing rosbag metadata: {metadata_path}")
-
-metadata = yaml.safe_load(metadata_path.read_text())
-info = metadata.get("rosbag2_bagfile_information", {})
-topics = {}
-for item in info.get("topics_with_message_count", []):
-    topic = item.get("topic_metadata", {}).get("name")
-    if topic:
-        topics[topic] = int(item.get("message_count", 0))
-
-required = {
-    "/cmd_drive": 10,
-    "/scan_cloud": 10,
-    "/gazebo/odom": 10,
-    "/odometry/filtered": 10,
-    "/tf": 1,
-}
-failures = []
-for topic, minimum in required.items():
-    count = topics.get(topic, 0)
-    if count < minimum:
-        failures.append(f"{topic} count={count}, expected >= {minimum}")
-
-storage = str(info.get("storage_identifier", ""))
-duration_ns = int(info.get("duration", {}).get("nanoseconds", 0))
-message_count = int(info.get("message_count", 0))
-if storage != "mcap":
-    failures.append(f"storage_identifier={storage!r}, expected mcap")
-if duration_ns < 3_000_000_000:
-    failures.append(f"duration_ns={duration_ns}, expected >= 3000000000")
-if message_count < sum(required.values()):
-    failures.append(f"message_count={message_count}, too low")
-if failures:
-    raise SystemExit("; ".join(failures))
-
-print(
-    "v2_recorded_lidar_bag path={} duration_s={:.3f} messages={} counts={}".format(
-        bag_dir,
-        duration_ns / 1e9,
-        message_count,
-        {topic: topics.get(topic, 0) for topic in sorted(required)},
-    )
-)
-PY
+  /workspaces/aris/scripts/validate_v2_lidar_bag.py "$bag_dir" >>"$probe_log" 2>&1 || code=$?
 
   if [[ "$code" != "0" ]]; then
     echo "ERROR: recorded LiDAR bag acceptance failed."

@@ -71,6 +71,8 @@ nix develop -c just v2-recorded-lidar-bag-smoke
 
 It writes an MCAP rosbag under `$ARIS_LOGS/bags/` and validates that `/scan_cloud`,
 `/gazebo/odom`, `/odometry/filtered`, `/cmd_drive`, and `/tf` all have enough recorded samples.
+Run `nix develop -c just v2-lidar-bag-contract /path/to/bag` for the same metadata gate on an
+operator-provided real bag.
 
 The Gazebo drift-recovery smoke uses the same gpu_lidar path as a correction source:
 

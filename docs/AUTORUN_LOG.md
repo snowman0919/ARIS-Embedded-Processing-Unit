@@ -472,3 +472,22 @@ Entry format:
   LiDAR bags, map-generation acceptance, calibrated localization settings, and HIL/field gates.
 - Next:         Add a real-bag validation mode that accepts an operator-provided bag path and
   applies the same topic/type/count contract before localization replay.
+
+## 2026-06-22 11:23 KST — V2: Operator Bag Contract Validator — WIP
+- Built:        Added `scripts/validate_v2_lidar_bag.py` and
+  `just v2-lidar-bag-contract <bag>`. The validator checks rosbag `metadata.yaml` for MCAP
+  storage, minimum duration, required topic counts, and expected topic types for `/cmd_drive`,
+  `/scan_cloud`, `/gazebo/odom`, `/odometry/filtered`, and `/tf`.
+- Verified:     The validator accepted
+  `/home/kotori9/aris/logs/bags/v2_recorded_lidar_20260622T021652Z`
+  (`duration_s=11.427`, `messages=721`, `/scan_cloud=108`). It rejected the older
+  `/home/sbeen/aris/logs/bags/aris_verify_130829` bag because it lacks `/scan_cloud` and
+  `/gazebo/odom`. Re-ran `./scripts/check_v2_recorded_lidar_bag.sh` through the shared validator;
+  it wrote `/home/kotori9/aris/logs/bags/v2_recorded_lidar_20260622T022337Z` with
+  `duration_s=13.689`, `messages=751`, `/scan_cloud=137`.
+- Commit:       Included with the operator bag contract validator change.
+- Stubbed/blocked: This is still metadata-level validation. Real V2 completion still needs replay
+  scoring against recorded LiDAR, map-generation acceptance, calibrated localization settings, and
+  HIL/field evidence.
+- Next:         Add replay scoring that consumes an accepted bag and checks localization continuity,
+  TF availability, and bounded pose drift.

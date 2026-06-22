@@ -83,6 +83,9 @@ clouds.
 `/odometry/filtered`, `/cmd_drive`, and `/tf`. This is the recorded-data acceptance harness that
 real LiDAR bags must later satisfy.
 
+Use `just v2-lidar-bag-contract /path/to/bag` to run the same metadata contract against an existing
+operator-provided bag before attempting replay or localization scoring.
+
 `just v2-gazebo-drift-smoke` syncs the Gazebo entity from ground truth while feeding intentionally
 drifted `/wheel_odom` to localization. It verifies that Gazebo gpu_lidar observations reduce the
 wheel-odom lateral error. Gazebo cloud stamps are normalized to ROS receive time in this launch so

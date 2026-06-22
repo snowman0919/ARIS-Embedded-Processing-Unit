@@ -133,3 +133,12 @@ just v2-recorded-lidar-bag-smoke
 It records a short Gazebo physics-localization run to `$ARIS_LOGS/bags/` and validates the rosbag
 metadata for `/scan_cloud`, `/gazebo/odom`, `/odometry/filtered`, `/cmd_drive`, and `/tf`. Real
 LiDAR bags must pass the same topic/type/count contract before they can be accepted as V2 evidence.
+
+To validate an existing operator-provided bag:
+
+```bash
+just v2-lidar-bag-contract /path/to/bag
+```
+
+This command does not launch simulation. It only validates `metadata.yaml`, making it suitable as
+the first gate for real LiDAR recordings before replay or localization scoring.
