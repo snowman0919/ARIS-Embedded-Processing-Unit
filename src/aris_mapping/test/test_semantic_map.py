@@ -5,6 +5,7 @@ from aris_mapping.semantic_map import (
     RouteNode,
     SemanticHDMap,
     SemanticObservation,
+    load_route_csv_as_graph,
     traversability_for_label,
 )
 
@@ -100,3 +101,24 @@ def test_semantic_map_snapshot_round_trips(tmp_path):
     assert loaded.route_edges[0].blocked
     assert loaded.review_queue[0].reason == "change_detected"
     assert loaded.to_snapshot(map_id="unit-test-map") == hd_map.to_snapshot(map_id="unit-test-map")
+
+
+def test_route_csv_loads_into_snapshot_route_graph(tmp_path):
+    route_file = tmp_path / "route.csv"
+    route_file.write_text(
+        "x,y,yaw,v_target\n"
+        "0.0,0.0,0.0,1.0\n"
+        "1.0,0.0,0.0,1.0\n"
+        "1.0,1.0,1.57,1.0\n",
+        encoding="utf-8",
+    )
+    hd_map = SemanticHDMap()
+
+    nodes, edges = load_route_csv_as_graph(hd_map, route_file)
+
+    assert nodes == 3
+    assert edges == 2
+    assert list(hd_map.traversable_edges("route_0000"))[0].to_node == "route_0001"
+    snapshot = hd_map.to_snapshot(map_id="route-test")
+    assert len(snapshot["route_nodes"]) == 3
+    assert len(snapshot["route_edges"]) == 2

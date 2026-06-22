@@ -177,6 +177,7 @@ just v2-lidar-bag-contract /path/to/bag # validate an existing real/operator LiD
 just v2-lidar-bag-replay /path/to/bag # replay-score an accepted real/operator LiDAR bag
 just v2-gazebo-drift-smoke # Gazebo gpu_lidar corrects drifted wheel odom
 just v2-gazebo-stack-smoke # run all headless Gazebo V2 checks
+just v3-semantic-smoke # generate and validate a five-layer semantic map snapshot
 just scan-cloud-contract # validate /scan_cloud PointCloud2 fields, frame, and TF
 just operator-goal-smoke # operator JSON goal -> /goal_pose -> V4 planner smoke
 just firmware-test   # Rust STM32 safety-core tests and thumbv7em-none-eabihf build

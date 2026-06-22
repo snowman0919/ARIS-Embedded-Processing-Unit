@@ -125,7 +125,7 @@ v2a-drift-smoke:
 v2a-route-smoke:
     ./scripts/check_v2a_route_repeat.sh
 
-# V3 simulation gate: perception observations update the five-layer semantic map.
+# V3 simulation gate: generate and validate a five-layer semantic map snapshot.
 v3-semantic-smoke:
     ./scripts/check_v3_semantic_map.sh
 

@@ -37,7 +37,7 @@ This document maps the PDF requirements to the current repository and identifies
 | V0 | Manual/sim/dry-run contract foundation | Hardware-safe manual bench flow | `/cmd_drive`, `/vehicle/state`, E-stop evidence |
 | V1 | Teach-and-repeat route replay | Drift-bounded real/sensor-backed replay | route load, tracking error report |
 | V2 | Gazebo gpu_lidar `/scan_cloud`, moving Gazebo pose-sync and drift-recovery smokes, deterministic LiDAR surrogate, V2A known-map localization scaffold | Gazebo physics-owned motion, Unitree L2 driver, production NDT/EKF, GPS/camera correction, real map generation | Gazebo/real drift and relocalization metrics |
-| V3 | Semantic map target/scaffold | 5-layer persisted map, camera segmentation, review workflow | map version with layers and confidence |
+| V3 | Simulation semantic map flow with persisted 5-layer snapshot and route graph acceptance | Camera segmentation, calibrated projection, review workflow, real repeat-pass data | map version with layers, confidence, route graph, and review queue |
 | V4 | Goal navigation target/scaffold | GUI goal selection, production route graph, no-go handling | multiple goals, route differences, arrival |
 | V5 | Obstacle avoidance target | dynamic obstacle detection and local replan | stop/avoid timing and false positive report |
 | V6 | AI advisory policy | Cosmos 3 pipeline, offline review UI, provenance | reviewed map updates and event explanations |

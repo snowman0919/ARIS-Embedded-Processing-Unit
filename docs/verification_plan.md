@@ -164,3 +164,24 @@ just v2-recorded-lidar-replay-smoke
 This records the Gazebo physics-localization path, validates the new bag metadata, finds the
 newly written bag under `$ARIS_LOGS/bags`, and immediately replay-scores it. Operator-provided
 real LiDAR bags should pass `v2-lidar-bag-contract` before `v2-lidar-bag-replay`.
+
+## 12. Semantic Map Snapshot Acceptance Gate
+
+The current reproducible V3 simulation map-generation command is:
+
+```bash
+just v3-semantic-smoke
+```
+
+It launches V2A route repeat, deterministic simulation perception, and `semantic_map_node`.
+The node consumes `/scan_cloud`, `/aris/perception/semantic_observation`, and the route CSV,
+then writes a semantic HD map snapshot under `$ARIS_LOGS/maps/`.
+
+The gate validates both the live `/aris/mapping/semantic_map` summary and the persisted JSON
+snapshot. The snapshot must reload through `SemanticHDMap.load_snapshot`, use schema version `1`
+and map id `aris-v3-sim`, contain metric cells, semantic labels, a high-risk traversability cell,
+review queue entries, and a route graph with route nodes and edges.
+
+This is simulation-only V3 map artifact evidence. Production V3 still requires camera streams,
+segmentation model selection, calibrated camera/LiDAR projection, review tooling, and real
+repeat-pass map data.

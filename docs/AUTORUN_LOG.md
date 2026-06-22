@@ -516,3 +516,25 @@ Entry format:
   localization settings, hardware-in-the-loop, and field evidence.
 - Next:         Add a real-bag scoring report format and map-generation acceptance gate so
   operator-provided LiDAR recordings can become promotion evidence instead of only smoke evidence.
+
+## 2026-06-22 12:08 KST — V3: Semantic Map Snapshot Acceptance Gate — WIP
+- Built:        Extended `semantic_map_node` so the V3 simulation launch loads the route CSV into
+  the semantic HD map route-graph layer and optionally writes a persisted snapshot. Strengthened
+  `./scripts/check_v3_semantic_map.sh` so `just v3-semantic-smoke` now validates both the live
+  `/aris/mapping/semantic_map` summary and the saved snapshot artifact via
+  `SemanticHDMap.load_snapshot`.
+- Verified:     `./scripts/check_v3_semantic_map.sh` passed. It generated
+  `/home/kotori9/aris/logs/maps/v3_semantic_map_20260622_030844.json` with `schema_version=1`,
+  `map_id=aris-v3-sim`, `metric_cells=256`, `semantic_cells=1`, `route_nodes=46`,
+  `route_edges=45`, `review_queue=59`, labels `road` and `debris`, and a high-risk traversability
+  cell. `PYTHONPATH=src/aris_mapping python3 -m pytest src/aris_mapping/test -q` also passed
+  (`7 passed`). `./scripts/check_python_tests.sh` passed (`71 passed`). `nix develop -c just
+  v3-semantic-smoke` also passed through the documented target and wrote
+  `/home/kotori9/aris/logs/maps/v3_semantic_map_20260622_031032.json` with `metric_cells=258`,
+  `route_nodes=46`, `route_edges=45`, and `review_queue=60`.
+- Commit:       Included with the semantic map snapshot acceptance gate change.
+- Stubbed/blocked: This is still simulation map-generation evidence. Production V3 still needs
+  real camera streams, segmentation model selection, calibrated camera/LiDAR projection, operator
+  review tooling, real repeat-pass data, and field validation.
+- Next:         Add a map artifact report/manifest and connect real-bag replay output to map
+  snapshot generation so operator datasets can produce comparable map evidence.
