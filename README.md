@@ -247,7 +247,9 @@ thresholds, the local branch versus upstream sync delta, and the `origin/main` v
 fresh release-candidate run, push, or mainline PR merge is needed. Use
 `./scripts/check_headless_status.sh --json` for the same summary as JSON.
 `just headless-release-candidate` runs the hardware-free evidence bundle end to end and writes
-`$ARIS_LOGS/readiness/latest_headless_release_candidate.json`.
+`$ARIS_LOGS/readiness/latest_headless_release_candidate.json`. It also writes
+`$ARIS_LOGS/readiness/latest_headless_status.json` after refreshing the final evidence index, so
+the release bundle preserves the exact status summary used for handoff.
 `just branch-policy` writes the latest local/origin branch policy check to
 `$ARIS_LOGS/readiness/latest_branch_policy.json`. The report also includes `main_sync`, which
 records how many commits `origin/main` and `origin/v6-headless-simulation-embedded` are ahead of

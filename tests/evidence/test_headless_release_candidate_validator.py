@@ -29,6 +29,7 @@ def _write_report(
         "branch_policy": readiness / "branch_policy.json",
         "core_readiness_report": readiness / "core.log",
         "headless_readiness_audit": readiness / "audit.json",
+        "headless_status": readiness / "status.json",
         "readiness_evidence_index": readiness / "index.json",
     }
     for path in evidence_paths.values():

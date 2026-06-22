@@ -13,6 +13,8 @@ report_file="${report_dir}/headless_release_candidate_${timestamp}.json"
 latest_file="${report_dir}/latest_headless_release_candidate.json"
 final_index_file="${report_dir}/evidence_index_${timestamp}_release.json"
 latest_index_file="${report_dir}/latest_evidence_index.json"
+status_file="${report_dir}/headless_status_${timestamp}.json"
+latest_status_file="${report_dir}/latest_headless_status.json"
 mkdir -p "$report_dir"
 
 steps_file="$(mktemp)"
@@ -195,6 +197,24 @@ report_path = Path(sys.argv[1])
 index_path = Path(sys.argv[2])
 report = json.loads(report_path.read_text(encoding="utf-8"))
 report.setdefault("evidence", {})["readiness_evidence_index"] = str(index_path.resolve())
+report_path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+PY
+
+python3 "${ARIS_WS}/scripts/summarize_headless_status.py" \
+  --logs-dir "$ARIS_LOGS" \
+  --workspace "$ARIS_WS" \
+  --json >"$status_file"
+ln -sf "$status_file" "$latest_status_file"
+
+python3 - "$report_file" "$status_file" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+report_path = Path(sys.argv[1])
+status_path = Path(sys.argv[2])
+report = json.loads(report_path.read_text(encoding="utf-8"))
+report.setdefault("evidence", {})["headless_status"] = str(status_path.resolve())
 report_path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 PY
 
