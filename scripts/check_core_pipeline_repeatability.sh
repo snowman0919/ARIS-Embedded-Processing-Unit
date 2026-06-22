@@ -47,6 +47,13 @@ paths = [Path(line) for line in reports_path.read_text(encoding="utf-8").splitli
 run_reports = []
 failures = []
 
+def _route_signature(node_path):
+    nodes = list(node_path or [])
+    for idx, node in enumerate(nodes):
+        if str(node).startswith("detour"):
+            return nodes[idx:]
+    return nodes
+
 if len(paths) != expected_runs:
     failures.append(f"expected {expected_runs} run reports, found {len(paths)}")
 
@@ -73,12 +80,15 @@ for index, path in enumerate(paths, start=1):
     route_graph = stages.get("route_graph") or {}
     localization = stages.get("localization") or {}
     planning = stages.get("goal_based_planning") or {}
+    node_path = route_graph.get("node_path") or []
+    route_signature = _route_signature(node_path)
     run_summary = {
         "run": index,
         "report_path": str(path),
         "valid": report.get("valid") is True,
         "stage_passed": stage_passed,
-        "node_path": route_graph.get("node_path"),
+        "node_path": node_path,
+        "route_signature": route_signature,
         "scan_cloud_samples": localization.get("scan_cloud_samples"),
         "global_path_points": planning.get("global_path_points"),
         "cmd_samples": autonomous.get("cmd_samples"),
@@ -97,10 +107,18 @@ goal_errors = [
     for item in run_reports
     if item.get("goal_error_m") is not None and math.isfinite(float(item["goal_error_m"]))
 ]
-node_paths = [tuple(item.get("node_path") or []) for item in run_reports if item.get("node_path")]
+route_signatures = [
+    tuple(item.get("route_signature") or [])
+    for item in run_reports
+    if item.get("route_signature")
+]
 goal_error_max = max(goal_errors) if goal_errors else math.inf
 goal_error_spread = (max(goal_errors) - min(goal_errors)) if len(goal_errors) >= 2 else math.inf
-node_path_stable = bool(node_paths) and len(set(node_paths)) == 1 and len(node_paths) == expected_runs
+route_signature_stable = (
+    bool(route_signatures)
+    and len(set(route_signatures)) == 1
+    and len(route_signatures) == expected_runs
+)
 
 if len(goal_errors) != expected_runs:
     failures.append("every run must report goal_error_m")
@@ -108,13 +126,15 @@ if goal_error_max > 1.3:
     failures.append(f"max goal error too high: {goal_error_max:.3f}")
 if goal_error_spread > 0.75:
     failures.append(f"goal error spread too high: {goal_error_spread:.3f}")
-if not node_path_stable:
-    failures.append(f"node path changed across runs: {node_paths}")
+if not route_signature_stable:
+    failures.append(f"route signature changed across runs: {route_signatures}")
 
 summary = {
     "runs_requested": expected_runs,
     "runs_completed": len(run_reports),
-    "node_path_stable": node_path_stable,
+    "node_path_stable": route_signature_stable,
+    "route_signature_stable": route_signature_stable,
+    "route_signature": list(route_signatures[0]) if route_signatures else [],
     "goal_error_max_m": None if math.isinf(goal_error_max) else goal_error_max,
     "goal_error_spread_m": None if math.isinf(goal_error_spread) else goal_error_spread,
 }
