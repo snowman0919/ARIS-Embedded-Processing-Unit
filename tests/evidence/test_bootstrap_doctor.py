@@ -27,12 +27,29 @@ def _workspace(tmp_path: Path) -> Path:
     for relative in (
         "scripts/check_host.sh",
         "scripts/check_bootstrap_doctor.sh",
+        "scripts/docker_build.sh",
         "scripts/check_branch_policy.sh",
         "scripts/check_headless_release_candidate.sh",
         "scripts/check_embedded_dry_run.sh",
         "scripts/check_documented_commands.sh",
         "scripts/check_architecture_contracts.sh",
         "scripts/check_host_policy.sh",
+        "scripts/check_core_readiness.sh",
+        "scripts/check_python_tests.sh",
+        "scripts/check_mcu_serial_loopback.sh",
+        "scripts/check_scan_cloud_contract.sh",
+        "scripts/check_operator_goal.sh",
+        "scripts/check_v3_semantic_map.sh",
+        "scripts/check_v6_semantic_review.sh",
+        "scripts/check_v4_goal_nav.sh",
+        "scripts/check_v5_dynamic_obstacle.sh",
+        "scripts/check_v2_gazebo_stack.sh",
+        "scripts/check_v2_gazebo_lidar.sh",
+        "scripts/check_v2_gazebo_localization.sh",
+        "scripts/check_v2_gazebo_moving_localization.sh",
+        "scripts/check_v2_gazebo_physics.sh",
+        "scripts/check_v2_gazebo_physics_localization.sh",
+        "scripts/check_v2_gazebo_drift_recovery.sh",
         "scripts/check_core_pipeline_flow.sh",
         "scripts/check_core_pipeline_repeatability.sh",
         "scripts/run_core_readiness_report.sh",
@@ -115,6 +132,19 @@ def test_bootstrap_doctor_requires_release_gate_fallback_entrypoints(tmp_path):
 
     assert report["valid"] is False
     assert "missing required file: scripts/check_headless_readiness_audit.sh" in report["blockers"]
+
+
+def test_bootstrap_doctor_requires_core_readiness_child_entrypoints(tmp_path):
+    workspace = _workspace(tmp_path)
+    (workspace / "scripts/check_v2_gazebo_physics_localization.sh").unlink()
+
+    report = generate_report(workspace, _env(workspace, tmp_path))
+
+    assert report["valid"] is False
+    assert (
+        "missing required file: scripts/check_v2_gazebo_physics_localization.sh"
+        in report["blockers"]
+    )
 
 
 def test_bootstrap_doctor_requires_fallback_scripts_executable(tmp_path):

@@ -1507,3 +1507,23 @@ Entry format:
   `/home/kotori9/aris/logs/pipeline/core_pipeline_repeatability_20260622T084856Z.json`.
 - Next:         Continue strengthening headless simulation and embedded dry-run reproducibility on
   `milestone/headless-simulation-embedded`.
+
+## 2026-06-22 KST — Bootstrap Requires Core Readiness Child Scripts — WIP
+
+- Built:        Extended `scripts/generate_bootstrap_doctor.py` beyond the top-level release gate
+  scripts so it also requires the Quick Start Docker build entrypoint, `check_core_readiness.sh`,
+  and the child scripts used by the core readiness and V2 Gazebo stack gates. A new regression test
+  confirms missing nested Gazebo localization scripts fail bootstrap before a long release run is
+  attempted.
+- Verified:     `./scripts/check_bootstrap_doctor.sh` passed with zero blockers. Targeted bootstrap
+  doctor tests passed (`7 passed`); full `./scripts/check_python_tests.sh` passed (`131 passed`);
+  `./scripts/check_documented_commands.sh` passed (`docs=25 references=190`); reuse-mode
+  `ARIS_HEADLESS_RELEASE_REUSE_EXISTING=1 ./scripts/check_headless_release_candidate.sh` passed
+  with `headless_release_candidate_valid`.
+- Evidence:     Bootstrap report
+  `/home/kotori9/aris/logs/readiness/bootstrap_doctor_20260622T085532Z.json`; reuse release report
+  `/home/kotori9/aris/logs/readiness/headless_release_candidate_20260622T085543Z.json`; final
+  evidence index
+  `/home/kotori9/aris/logs/readiness/evidence_index_20260622T085543Z_release.json`.
+- Next:         Commit and push the expanded bootstrap child-script gate, then refresh full
+  headless evidence on the committed HEAD.
