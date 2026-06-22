@@ -30,3 +30,16 @@ loads the route CSV into the route-graph layer, publishes JSON summaries on
 The smoke validates the generated snapshot by reloading it through `SemanticHDMap.load_snapshot`
 and checking schema version, map id, metric cells, semantic labels, traversability, review queue,
 route nodes, and route edges.
+
+It also writes a manifest next to the snapshot:
+
+```text
+$ARIS_LOGS/maps/v3_semantic_map_<timestamp>.manifest.json
+```
+
+The manifest includes the snapshot SHA-256 and layer counts so map artifacts can be compared or
+promoted later without reopening the full JSON by hand. Validate an existing snapshot with:
+
+```bash
+./scripts/validate_semantic_map_snapshot.py /path/to/v3_semantic_map.json
+```

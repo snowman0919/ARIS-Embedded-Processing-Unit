@@ -538,3 +538,26 @@ Entry format:
   review tooling, real repeat-pass data, and field validation.
 - Next:         Add a map artifact report/manifest and connect real-bag replay output to map
   snapshot generation so operator datasets can produce comparable map evidence.
+
+## 2026-06-22 12:15 KST — V3: Semantic Map Snapshot Manifest — WIP
+- Built:        Added `scripts/validate_semantic_map_snapshot.py`, which validates a persisted
+  semantic map snapshot and emits a promotion manifest with snapshot SHA-256, schema, map id,
+  layer counts, label counts, route graph size, review queue size, and validation status. Updated
+  `./scripts/check_v3_semantic_map.sh` so `just v3-semantic-smoke` writes the manifest next to the
+  snapshot.
+- Verified:     `./scripts/validate_semantic_map_snapshot.py
+  /home/kotori9/aris/logs/maps/v3_semantic_map_20260622_031032.json --manifest-out
+  /tmp/aris_map_manifest_test.json --min-metric-cells 40 --min-route-nodes 40 --min-route-edges
+  39` passed with SHA-256 `4a215e1562bace81ac49d588379b7c3a95c239ff2e238d205722a961100f5d08`.
+  `nix develop -c just v3-semantic-smoke` passed and wrote
+  `/home/kotori9/aris/logs/maps/v3_semantic_map_20260622_031517.json` plus
+  `/home/kotori9/aris/logs/maps/v3_semantic_map_20260622_031517.manifest.json`; the manifest has
+  `valid=true`, SHA-256 `c56081d723fe358f1d792b35acbdb57c36d3905b4ab663e8d569b484927bb893`,
+  `metric_cells=266`, `semantic_cells=1`, `route_nodes=46`, `route_edges=45`, `review_queue=59`,
+  and labels `road`/`debris`. `./scripts/check_python_tests.sh` passed (`73 passed`).
+- Commit:       Included with the semantic map snapshot manifest change.
+- Stubbed/blocked: This gives simulation map artifacts comparable promotion metadata, but it does
+  not replace real repeat-pass mapping, camera segmentation, calibrated projection, operator review
+  workflow, HIL, or field evidence.
+- Next:         Connect real/operator bag replay output to the same manifest format and add map
+  comparison scoring between repeat passes.

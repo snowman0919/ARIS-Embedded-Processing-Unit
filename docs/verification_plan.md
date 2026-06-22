@@ -182,6 +182,19 @@ snapshot. The snapshot must reload through `SemanticHDMap.load_snapshot`, use sc
 and map id `aris-v3-sim`, contain metric cells, semantic labels, a high-risk traversability cell,
 review queue entries, and a route graph with route nodes and edges.
 
+The same smoke also writes a promotion manifest next to the snapshot:
+
+```text
+$ARIS_LOGS/maps/v3_semantic_map_<timestamp>.manifest.json
+```
+
+The manifest records snapshot path, SHA-256, schema version, map id, layer counts, label counts,
+route graph size, review queue size, and validation status. Existing snapshots can be checked with:
+
+```bash
+./scripts/validate_semantic_map_snapshot.py /path/to/v3_semantic_map.json
+```
+
 This is simulation-only V3 map artifact evidence. Production V3 still requires camera streams,
 segmentation model selection, calibrated camera/LiDAR projection, review tooling, and real
 repeat-pass map data.

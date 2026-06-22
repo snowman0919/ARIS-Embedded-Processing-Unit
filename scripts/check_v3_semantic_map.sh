@@ -14,6 +14,7 @@ aris_compose run --rm aris-ros2-dev bash -lc '
 
   route_file="/aris/data/routes/v3_semantic_route_$(date +%Y%m%d_%H%M%S).csv"
   snapshot_file="/aris/logs/maps/v3_semantic_map_$(date +%Y%m%d_%H%M%S).json"
+  manifest_file="${snapshot_file%.json}.manifest.json"
   launch_log=/tmp/aris_v3_semantic_map_launch.log
   summary_file=/tmp/aris_v3_semantic_map_summary.json
   mkdir -p /aris/data/routes
@@ -140,6 +141,17 @@ print(
     )
 )
 PY
+
+  /workspaces/aris/scripts/validate_semantic_map_snapshot.py \
+    "$snapshot_file" \
+    --manifest-out "$manifest_file" \
+    --min-metric-cells 40 \
+    --min-semantic-cells 1 \
+    --min-route-nodes 40 \
+    --min-route-edges 39 \
+    --min-review-queue 1 \
+    --min-high-risk-cells 1
+  echo "v3_semantic_map_manifest path=$manifest_file"
 
   kill -INT "$launch_pid" >/dev/null 2>&1 || true
   wait "$launch_pid" || true
