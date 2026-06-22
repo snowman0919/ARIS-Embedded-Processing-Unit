@@ -1471,3 +1471,25 @@ Entry format:
   `/home/kotori9/aris/logs/pipeline/core_pipeline_repeatability_20260622T084010Z.json`.
 - Next:         Continue building only the headless simulation and embedded dry-run surface until
   hardware becomes available; keep feature work on named milestone branches.
+
+## 2026-06-22 KST — Bootstrap Requires Release Gate Fallback Scripts — WIP
+
+- Built:        Strengthened `scripts/generate_bootstrap_doctor.py` so a new headless environment
+  is only considered bootstrappable when every script used by the direct
+  `./scripts/check_headless_release_candidate.sh` fallback path exists and is executable. This now
+  covers embedded dry-run, documented commands, architecture contracts, host policy, branch policy,
+  core pipeline flow, repeatability, core readiness reporting, and headless readiness audit
+  entrypoints.
+- Verified:     `./scripts/check_bootstrap_doctor.sh` passed with zero blockers. Targeted bootstrap
+  doctor tests passed (`6 passed`), including missing fallback script and non-executable fallback
+  script regressions. Full `./scripts/check_python_tests.sh` passed (`130 passed`);
+  `./scripts/check_documented_commands.sh` passed (`docs=25 references=190`); reuse-mode
+  `ARIS_HEADLESS_RELEASE_REUSE_EXISTING=1 ./scripts/check_headless_release_candidate.sh` passed
+  with `headless_release_candidate_valid`.
+- Evidence:     Bootstrap report
+  `/home/kotori9/aris/logs/readiness/bootstrap_doctor_20260622T084718Z.json`; reuse release report
+  `/home/kotori9/aris/logs/readiness/headless_release_candidate_20260622T084732Z.json`; final
+  evidence index
+  `/home/kotori9/aris/logs/readiness/evidence_index_20260622T084732Z_release.json`.
+- Next:         Commit and push the bootstrap fallback-script gate, then refresh full headless
+  evidence if runtime-relevant files changed.

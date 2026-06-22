@@ -19,9 +19,19 @@ REQUIRED_FILES = (
     "docker/ros2.Dockerfile",
     "docker/embedded.Dockerfile",
     "scripts/check_host.sh",
+    "scripts/check_bootstrap_doctor.sh",
     "scripts/check_branch_policy.sh",
     "scripts/check_headless_release_candidate.sh",
+    "scripts/check_embedded_dry_run.sh",
+    "scripts/check_documented_commands.sh",
+    "scripts/check_architecture_contracts.sh",
+    "scripts/check_host_policy.sh",
+    "scripts/check_core_pipeline_flow.sh",
+    "scripts/check_core_pipeline_repeatability.sh",
+    "scripts/run_core_readiness_report.sh",
+    "scripts/check_headless_readiness_audit.sh",
 )
+REQUIRED_EXECUTABLES = tuple(path for path in REQUIRED_FILES if path.startswith("scripts/"))
 REQUIRED_COMMANDS = ("git", "python3", "nix", "docker")
 OPTIONAL_COMMANDS = ("just", "jq", "rg")
 REQUIRED_ENV = (
@@ -47,14 +57,7 @@ def generate_report(workspace: Path, env: dict[str, str] | None = None) -> dict[
     checks["required_files"] = file_checks
     blockers.extend(f"missing required file: {path}" for path, ok in file_checks.items() if not ok)
 
-    executable_checks = {
-        path: os.access(workspace / path, os.X_OK)
-        for path in (
-            "scripts/check_host.sh",
-            "scripts/check_branch_policy.sh",
-            "scripts/check_headless_release_candidate.sh",
-        )
-    }
+    executable_checks = {path: os.access(workspace / path, os.X_OK) for path in REQUIRED_EXECUTABLES}
     checks["required_executables"] = executable_checks
     blockers.extend(f"required script is not executable: {path}" for path, ok in executable_checks.items() if not ok)
 
