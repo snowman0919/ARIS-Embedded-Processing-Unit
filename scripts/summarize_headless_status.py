@@ -37,16 +37,24 @@ def summarize(logs_dir: Path, workspace: Path | None = None) -> dict[str, Any]:
     evidence_commit = evidence_git.get("commit")
     current_commit = current_git.get("commit")
     changed_since_evidence = _changed_since(workspace, str(evidence_commit)) if workspace and evidence_commit else []
+    worktree_changes = _worktree_changes(workspace) if workspace else []
     relevant_changes_since_evidence = [
         path for path in changed_since_evidence if path not in FRESHNESS_IGNORED_PATHS
+    ]
+    ignored_changes_since_evidence = [
+        path for path in changed_since_evidence if path in FRESHNESS_IGNORED_PATHS
+    ]
+    relevant_worktree_changes = [
+        path for path in worktree_changes if path not in FRESHNESS_IGNORED_PATHS
+    ]
+    ignored_worktree_changes = [
+        path for path in worktree_changes if path in FRESHNESS_IGNORED_PATHS
     ]
     evidence_fresh = bool(
         evidence_commit
         and current_commit
-        and (
-            str(current_commit).startswith(str(evidence_commit))
-            or not relevant_changes_since_evidence
-        )
+        and not relevant_worktree_changes
+        and (str(current_commit).startswith(str(evidence_commit)) or not relevant_changes_since_evidence)
     )
 
     criteria = (audit or {}).get("criteria") or {}
@@ -81,9 +89,21 @@ def summarize(logs_dir: Path, workspace: Path | None = None) -> dict[str, Any]:
             "current": current_git,
             "evidence": evidence_git,
             "evidence_fresh_for_head": evidence_fresh,
+            "freshness_reason": _freshness_reason(
+                current_commit=current_commit,
+                evidence_commit=evidence_commit,
+                relevant_changes=relevant_changes_since_evidence,
+                ignored_changes=ignored_changes_since_evidence,
+                relevant_worktree_changes=relevant_worktree_changes,
+                ignored_worktree_changes=ignored_worktree_changes,
+            ),
             "changed_since_evidence": changed_since_evidence,
             "freshness_ignored_paths": sorted(FRESHNESS_IGNORED_PATHS),
+            "ignored_changes_since_evidence": ignored_changes_since_evidence,
             "relevant_changes_since_evidence": relevant_changes_since_evidence,
+            "worktree_changes": worktree_changes,
+            "ignored_worktree_changes": ignored_worktree_changes,
+            "relevant_worktree_changes": relevant_worktree_changes,
         },
         "headless_ready": (audit or {}).get("headless_ready") is True,
         "release_valid": (release or {}).get("valid") is True and all_release_steps_passed,
@@ -170,6 +190,28 @@ def _artifact_age(path: Path | None, now: datetime) -> dict[str, Any]:
     }
 
 
+def _freshness_reason(
+    *,
+    current_commit: object,
+    evidence_commit: object,
+    relevant_changes: list[str],
+    ignored_changes: list[str],
+    relevant_worktree_changes: list[str],
+    ignored_worktree_changes: list[str],
+) -> str:
+    if not current_commit or not evidence_commit:
+        return "missing_git_evidence"
+    if relevant_worktree_changes:
+        return "runtime_relevant_worktree_changes"
+    if str(current_commit).startswith(str(evidence_commit)):
+        return "matching_head"
+    if relevant_changes:
+        return "runtime_relevant_changes_since_evidence"
+    if ignored_changes or ignored_worktree_changes:
+        return "ignored_changes_only"
+    return "no_runtime_relevant_changes_since_evidence"
+
+
 def _current_git(workspace: Path | None) -> dict[str, str | None]:
     if workspace is None:
         return {"branch": None, "commit": None}
@@ -205,6 +247,27 @@ def _changed_since(workspace: Path, evidence_commit: str) -> list[str]:
     return [line for line in result.stdout.splitlines() if line]
 
 
+def _worktree_changes(workspace: Path) -> list[str]:
+    paths: set[str] = set()
+    commands = [
+        ("diff", "--name-only", "HEAD"),
+        ("diff", "--name-only", "--cached"),
+        ("ls-files", "--others", "--exclude-standard"),
+    ]
+    for args in commands:
+        try:
+            result = subprocess.run(
+                ("git", "-C", str(workspace), *args),
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+        except (OSError, subprocess.CalledProcessError):
+            continue
+        paths.update(line for line in result.stdout.splitlines() if line)
+    return sorted(paths)
+
+
 def _format_bool(value: bool) -> str:
     return "yes" if value else "no"
 
@@ -236,6 +299,7 @@ def format_text(summary: dict[str, Any]) -> str:
         f"  headless_ready: {_format_bool(bool(summary['headless_ready']))}",
         f"  release_valid: {_format_bool(bool(summary['release_valid']))}",
         f"  evidence_fresh_for_head: {_format_bool(bool(git.get('evidence_fresh_for_head')))}",
+        f"  evidence_freshness_reason: {git.get('freshness_reason')}",
         f"  current_git: {current_git.get('branch')}@{current_git.get('commit')}",
         f"  evidence_git: {evidence_git.get('branch')}@{evidence_git.get('commit')}",
         f"  hardware_scope_active: {_format_bool(bool(summary['hardware_scope_active']))}",
@@ -308,7 +372,19 @@ def format_text(summary: dict[str, Any]) -> str:
     if not (git.get("evidence_fresh_for_head")):
         lines.append("")
         lines.append("Freshness")
-        lines.append("  latest evidence was not generated from the current HEAD")
+        lines.append(f"  reason: {git.get('freshness_reason')}")
+        if git.get("relevant_worktree_changes"):
+            lines.append(
+                "  relevant_worktree_changes: {}".format(
+                    ", ".join(git.get("relevant_worktree_changes") or [])
+                )
+            )
+        if git.get("relevant_changes_since_evidence"):
+            lines.append(
+                "  relevant_changes_since_evidence: {}".format(
+                    ", ".join(git.get("relevant_changes_since_evidence") or [])
+                )
+            )
         lines.append("  run: just headless-release-candidate")
     return "\n".join(lines)
 

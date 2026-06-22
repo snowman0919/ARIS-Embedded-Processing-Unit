@@ -86,6 +86,7 @@ def test_headless_status_summary_collects_latest_evidence(tmp_path):
     assert summary["headless_ready"] is True
     assert summary["release_valid"] is True
     assert summary["git"]["evidence_fresh_for_head"] is False
+    assert summary["git"]["freshness_reason"] == "missing_git_evidence"
     assert summary["safe_to_enable_real_actuation"] is False
     assert summary["real_actuation_enabled"] is False
     assert summary["execution_scope"] == {
@@ -104,6 +105,7 @@ def test_headless_status_summary_collects_latest_evidence(tmp_path):
     assert summary["evidence_age"]["headless_release_candidate"]["mtime_utc"].endswith("Z")
     assert "headless_ready: yes" in text
     assert "evidence_fresh_for_head: no" in text
+    assert "evidence_freshness_reason: missing_git_evidence" in text
     assert "hardware_scope_active: no" in text
     assert "real_actuation_enabled: no" in text
     assert "safe_to_enable_real_actuation: no" in text
@@ -157,6 +159,7 @@ def test_headless_status_summary_marks_fresh_evidence_for_matching_head(tmp_path
     summary = summarize(logs, tmp_path / "workspace")
 
     assert summary["git"]["evidence_fresh_for_head"] is True
+    assert summary["git"]["freshness_reason"] == "matching_head"
 
 
 def test_headless_status_summary_accepts_autorun_log_only_changes(tmp_path, monkeypatch):
@@ -198,6 +201,12 @@ def test_headless_status_summary_accepts_autorun_log_only_changes(tmp_path, monk
     summary = summarize(logs, tmp_path / "workspace")
 
     assert summary["git"]["evidence_fresh_for_head"] is True
+    assert summary["git"]["freshness_reason"] == "ignored_changes_only"
+    assert summary["git"]["ignored_changes_since_evidence"] == [
+        "docs/AUTORUN_LOG.md",
+        "scripts/summarize_headless_status.py",
+        "tests/evidence/test_headless_status_summary.py",
+    ]
     assert summary["git"]["relevant_changes_since_evidence"] == []
 
 
@@ -236,7 +245,55 @@ def test_headless_status_summary_rejects_runtime_relevant_changes(tmp_path, monk
     summary = summarize(logs, tmp_path / "workspace")
 
     assert summary["git"]["evidence_fresh_for_head"] is False
+    assert summary["git"]["freshness_reason"] == "runtime_relevant_changes_since_evidence"
     assert summary["git"]["relevant_changes_since_evidence"] == ["scripts/check_core_pipeline_flow.sh"]
+
+
+def test_headless_status_summary_rejects_runtime_relevant_worktree_changes(tmp_path, monkeypatch):
+    logs = tmp_path / "logs"
+    readiness = logs / "readiness"
+    pipeline = logs / "pipeline"
+    readiness.mkdir(parents=True)
+    pipeline.mkdir()
+    (readiness / "latest_headless_release_candidate.json").write_text(
+        json.dumps({"valid": True, "steps": [{"name": "ok", "passed": True, "exit_code": 0}]}),
+        encoding="utf-8",
+    )
+    (readiness / "latest_headless_readiness_audit.json").write_text(
+        json.dumps({"headless_ready": True, "blockers": []}),
+        encoding="utf-8",
+    )
+    (readiness / "latest_evidence_index.json").write_text(
+        json.dumps({"git": {"branch": "v6", "commit": "abc1234"}}),
+        encoding="utf-8",
+    )
+    (pipeline / "latest_core_pipeline_repeatability.json").write_text(
+        json.dumps({"valid": True, "summary": {}}),
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr(
+        "summarize_headless_status._current_git",
+        lambda workspace: {"branch": "v6", "commit": "abc1234"},
+    )
+    monkeypatch.setattr("summarize_headless_status._changed_since", lambda workspace, evidence_commit: [])
+    monkeypatch.setattr(
+        "summarize_headless_status._worktree_changes",
+        lambda workspace: [
+            "README.md",
+            "scripts/summarize_headless_status.py",
+        ],
+    )
+
+    summary = summarize(logs, tmp_path / "workspace")
+    text = format_text(summary)
+
+    assert summary["git"]["evidence_fresh_for_head"] is False
+    assert summary["git"]["freshness_reason"] == "runtime_relevant_worktree_changes"
+    assert summary["git"]["relevant_worktree_changes"] == ["README.md"]
+    assert summary["git"]["ignored_worktree_changes"] == ["scripts/summarize_headless_status.py"]
+    assert "reason: runtime_relevant_worktree_changes" in text
+    assert "relevant_worktree_changes: README.md" in text
 
 
 def test_headless_status_summary_reports_missing_evidence_as_not_ready(tmp_path):
