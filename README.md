@@ -6,8 +6,7 @@ The host stays clean: Nix provides lightweight host tools, while ROS2, CUDA/AI, 
 
 ## Codebase Boundary
 
-This repository is the ARIS processing-unit codebase: ROS 2 packages, simulation,
-localization, perception, planning, bringup, Docker/Nix tooling, and verification scripts.
+This repository is the ARIS processing-unit codebase: ROS 2 packages, simulation, localization, perception, planning, bringup, Docker/Nix tooling, and verification scripts.
 
 Standalone codebases live separately:
 
@@ -16,6 +15,7 @@ Standalone codebases live separately:
 - DGX Spark AI/Isaac lab: `snowman0919/ARIS-AI`
 
 See `docs/codebase_boundaries.md` for the local directory conventions.
+
 
 ## Quick Start
 

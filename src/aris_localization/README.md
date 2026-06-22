@@ -41,8 +41,8 @@ nix develop -c just v2-gazebo-moving-smoke
 
 This verifies that a commanded vehicle simulation movement also moves the Gazebo entity and keeps
 the Gazebo gpu_lidar -> `/scan_cloud` -> localization path alive. The smoke also checks that the
-front LiDAR range shrinks as the vehicle approaches the Gazebo target. Gazebo physics is not yet
-the motion authority.
+front LiDAR range changes as the vehicle moves through the Gazebo target scene. Gazebo physics is
+not yet the motion authority.
 
 The Gazebo physics smoke removes pose sync from the motion path:
 
