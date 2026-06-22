@@ -235,8 +235,8 @@ just firmware-test   # standalone STM32 crate test path if firmware/ is present 
 audit to `$ARIS_LOGS/readiness/latest_headless_readiness_audit.json`.
 `just headless-status` prints a concise human-readable summary of the latest headless release,
 audit, pipeline, and repeatability evidence, including whether that evidence was generated from the
-current Git `HEAD`, each release step pass/fail result, and whether hardware scope or real
-actuation is active. Use
+current Git `HEAD`, each release step pass/fail result, the per-step evidence paths, and whether
+hardware scope or real actuation is active. Use
 `./scripts/check_headless_status.sh --json` for the same summary as JSON.
 `just headless-release-candidate` runs the hardware-free evidence bundle end to end and writes
 `$ARIS_LOGS/readiness/latest_headless_release_candidate.json`.

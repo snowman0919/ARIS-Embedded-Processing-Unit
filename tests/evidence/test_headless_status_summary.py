@@ -10,9 +10,22 @@ from summarize_headless_status import format_text, summarize
 def test_headless_status_summary_collects_latest_evidence(tmp_path):
     logs = tmp_path / "logs"
     readiness = logs / "readiness"
+    embedded = logs / "embedded"
     pipeline = logs / "pipeline"
     readiness.mkdir(parents=True)
+    embedded.mkdir()
     pipeline.mkdir()
+    release_evidence = {
+        "bootstrap_doctor": readiness / "bootstrap.json",
+        "embedded_dry_run": embedded / "embedded.json",
+        "core_pipeline_flow": pipeline / "flow.json",
+        "core_pipeline_repeatability": pipeline / "repeatability.json",
+        "core_readiness_report": readiness / "core.log",
+        "headless_readiness_audit": readiness / "audit.json",
+        "readiness_evidence_index": readiness / "index.json",
+    }
+    for path in release_evidence.values():
+        path.write_text("{}\n", encoding="utf-8")
 
     release = {
         "artifact_type": "aris_headless_release_candidate_report",
@@ -21,6 +34,7 @@ def test_headless_status_summary_collects_latest_evidence(tmp_path):
             {"name": "embedded_dry_run", "passed": True, "exit_code": 0},
             {"name": "core_pipeline_repeatability", "passed": True, "exit_code": 0},
         ],
+        "evidence": {name: str(path) for name, path in release_evidence.items()},
     }
     audit = {
         "artifact_type": "aris_headless_readiness_audit",
@@ -84,6 +98,8 @@ def test_headless_status_summary_collects_latest_evidence(tmp_path):
     assert summary["repeatability"]["scan_cloud_samples_min"] == 12
     assert summary["repeatability"]["global_path_points_min"] == 6
     assert summary["repeatability"]["cmd_samples_min"] == 24
+    assert summary["release_evidence"]["bootstrap_doctor"].endswith("bootstrap.json")
+    assert summary["release_evidence"]["embedded_dry_run"].endswith("embedded.json")
     assert "headless_ready: yes" in text
     assert "evidence_fresh_for_head: no" in text
     assert "hardware_scope_active: no" in text
@@ -92,6 +108,9 @@ def test_headless_status_summary_collects_latest_evidence(tmp_path):
     assert "Release steps" in text
     assert "embedded_dry_run: pass exit_code=0" in text
     assert "core_pipeline_repeatability: pass exit_code=0" in text
+    assert "Release evidence" in text
+    assert "bootstrap_doctor:" in text
+    assert "embedded_dry_run:" in text
     assert "run: just headless-release-candidate" in text
     assert "node_path: approach -> goal" in text
     assert "scan_cloud_samples_min: 12" in text

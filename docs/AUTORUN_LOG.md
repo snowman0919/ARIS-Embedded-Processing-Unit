@@ -1612,3 +1612,24 @@ Entry format:
   `/home/kotori9/aris/logs/pipeline/core_pipeline_repeatability_20260622T102403Z.json`.
 - Next:         Continue improving evidence traceability and practical headless usability on
   `milestone/headless-simulation-embedded`.
+
+## 2026-06-22 KST — Headless Status Shows Per-Step Evidence Paths — WIP
+
+- Built:        Extended `scripts/summarize_headless_status.py` so the JSON summary exposes
+  `release_evidence` from the latest release candidate and the text output prints a
+  `Release evidence` section. The status command now ties each release gate result to its
+  timestamped artifact path.
+- Built:        Updated README text for `headless-status` to mention per-step evidence paths.
+- Verified:     `./scripts/check_headless_status.sh` now prints release evidence paths for
+  bootstrap doctor, embedded dry-run, branch policy, core pipeline flow, repeatability, core
+  readiness, headless audit, and the final evidence index. Targeted headless-status tests passed
+  (`6 passed`); full `./scripts/check_python_tests.sh` passed (`132 passed`);
+  `./scripts/check_documented_commands.sh` passed (`docs=25 references=190`); reuse-mode
+  `ARIS_HEADLESS_RELEASE_REUSE_EXISTING=1 ./scripts/check_headless_release_candidate.sh` passed
+  with `headless_release_candidate_valid`.
+- Evidence:     Reuse release report
+  `/home/kotori9/aris/logs/readiness/headless_release_candidate_20260622T103029Z.json`; final
+  evidence index
+  `/home/kotori9/aris/logs/readiness/evidence_index_20260622T103029Z_release.json`.
+- Next:         Commit and push the per-step evidence-path status improvement, then refresh full
+  current-HEAD evidence if the status command marks runtime evidence stale.

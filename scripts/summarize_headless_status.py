@@ -60,6 +60,11 @@ def summarize(logs_dir: Path, workspace: Path | None = None) -> dict[str, Any]:
         for step in (release or {}).get("steps", [])
         if isinstance(step, dict)
     ]
+    release_evidence = {
+        str(name): str(path)
+        for name, path in ((release or {}).get("evidence") or {}).items()
+        if path
+    }
     all_release_steps_passed = bool(release_steps) and all(step.get("passed") is True for step in release_steps)
     real_actuation_enabled = os.environ.get("ARIS_ENABLE_REAL_ACTUATION", "0") == "1"
     hardware_scope_active = (audit or {}).get("hardware_scope_active") is True
@@ -119,6 +124,7 @@ def summarize(logs_dir: Path, workspace: Path | None = None) -> dict[str, Any]:
             "cmd_samples_min": repeat_summary.get("cmd_samples_min"),
         },
         "release_steps": release_steps,
+        "release_evidence": release_evidence,
         "evidence": {
             "headless_release_candidate": str(release_path) if release_path else None,
             "headless_readiness_audit": str(audit_path) if audit_path else None,
@@ -232,6 +238,16 @@ def format_text(summary: dict[str, Any]) -> str:
                     step.get("exit_code"),
                 )
             )
+    else:
+        lines.append("  n/a")
+    lines.extend([
+        "",
+        "Release evidence",
+    ])
+    release_evidence = summary.get("release_evidence") or {}
+    if release_evidence:
+        for name, path in sorted(release_evidence.items()):
+            lines.append(f"  {name}: {path}")
     else:
         lines.append("  n/a")
     lines.extend([
