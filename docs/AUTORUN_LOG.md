@@ -1229,3 +1229,31 @@ Entry format:
 - Scope note:   This keeps current-HEAD evidence status accurate after status-reporting-only
   changes. Runtime-relevant changes still make the evidence stale.
 - Next:         Commit and push to `v6`.
+
+## 2026-06-22 16:47 KST — Bootstrap Doctor Release Gate — WIP
+- Built:        Added `scripts/generate_bootstrap_doctor.py`, `scripts/check_bootstrap_doctor.sh`,
+  and `just bootstrap-doctor`. The doctor validates required repository files, executable entry
+  points, required commands, ARIS environment variables/directories, `.env.example` safety defaults,
+  no-root execution, `ROS_LOCALHOST_ONLY=1`, and `ARIS_ENABLE_REAL_ACTUATION=0`. Wired
+  `bootstrap_doctor` into the headless release-candidate gate, final release validator, and
+  readiness evidence index. Normalized core-pipeline repeatability around the stable detour route
+  signature so harmless prefix differences after vehicle progress do not fail repeatability.
+- Verified:     `./scripts/check_bootstrap_doctor.sh` passed with `bootstrap_doctor_valid`.
+  `./scripts/check_core_pipeline_repeatability.sh` passed after route-signature normalization.
+  Full `./scripts/check_headless_release_candidate.sh` passed on `v6@9225a83` and wrote
+  `/home/kotori9/aris/logs/readiness/headless_release_candidate_20260622T074238Z.json` with
+  `valid=true`, `exit_code=0`, and `headless_release_candidate_valid`. The final evidence index
+  `/home/kotori9/aris/logs/readiness/evidence_index_20260622T074238Z_release.json` records
+  `git.commit=9225a83` and includes
+  `/home/kotori9/aris/logs/readiness/bootstrap_doctor_20260622T074238Z.json` with `valid=true`.
+  `./scripts/check_headless_status.sh` reports `evidence_fresh_for_head: yes`,
+  `headless_ready: yes`, and `release_valid: yes`. `./scripts/check_operational_readiness_audit.sh`
+  wrote `/home/kotori9/aris/logs/readiness/operational_readiness_audit_20260622T074719Z.json`
+  with `achieved=false` and blockers limited to `hil_preflight` and `field_validation`, as expected
+  for the current no-hardware scope. Full `./scripts/check_python_tests.sh` passed (`123 passed`);
+  `./scripts/check_documented_commands.sh`, `./scripts/check_architecture_contracts.sh`,
+  `./scripts/check_host_policy.sh`, and `git diff --check` passed.
+- Commit:       Pending bootstrap-doctor release-gate evidence log commit.
+- Scope note:   This improves new-environment reproducibility and current headless release evidence.
+  It does not claim HIL, real-sensor, real-actuator, or field readiness.
+- Next:         Commit and push to `v6`.
