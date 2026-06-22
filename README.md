@@ -195,6 +195,7 @@ just v5-dynamic-obstacle-smoke # V5 advisory detours/slows/stops the local plann
 just v6-semantic-review-smoke # V6 advisory-only semantic map review report
 just scan-cloud-contract # validate /scan_cloud PointCloud2 fields, frame, and TF
 just operator-goal-smoke # operator JSON goal -> /goal_pose -> V4 planner smoke
+just hil-preflight # hardware/HIL readiness inventory without enabling actuators
 just firmware-test   # Rust STM32 safety-core tests and thumbv7em-none-eabihf build
 ```
 

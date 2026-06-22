@@ -175,6 +175,9 @@ protocol-test:
 mcu-serial-loopback:
     ./scripts/check_mcu_serial_loopback.sh
 
+hil-preflight:
+    ./scripts/check_hil_preflight.sh
+
 firmware-test:
     ./scripts/firmware_test.sh
 

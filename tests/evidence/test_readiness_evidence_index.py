@@ -13,10 +13,12 @@ def test_readiness_evidence_index_collects_latest_artifacts(tmp_path):
     bags = logs / "bags" / "bag1"
     maps = logs / "maps"
     obstacles = logs / "obstacles"
+    hil = logs / "hil"
     readiness.mkdir(parents=True)
     bags.mkdir(parents=True)
     maps.mkdir(parents=True)
     obstacles.mkdir(parents=True)
+    hil.mkdir(parents=True)
 
     (readiness / "core_readiness_20260101T000000Z.log").write_text(
         "timestamp_utc=20260101T000000Z\n"
@@ -68,11 +70,20 @@ def test_readiness_evidence_index_collects_latest_artifacts(tmp_path):
         "valid": True,
         "metrics": {"track_age": 2, "detour_min_steering": -0.2},
     }
+    hil_report = {
+        "artifact_type": "aris_hil_preflight_report",
+        "ready_for_hil": False,
+        "safe_to_enable_real_actuation": False,
+    }
     (maps / "v3_semantic_map_20260101.manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
     (maps / "v3_semantic_map_20260101.compare.json").write_text(json.dumps(compare), encoding="utf-8")
     (maps / "v3_semantic_map_20260101.v6_review.json").write_text(json.dumps(review), encoding="utf-8")
     (obstacles / "v5_dynamic_obstacle_20260101T000000Z.json").write_text(
         json.dumps(obstacle_report),
+        encoding="utf-8",
+    )
+    (hil / "hil_preflight_20260101T000000Z.json").write_text(
+        json.dumps(hil_report),
         encoding="utf-8",
     )
 
@@ -91,3 +102,5 @@ def test_readiness_evidence_index_collects_latest_artifacts(tmp_path):
     assert index["v5_dynamic_obstacle"]["report_path"].endswith(".json")
     assert index["v6_semantic_review"]["report"]["advisory_only"]
     assert index["v6_semantic_review"]["report_path"].endswith(".v6_review.json")
+    assert index["hil_preflight"]["report"]["safe_to_enable_real_actuation"] is False
+    assert index["hil_preflight"]["report_path"].endswith(".json")

@@ -793,3 +793,24 @@ Entry format:
   obstacle bag replay score or HIL/field obstacle-avoidance validation.
 - Next:         Commit and push the V5 report artifact increment to `origin/v3`; then add
   operator/real-bag obstacle replay scoring.
+
+## 2026-06-22 14:27 KST — HIL: Non-Actuating Preflight Evidence — WIP
+- Built:        Added `scripts/generate_hil_preflight.py`, `scripts/check_hil_preflight.sh`, and
+  `just hil-preflight`. The preflight writes `$ARIS_LOGS/hil/hil_preflight_<timestamp>.json` plus
+  `latest_hil_preflight.json`, links the latest no-skip readiness evidence, V5 obstacle report,
+  and V6 semantic review, inventories visible serial/video/GPU/CAN/input devices, and keeps
+  `safe_to_enable_real_actuation=false`.
+- Verified:     `./scripts/check_hil_preflight.sh` passed and wrote
+  `/home/kotori9/aris/logs/hil/hil_preflight_20260622T052740Z.json` with
+  `ready_for_hil=false`, `safe_to_enable_real_actuation=false`, and one blocker:
+  `hardware devices missing: serial,video,can`. The report saw GPU devices and `/dev/input/js0`,
+  and confirmed latest no-skip readiness, V5 obstacle report, and V6 review evidence. Standalone
+  `generate_readiness_evidence_index.py` linked the HIL report under `hil_preflight`.
+- Build/tests:  `python3 -m py_compile` passed for HIL/evidence scripts; `bash -n
+  scripts/check_hil_preflight.sh` passed; targeted HIL/evidence tests passed (`2 passed`);
+  `git diff --check` passed.
+- Commit:       Pending HIL preflight evidence commit.
+- Stubbed/blocked: This does not run hardware. Current host is not HIL-ready because serial,
+  video, and CAN devices are not visible. Real actuation remains disabled.
+- Next:         Commit and push the HIL preflight increment to `origin/v3`; then add real/replayed
+  sensor obstacle and map scoring once hardware or operator bags are available.

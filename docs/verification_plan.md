@@ -147,9 +147,25 @@ $ARIS_LOGS/readiness/latest_evidence_index.json
 The index points at the latest readiness report, latest V2 LiDAR bag metadata, latest V3 semantic
 map manifest, latest V3 repeat-pass compare report, latest V5 dynamic-obstacle report plus
 detour/slow/stop metrics with persistent-track evidence, and latest V6 semantic review report when
-present. It is the quick machine-readable view of the current software evidence bundle.
+present. It also links the latest HIL preflight report when available. It is the quick
+machine-readable view of the current software evidence bundle.
 
-## 12. Recorded LiDAR Acceptance Gate
+## 12. HIL Preflight Gate
+
+Before hardware-in-the-loop or bench work, run:
+
+```bash
+just hil-preflight
+```
+
+This writes `$ARIS_LOGS/hil/hil_preflight_<timestamp>.json` and updates
+`$ARIS_LOGS/hil/latest_hil_preflight.json`. The report is non-actuating: it never enables real
+actuation and always records `safe_to_enable_real_actuation=false`. It checks host command
+availability, Docker access, user groups, visible serial/video/GPU/CAN/input devices, latest
+no-skip readiness evidence, latest V5 obstacle report, and latest V6 semantic review report. Missing
+hardware is reported as blockers instead of causing destructive setup actions.
+
+## 13. Recorded LiDAR Acceptance Gate
 
 The current reproducible recorded-data command is:
 
