@@ -75,6 +75,11 @@ def test_readiness_evidence_index_collects_latest_artifacts(tmp_path):
         "ready_for_hil": False,
         "safe_to_enable_real_actuation": False,
     }
+    operational_audit = {
+        "artifact_type": "aris_operational_readiness_audit",
+        "achieved": False,
+        "practical_use_ready": False,
+    }
     (maps / "v3_semantic_map_20260101.manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
     (maps / "v3_semantic_map_20260101.compare.json").write_text(json.dumps(compare), encoding="utf-8")
     (maps / "v3_semantic_map_20260101.v6_review.json").write_text(json.dumps(review), encoding="utf-8")
@@ -84,6 +89,10 @@ def test_readiness_evidence_index_collects_latest_artifacts(tmp_path):
     )
     (hil / "hil_preflight_20260101T000000Z.json").write_text(
         json.dumps(hil_report),
+        encoding="utf-8",
+    )
+    (readiness / "operational_readiness_audit_20260101T000000Z.json").write_text(
+        json.dumps(operational_audit),
         encoding="utf-8",
     )
 
@@ -104,3 +113,5 @@ def test_readiness_evidence_index_collects_latest_artifacts(tmp_path):
     assert index["v6_semantic_review"]["report_path"].endswith(".v6_review.json")
     assert index["hil_preflight"]["report"]["safe_to_enable_real_actuation"] is False
     assert index["hil_preflight"]["report_path"].endswith(".json")
+    assert index["operational_readiness_audit"]["report"]["achieved"] is False
+    assert index["operational_readiness_audit"]["report_path"].endswith(".json")

@@ -150,7 +150,24 @@ detour/slow/stop metrics with persistent-track evidence, and latest V6 semantic 
 present. It also links the latest HIL preflight report when available. It is the quick
 machine-readable view of the current software evidence bundle.
 
-## 12. HIL Preflight Gate
+## 12. Operational Readiness Audit
+
+The current completion audit command is:
+
+```bash
+just operational-readiness-audit
+```
+
+It writes `$ARIS_LOGS/readiness/operational_readiness_audit_<timestamp>.json` and updates
+`$ARIS_LOGS/readiness/latest_operational_readiness_audit.json`. The audit aggregates the latest
+readiness index, V2 Gazebo/LiDAR evidence, V3 map manifest and repeat-pass compare, V5 dynamic
+obstacle report, V6 advisory-only semantic review, HIL preflight, and field-validation evidence.
+It records `achieved`, `practical_use_ready`, `safe_to_enable_real_actuation`, per-criterion pass
+states, and blockers. This audit is the machine-readable guardrail for deciding whether the
+project can be considered practically usable; current simulation evidence can pass while HIL or
+field criteria still keep `achieved=false`.
+
+## 13. HIL Preflight Gate
 
 Before hardware-in-the-loop or bench work, run:
 
@@ -165,7 +182,7 @@ availability, Docker access, user groups, visible serial/video/GPU/CAN/input dev
 no-skip readiness evidence, latest V5 obstacle report, and latest V6 semantic review report. Missing
 hardware is reported as blockers instead of causing destructive setup actions.
 
-## 13. Recorded LiDAR Acceptance Gate
+## 14. Recorded LiDAR Acceptance Gate
 
 The current reproducible recorded-data command is:
 
@@ -208,7 +225,7 @@ This records the Gazebo physics-localization path, validates the new bag metadat
 newly written bag under `$ARIS_LOGS/bags`, and immediately replay-scores it. Operator-provided
 real LiDAR bags should pass `v2-lidar-bag-contract` before `v2-lidar-bag-replay`.
 
-## 13. Semantic Map Snapshot Acceptance Gate
+## 15. Semantic Map Snapshot Acceptance Gate
 
 The current reproducible V3 simulation map-generation command is:
 

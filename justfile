@@ -178,6 +178,9 @@ mcu-serial-loopback:
 hil-preflight:
     ./scripts/check_hil_preflight.sh
 
+operational-readiness-audit:
+    ./scripts/check_operational_readiness_audit.sh
+
 firmware-test:
     ./scripts/firmware_test.sh
 

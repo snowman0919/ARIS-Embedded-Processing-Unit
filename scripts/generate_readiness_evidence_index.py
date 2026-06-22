@@ -101,6 +101,7 @@ def generate_index(workspace: Path, logs_dir: Path) -> dict[str, Any]:
     semantic_review = _latest(list((logs_dir / "maps").glob("v3_semantic_map_*.v6_review.json")))
     obstacle_report = _latest(list((logs_dir / "obstacles").glob("v5_dynamic_obstacle_*.json")))
     hil_preflight = _latest(list((logs_dir / "hil").glob("hil_preflight_*.json")))
+    operational_audit = _latest(list((logs_dir / "readiness").glob("operational_readiness_audit_*.json")))
     bag_metadata = _latest_bag_metadata(logs_dir)
 
     readiness_values = _read_key_values(readiness_log) if readiness_log else {}
@@ -132,6 +133,10 @@ def generate_index(workspace: Path, logs_dir: Path) -> dict[str, Any]:
         "hil_preflight": {
             "report": _read_json(hil_preflight),
             "report_path": str(hil_preflight) if hil_preflight else None,
+        },
+        "operational_readiness_audit": {
+            "report": _read_json(operational_audit),
+            "report_path": str(operational_audit) if operational_audit else None,
         },
     }
 

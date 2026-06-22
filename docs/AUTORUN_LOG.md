@@ -814,3 +814,25 @@ Entry format:
   video, and CAN devices are not visible. Real actuation remains disabled.
 - Next:         Commit and push the HIL preflight increment to `origin/v3`; then add real/replayed
   sensor obstacle and map scoring once hardware or operator bags are available.
+
+## 2026-06-22 14:33 KST — Readiness: Operational Completion Audit — WIP
+- Built:        Added `scripts/generate_operational_readiness_audit.py`,
+  `scripts/check_operational_readiness_audit.sh`, and `just operational-readiness-audit`. The
+  audit aggregates readiness, V2 Gazebo/LiDAR, V3 map, V5 obstacle, V6 semantic review, HIL
+  preflight, and field-validation evidence into a single machine-readable completion report.
+- Verified:     `./scripts/check_operational_readiness_audit.sh` wrote
+  `/home/kotori9/aris/logs/readiness/operational_readiness_audit_20260622T053503Z.json` with
+  `achieved=false`, `practical_use_ready=false`, and `safe_to_enable_real_actuation=false`.
+  Passing criteria were docs/build/run readiness, core no-skip 3D simulation, V2 Gazebo stack,
+  V3/V6 mapping review, and V5 dynamic obstacle evidence. Remaining blockers are HIL preflight
+  (`hardware devices missing: serial,video,can`) and missing closed-site field-validation evidence.
+  A refreshed evidence index at
+  `/home/kotori9/aris/logs/readiness/evidence_index_20260622T053514Z.json` links the audit.
+- Build/tests:  `python3 -m py_compile` passed for operational audit and evidence index scripts;
+  `bash -n scripts/check_operational_readiness_audit.sh` passed; targeted evidence tests passed
+  (`4 passed`).
+- Commit:       Pending operational readiness audit artifact commit.
+- Stubbed/blocked: The audit intentionally does not mark the overall goal achieved. Real HIL
+  hardware visibility and field validation remain missing.
+- Next:         Commit and push this audit artifact to `origin/v3`; then add real/replayed sensor
+  obstacle/map scoring and HIL evidence once devices or operator bags are available.
