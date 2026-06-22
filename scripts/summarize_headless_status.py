@@ -35,6 +35,7 @@ def summarize(logs_dir: Path, workspace: Path | None = None) -> dict[str, Any]:
     branch_policy = _read_json(branch_policy_path)
     repeat = _read_json(repeat_path)
     current_git = _current_git(workspace) if workspace else {"branch": None, "commit": None}
+    upstream_sync = _upstream_sync(workspace) if workspace else {}
     evidence_git = (index or {}).get("git") or {}
     evidence_commit = evidence_git.get("commit")
     current_commit = current_git.get("commit")
@@ -112,6 +113,7 @@ def summarize(logs_dir: Path, workspace: Path | None = None) -> dict[str, Any]:
         "git": {
             "current": current_git,
             "evidence": evidence_git,
+            "upstream_sync": upstream_sync,
             "evidence_fresh_for_head": evidence_fresh,
             "freshness_reason": _freshness_reason(
                 current_commit=current_commit,
@@ -313,6 +315,42 @@ def _current_git(workspace: Path | None) -> dict[str, str | None]:
     }
 
 
+def _upstream_sync(workspace: Path | None) -> dict[str, Any]:
+    if workspace is None:
+        return {}
+    upstream = _git(workspace, "rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}")
+    head = _git(workspace, "branch", "--show-current")
+    if not upstream or not head:
+        return {
+            "available": False,
+            "upstream": upstream,
+            "head": head,
+            "upstream_ahead": None,
+            "local_ahead": None,
+            "local_contains_upstream": False,
+        }
+    counts = _git(workspace, "rev-list", "--left-right", "--count", f"{upstream}...HEAD")
+    try:
+        upstream_ahead, local_ahead = [int(part) for part in str(counts).split()]
+    except (TypeError, ValueError):
+        return {
+            "available": False,
+            "upstream": upstream,
+            "head": head,
+            "upstream_ahead": None,
+            "local_ahead": None,
+            "local_contains_upstream": False,
+        }
+    return {
+        "available": True,
+        "upstream": upstream,
+        "head": head,
+        "upstream_ahead": upstream_ahead,
+        "local_ahead": local_ahead,
+        "local_contains_upstream": upstream_ahead == 0,
+    }
+
+
 def _git(workspace: Path, *args: str) -> str | None:
     try:
         result = subprocess.run(
@@ -405,6 +443,21 @@ def format_text(summary: dict[str, Any]) -> str:
         f"  safe_to_enable_real_actuation: {_format_bool(bool(summary['safe_to_enable_real_actuation']))}",
         f"  blockers: {len(summary['blockers'])}",
         "",
+        "Upstream sync",
+    ]
+    upstream_sync = git.get("upstream_sync") or {}
+    if upstream_sync and upstream_sync.get("available") is True:
+        lines.extend([
+            f"  upstream: {upstream_sync.get('upstream')}",
+            f"  head: {upstream_sync.get('head')}",
+            f"  upstream_ahead: {upstream_sync.get('upstream_ahead')}",
+            f"  local_ahead: {upstream_sync.get('local_ahead')}",
+            f"  local_contains_upstream: {_format_bool(upstream_sync.get('local_contains_upstream') is True)}",
+        ])
+    else:
+        lines.append("  n/a")
+    lines.extend([
+        "",
         "Core pipeline",
         f"  valid: {_format_bool(pipeline.get('valid') is True)}",
         "  node_path: {}".format(" -> ".join(pipeline.get("node_path") or []) or "n/a"),
@@ -428,7 +481,7 @@ def format_text(summary: dict[str, Any]) -> str:
         f"  cmd_samples_min: {repeat.get('cmd_samples_min')}",
         "",
         "Acceptance thresholds",
-    ]
+    ])
     thresholds = summary.get("acceptance_thresholds") or {}
     pipeline_thresholds = thresholds.get("core_pipeline_flow") or {}
     repeat_thresholds = thresholds.get("core_pipeline_repeatability") or {}

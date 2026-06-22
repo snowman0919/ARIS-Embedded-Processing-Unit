@@ -258,7 +258,10 @@ candidate report that produced it. The final report is validated by
 requires the release report and final evidence index to point at each other. The release candidate
 report also copies the headless audit `acceptance_thresholds`, criterion pass/fail states, scope,
 blockers, and real-actuation safety flags so the release JSON remains self-contained evidence for
-the hardware-free simulation and embedded dry-run scope.
+the hardware-free simulation and embedded dry-run scope. After the final index is refreshed, the command writes
+`$ARIS_LOGS/readiness/latest_headless_status.json` and records it in the release report evidence so
+the status summary, Git freshness, upstream sync, and main/v6 sync state are preserved with the
+release bundle.
 
 To inspect the latest release, audit, pipeline, and repeatability evidence without opening raw JSON:
 
