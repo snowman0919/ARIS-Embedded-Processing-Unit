@@ -60,6 +60,10 @@ v1-smoke:
 v2-lidar-smoke:
     ./scripts/check_v2_gazebo_lidar.sh
 
+# V2 probe: Gazebo gpu_lidar -> /scan_cloud -> localization-owned odometry.
+v2-gazebo-localization-smoke:
+    ./scripts/check_v2_gazebo_localization.sh
+
 # V2 algorithm-development sensor surrogate: spec-driven 3D LiDAR sim -> /scan_cloud.
 lidar-sim-smoke:
     ./scripts/check_lidar_sim.sh

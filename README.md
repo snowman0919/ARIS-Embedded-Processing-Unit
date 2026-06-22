@@ -24,6 +24,7 @@ directly:
 ./scripts/check_host.sh
 ./scripts/check_python_tests.sh
 ./scripts/check_v2_gazebo_lidar.sh
+./scripts/check_v2_gazebo_localization.sh
 ./scripts/check_lidar_sim.sh
 ./scripts/check_scan_cloud_contract.sh
 ./scripts/check_operator_goal.sh
@@ -140,6 +141,7 @@ just protocol-test   # Python MCU protocol tests on host dev shell
 just mcu-serial-loopback # PTY serial loopback for MCU binary transport
 just sim             # build and launch pure simulation smoke path
 just v2-lidar-smoke  # Gazebo gpu_lidar -> normalized /scan_cloud smoke
+just v2-gazebo-localization-smoke # Gazebo /scan_cloud -> localization smoke
 just scan-cloud-contract # validate /scan_cloud PointCloud2 fields, frame, and TF
 just operator-goal-smoke # operator JSON goal -> /goal_pose -> V4 planner smoke
 just firmware-test   # Rust STM32 safety-core tests and thumbv7em-none-eabihf build
