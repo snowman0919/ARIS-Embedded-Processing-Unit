@@ -89,6 +89,9 @@ def test_headless_status_summary_collects_latest_evidence(tmp_path):
     assert "hardware_scope_active: no" in text
     assert "real_actuation_enabled: no" in text
     assert "safe_to_enable_real_actuation: no" in text
+    assert "Release steps" in text
+    assert "embedded_dry_run: pass exit_code=0" in text
+    assert "core_pipeline_repeatability: pass exit_code=0" in text
     assert "run: just headless-release-candidate" in text
     assert "node_path: approach -> goal" in text
     assert "scan_cloud_samples_min: 12" in text

@@ -1576,3 +1576,25 @@ Entry format:
   `/home/kotori9/aris/logs/pipeline/core_pipeline_repeatability_20260622T101634Z.json`.
 - Next:         Continue improving headless status usability and evidence traceability on
   `milestone/headless-simulation-embedded`.
+
+## 2026-06-22 KST — Headless Status Shows Release Step Results — WIP
+
+- Built:        Extended `scripts/summarize_headless_status.py` text output with a `Release steps`
+  section that lists each release-candidate step and its pass/fail result plus exit code. This
+  makes `just headless-status` explain not only that the release is valid, but which gate sequence
+  produced that result.
+- Built:        Updated README text for `headless-status` to mention release step pass/fail
+  reporting alongside evidence freshness and actuation scope.
+- Verified:     `./scripts/check_headless_status.sh` prints all ten release steps:
+  bootstrap doctor, embedded dry-run, documented commands, architecture contracts, host policy,
+  branch policy, core pipeline flow, repeatability, core readiness report, and headless readiness
+  audit. Targeted headless-status tests passed (`6 passed`); full
+  `./scripts/check_python_tests.sh` passed (`132 passed`); `./scripts/check_documented_commands.sh`
+  passed (`docs=25 references=190`); reuse-mode
+  `ARIS_HEADLESS_RELEASE_REUSE_EXISTING=1 ./scripts/check_headless_release_candidate.sh` passed
+  with `headless_release_candidate_valid`.
+- Evidence:     Reuse release report
+  `/home/kotori9/aris/logs/readiness/headless_release_candidate_20260622T102244Z.json`; final
+  evidence index
+  `/home/kotori9/aris/logs/readiness/evidence_index_20260622T102244Z_release.json`.
+- Next:         Commit and push the release-step status traceability improvement.

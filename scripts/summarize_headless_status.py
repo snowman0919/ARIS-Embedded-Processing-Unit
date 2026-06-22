@@ -220,8 +220,24 @@ def format_text(summary: dict[str, Any]) -> str:
         f"  global_path_points_min: {repeat.get('global_path_points_min')}",
         f"  cmd_samples_min: {repeat.get('cmd_samples_min')}",
         "",
-        "Evidence",
+        "Release steps",
     ]
+    release_steps = summary.get("release_steps") or []
+    if release_steps:
+        for step in release_steps:
+            lines.append(
+                "  {}: {} exit_code={}".format(
+                    step.get("name"),
+                    "pass" if step.get("passed") is True else "fail",
+                    step.get("exit_code"),
+                )
+            )
+    else:
+        lines.append("  n/a")
+    lines.extend([
+        "",
+        "Evidence",
+    ])
     for name, path in summary["evidence"].items():
         lines.append(f"  {name}: {path}")
     if summary["blockers"]:
