@@ -2142,3 +2142,36 @@ Entry format:
 - Next:         Publish the local v6 commits once GitHub HTTPS credentials are available, or use a
   safe connector path for the small release-evidence contract patch, then continue headless
   simulation and embedded dry-run hardening.
+
+## 2026-06-22 KST — Bootstrap Doctor Requires Release Helpers
+
+- Built:        Updated `scripts/generate_bootstrap_doctor.py` so the bootstrap doctor now checks
+  the headless status, release evidence index, status summary, and release-candidate validator
+  helper scripts needed by the V6 headless release flow.
+- Built:        Updated `tests/evidence/test_bootstrap_doctor.py` with workspace fixture coverage
+  and a regression test that reports a blocker when a release helper is missing.
+- Verified:     Targeted bootstrap-doctor tests passed (`8 passed`);
+  `./scripts/check_bootstrap_doctor.sh` passed with `bootstrap_doctor_valid valid=True blockers=0`;
+  full `./scripts/check_python_tests.sh` passed (`143 passed`);
+  `./scripts/check_documented_commands.sh` passed (`docs=25 references=201`).
+- Verified:     Full `./scripts/check_headless_release_candidate.sh` passed on
+  `v6-headless-simulation-embedded@15b2028` with `headless_release_candidate_valid`.
+  The captured headless status reports `evidence_freshness_reason=matching_head`,
+  `local_ahead=1`, `upstream_ahead=0`, `main_ahead=4`, and `v6_ahead=0`.
+- Evidence:     Release report
+  `/home/kotori9/aris/logs/readiness/headless_release_candidate_20260622T130808Z.json`;
+  final evidence index
+  `/home/kotori9/aris/logs/readiness/evidence_index_20260622T130808Z_release.json`;
+  headless status
+  `/home/kotori9/aris/logs/readiness/headless_status_20260622T130808Z.json`;
+  core readiness
+  `/home/kotori9/aris/logs/readiness/core_readiness_20260622T130926Z.log`;
+  headless audit
+  `/home/kotori9/aris/logs/readiness/headless_readiness_audit_20260622T131239Z.json`;
+  repeatability
+  `/home/kotori9/aris/logs/pipeline/core_pipeline_repeatability_20260622T130835Z.json`;
+  V3 compare
+  `/home/kotori9/aris/logs/maps/v3_semantic_map_20260622_130952.compare.json`.
+- Next:         Publish the bootstrap-doctor helper guard to remote V6 and merge it back to
+  `main`, then continue V6 headless simulation and embedded dry-run hardening from the major
+  milestone branch.
