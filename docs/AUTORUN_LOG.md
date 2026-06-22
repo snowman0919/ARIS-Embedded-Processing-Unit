@@ -2103,3 +2103,42 @@ Entry format:
   `/home/kotori9/aris/logs/readiness/branch_policy_20260622T124406Z.json`.
 - Next:         Publish the upstream-sync status improvement to remote v6 and main through the
   available GitHub path, then keep improving headless simulation and embedded dry-run evidence.
+
+## 2026-06-22 KST — Release Candidate Preserves Headless Status Snapshot
+
+- Built:        Updated `scripts/check_headless_release_candidate.sh` so every headless release
+  candidate now writes `$ARIS_LOGS/readiness/headless_status_<timestamp>.json`, updates
+  `$ARIS_LOGS/readiness/latest_headless_status.json`, and records the status snapshot under
+  `evidence.headless_status` in the release report.
+- Built:        Updated `scripts/validate_headless_release_candidate.py`, validator tests,
+  `README.md`, and `docs/verification_plan.md` so the release evidence contract requires and
+  documents the status snapshot. This preserves Git freshness, upstream sync, and main/v6 sync
+  state with the release bundle.
+- Verified:     Targeted release/status tests passed (`11 passed`); full
+  `./scripts/check_python_tests.sh` passed (`142 passed`);
+  `./scripts/check_documented_commands.sh` passed (`docs=25 references=201`);
+  reuse-mode `ARIS_HEADLESS_RELEASE_REUSE_EXISTING=1 ./scripts/check_headless_release_candidate.sh`
+  passed and produced a valid `headless_status_<timestamp>.json` evidence path.
+- Verified:     Full `./scripts/check_headless_release_candidate.sh` passed on
+  `v6-headless-simulation-embedded@59a2cd9` with `headless_release_candidate_valid`.
+  The release report includes
+  `/home/kotori9/aris/logs/readiness/headless_status_20260622T125255Z.json`, and that status
+  snapshot reports `evidence_freshness_reason=matching_head`, current/evidence commit `59a2cd9`,
+  `local_ahead=8`, `main_ahead=3`, and `v6_ahead=0`.
+- Evidence:     Release report
+  `/home/kotori9/aris/logs/readiness/headless_release_candidate_20260622T125255Z.json`;
+  final evidence index
+  `/home/kotori9/aris/logs/readiness/evidence_index_20260622T125255Z_release.json`;
+  headless status
+  `/home/kotori9/aris/logs/readiness/headless_status_20260622T125255Z.json`;
+  core readiness
+  `/home/kotori9/aris/logs/readiness/core_readiness_20260622T125414Z.log`;
+  headless audit
+  `/home/kotori9/aris/logs/readiness/headless_readiness_audit_20260622T125724Z.json`;
+  repeatability
+  `/home/kotori9/aris/logs/pipeline/core_pipeline_repeatability_20260622T125322Z.json`;
+  V3 compare
+  `/home/kotori9/aris/logs/maps/v3_semantic_map_20260622_125439.compare.json`.
+- Next:         Publish the local v6 commits once GitHub HTTPS credentials are available, or use a
+  safe connector path for the small release-evidence contract patch, then continue headless
+  simulation and embedded dry-run hardening.
