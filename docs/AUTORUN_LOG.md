@@ -1631,5 +1631,40 @@ Entry format:
   `/home/kotori9/aris/logs/readiness/headless_release_candidate_20260622T103029Z.json`; final
   evidence index
   `/home/kotori9/aris/logs/readiness/evidence_index_20260622T103029Z_release.json`.
-- Next:         Commit and push the per-step evidence-path status improvement, then refresh full
-  current-HEAD evidence if the status command marks runtime evidence stale.
+- Verified:     A full `./scripts/check_headless_release_candidate.sh` was attempted on
+  `milestone/headless-simulation-embedded@90ca5d4` and exposed a real repeatability weakness:
+  equivalent detour routes could fail when a later run started from a progressed route suffix
+  such as `detour_b -> detour_c -> goal`.
+- Next:         Fix route-suffix repeatability so harmless progress along the same detour route
+  remains stable while genuinely different final detours still fail.
+
+## 2026-06-22 KST — Core Pipeline Repeatability Accepts Stable Route Suffixes — WIP
+
+- Built:        Moved core-pipeline repeatability summarization into
+  `scripts/summarize_core_pipeline_repeatability.py` so route-signature logic is directly
+  testable. `scripts/check_core_pipeline_repeatability.sh` now calls that summarizer.
+- Built:        Updated route stability so repeated runs pass when they share the same final
+  detour suffix, accounting for a vehicle already progressed past an earlier detour node. Different
+  final detours are still rejected. Added the new summarizer to bootstrap-doctor required
+  executables.
+- Verified:     Re-summarized the failed evidence pair from
+  `/home/kotori9/aris/logs/pipeline/core_pipeline_repeatability_20260622T103132Z.json`; the new
+  logic accepts the stable suffix and records `route_signature=["detour_b","detour_c","goal"]`.
+  Targeted repeatability/bootstrap tests passed (`10 passed`); `./scripts/check_bootstrap_doctor.sh`
+  passed; full `./scripts/check_python_tests.sh` passed (`135 passed`);
+  `./scripts/check_documented_commands.sh` passed (`docs=25 references=190`);
+  `./scripts/check_core_pipeline_repeatability.sh` passed.
+- Verified:     Full `./scripts/check_headless_release_candidate.sh` passed on
+  `milestone/headless-simulation-embedded@bc2add6` with `headless_release_candidate_valid`.
+- Evidence:     Release report
+  `/home/kotori9/aris/logs/readiness/headless_release_candidate_20260622T103552Z.json`;
+  final evidence index
+  `/home/kotori9/aris/logs/readiness/evidence_index_20260622T103552Z_release.json`;
+  core readiness
+  `/home/kotori9/aris/logs/readiness/core_readiness_20260622T103711Z.log`;
+  headless audit
+  `/home/kotori9/aris/logs/readiness/headless_readiness_audit_20260622T104031Z.json`;
+  repeatability
+  `/home/kotori9/aris/logs/pipeline/core_pipeline_repeatability_20260622T103619Z.json`.
+- Next:         Commit and push the repeatability suffix fix and evidence log on
+  `milestone/headless-simulation-embedded`.
