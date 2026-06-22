@@ -14,6 +14,12 @@ from typing import Any
 Cell = tuple[int, int]
 
 
+class SnapshotCompareError(ValueError):
+    def __init__(self, message: str, report: dict[str, Any]) -> None:
+        super().__init__(message)
+        self.report = report
+
+
 def _load(path: Path) -> dict[str, Any]:
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
@@ -168,7 +174,7 @@ def compare_snapshots(
     result["failures"] = failures
     result["valid"] = not failures
     if failures:
-        raise ValueError("; ".join(failures))
+        raise SnapshotCompareError("; ".join(failures), result)
     return result
 
 
@@ -185,6 +191,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--high-risk-threshold", type=float, default=0.8)
     args = parser.parse_args(argv)
 
+    report: dict[str, Any] | None = None
     try:
         report = compare_snapshots(
             args.baseline,
@@ -196,7 +203,14 @@ def main(argv: list[str] | None = None) -> int:
             max_review_queue_delta=args.max_review_queue_delta,
             high_risk_threshold=args.high_risk_threshold,
         )
-    except ValueError as exc:
+    except SnapshotCompareError as exc:
+        report = exc.report
+        if args.report_out:
+            args.report_out.parent.mkdir(parents=True, exist_ok=True)
+            args.report_out.write_text(
+                json.dumps(report, indent=2, sort_keys=True) + "\n",
+                encoding="utf-8",
+            )
         print(f"ERROR: {exc}", file=sys.stderr)
         return 1
 

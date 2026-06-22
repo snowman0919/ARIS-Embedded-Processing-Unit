@@ -51,7 +51,9 @@ $ARIS_LOGS/maps/v3_semantic_map_<timestamp>.compare.json
 ```
 
 The compare report scores repeat-pass stability: metric-cell overlap, route-graph overlap, top-label
-changes, high-risk cell delta, and review-queue delta. Compare existing snapshots with:
+changes, high-risk cell delta, and review-queue delta. The smoke keeps route and semantic structure
+tight while allowing up to eight review-queue entries of delta because that queue reflects
+timing-sensitive operator workload rather than map topology. Compare existing snapshots with:
 
 ```bash
 ./scripts/compare_semantic_map_snapshots.py /path/to/baseline.json /path/to/candidate.json

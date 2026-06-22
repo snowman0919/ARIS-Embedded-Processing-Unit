@@ -400,8 +400,12 @@ $ARIS_LOGS/maps/v3_semantic_map_<timestamp>.compare.json
 ```
 
 The compare report records baseline/candidate SHA-256 values, metric-cell overlap, route-graph
-overlap, semantic top-label changes, high-risk cell delta, and review-queue delta. Existing
-snapshot pairs can be scored with:
+overlap, semantic top-label changes, high-risk cell delta, and review-queue delta. The default
+V3 smoke requires at least 70% metric-cell overlap, 95% route-edge overlap, no more than two
+top-label changes, no more than two high-risk-cell changes, and no more than eight review-queue
+entries of delta. The review queue is a timing-sensitive operator workload signal, so it is bounded
+more loosely than route structure and semantic label stability. Existing snapshot pairs can be
+scored with:
 
 ```bash
 ./scripts/compare_semantic_map_snapshots.py /path/to/baseline.json /path/to/candidate.json

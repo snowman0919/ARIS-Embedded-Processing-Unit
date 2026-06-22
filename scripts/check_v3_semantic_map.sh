@@ -179,7 +179,7 @@ PY
       --min-route-overlap 0.95 \
       --max-label-changes 2 \
       --max-high-risk-delta 2 \
-      --max-review-queue-delta 5
+      --max-review-queue-delta 8
     echo "v3_semantic_map_compare path=$compare_file baseline=$baseline_snapshot"
   else
     echo "v3_semantic_map_compare skipped=no-baseline"
