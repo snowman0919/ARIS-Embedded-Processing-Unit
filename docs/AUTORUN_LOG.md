@@ -1597,4 +1597,18 @@ Entry format:
   `/home/kotori9/aris/logs/readiness/headless_release_candidate_20260622T102244Z.json`; final
   evidence index
   `/home/kotori9/aris/logs/readiness/evidence_index_20260622T102244Z_release.json`.
-- Next:         Commit and push the release-step status traceability improvement.
+- Verified:     Full `./scripts/check_headless_release_candidate.sh` passed on
+  `milestone/headless-simulation-embedded@639f123` with `headless_release_candidate_valid`.
+  The release-step status output is now backed by current-HEAD evidence.
+- Evidence:     Release report
+  `/home/kotori9/aris/logs/readiness/headless_release_candidate_20260622T102336Z.json`;
+  final evidence index
+  `/home/kotori9/aris/logs/readiness/evidence_index_20260622T102336Z_release.json`;
+  core readiness
+  `/home/kotori9/aris/logs/readiness/core_readiness_20260622T102456Z.log`;
+  headless audit
+  `/home/kotori9/aris/logs/readiness/headless_readiness_audit_20260622T102828Z.json`;
+  repeatability
+  `/home/kotori9/aris/logs/pipeline/core_pipeline_repeatability_20260622T102403Z.json`.
+- Next:         Continue improving evidence traceability and practical headless usability on
+  `milestone/headless-simulation-embedded`.
