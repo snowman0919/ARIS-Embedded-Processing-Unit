@@ -26,11 +26,13 @@ def summarize(logs_dir: Path, workspace: Path | None = None) -> dict[str, Any]:
     release_path = _resolve(readiness_dir / "latest_headless_release_candidate.json")
     audit_path = _resolve(readiness_dir / "latest_headless_readiness_audit.json")
     index_path = _resolve(readiness_dir / "latest_evidence_index.json")
+    branch_policy_path = _resolve(readiness_dir / "latest_branch_policy.json")
     repeat_path = _resolve(pipeline_dir / "latest_core_pipeline_repeatability.json")
 
     release = _read_json(release_path)
     audit = _read_json(audit_path)
     index = _read_json(index_path)
+    branch_policy = _read_json(branch_policy_path)
     repeat = _read_json(repeat_path)
     current_git = _current_git(workspace) if workspace else {"branch": None, "commit": None}
     evidence_git = (index or {}).get("git") or {}
@@ -150,18 +152,21 @@ def summarize(logs_dir: Path, workspace: Path | None = None) -> dict[str, Any]:
         "acceptance_evaluation": _acceptance_evaluation(core_pipeline, repeatability, acceptance_thresholds),
         "core_pipeline": core_pipeline,
         "repeatability": repeatability,
+        "main_sync": (branch_policy or {}).get("main_sync") or {},
         "release_steps": release_steps,
         "release_evidence": release_evidence,
         "evidence_age": {
             "headless_release_candidate": _artifact_age(release_path, now),
             "headless_readiness_audit": _artifact_age(audit_path, now),
             "readiness_evidence_index": _artifact_age(index_path, now),
+            "branch_policy": _artifact_age(branch_policy_path, now),
             "core_pipeline_repeatability": _artifact_age(repeat_path, now),
         },
         "evidence": {
             "headless_release_candidate": str(release_path) if release_path else None,
             "headless_readiness_audit": str(audit_path) if audit_path else None,
             "readiness_evidence_index": str(index_path) if index_path else None,
+            "branch_policy": str(branch_policy_path) if branch_policy_path else None,
             "core_pipeline_repeatability": str(repeat_path) if repeat_path else None,
         },
     }
@@ -456,6 +461,21 @@ def format_text(summary: dict[str, Any]) -> str:
             )
         )
     if not required_stages and not repeat_thresholds:
+        lines.append("  n/a")
+    lines.extend([
+        "",
+        "Main sync",
+    ])
+    main_sync = summary.get("main_sync") or {}
+    if main_sync and main_sync.get("available") is True:
+        lines.extend([
+            f"  base: {main_sync.get('base')}",
+            f"  head: {main_sync.get('head')}",
+            f"  main_ahead: {main_sync.get('main_ahead')}",
+            f"  v6_ahead: {main_sync.get('v6_ahead')}",
+            f"  main_contains_v6: {_format_bool(main_sync.get('main_contains_v6') is True)}",
+        ])
+    else:
         lines.append("  n/a")
     lines.extend([
         "",
