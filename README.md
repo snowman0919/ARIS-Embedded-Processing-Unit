@@ -185,6 +185,7 @@ just gpu-test        # CUDA/GPU visibility inside a container
 just ros2-test       # ROS2 CLI and demo pub/sub inside container
 just python-test     # ROS-free Python unit tests on the host
 just documented-commands # verify README/docs command references resolve to local recipes/scripts
+just architecture-contracts # static guardrails for /cmd_drive, HAL, and AI advisory boundaries
 just ros2-build      # colcon build for starter packages
 just protocol-test   # Python MCU protocol tests on host dev shell
 just mcu-serial-loopback # PTY serial loopback for MCU binary transport

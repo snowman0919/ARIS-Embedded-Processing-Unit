@@ -1045,3 +1045,19 @@ Entry format:
 - Scope note:   This is a reproducibility guard for current docs and scripts; it does not exercise
   the full ROS/Gazebo runtime by itself.
 - Next:         Commit and push to `v6`.
+
+## 2026-06-22 15:58 KST — Architecture Contract Static Guardrail — WIP
+- Built:        Added `scripts/check_architecture_contracts.py`,
+  `scripts/check_architecture_contracts.sh`, and `just architecture-contracts`. The checker guards
+  the `/cmd_drive` publisher boundary and verifies the AI advisory package does not introduce
+  control-topic or MCU-control authority. Added this guardrail to `just headless-release-candidate`.
+- Verified:     `./scripts/check_architecture_contracts.sh` passed. `./scripts/check_documented_commands.sh`
+  passed with `docs=25` and `references=159`.
+  `ARIS_HEADLESS_RELEASE_REUSE_EXISTING=1 ./scripts/check_headless_release_candidate.sh` passed and
+  the release report includes a passing `architecture_contracts` step. Full
+  `./scripts/check_python_tests.sh` passed (`108 passed`); targeted architecture/document/evidence
+  tests passed (`3 passed`); `bash -n`, `python3 -m py_compile`, and `git diff --check` passed.
+- Commit:       Pending architecture-contract guardrail commit.
+- Scope note:   Static guardrail only; full runtime evidence remains covered by the normal
+  headless release-candidate run.
+- Next:         Commit and push to `v6`.

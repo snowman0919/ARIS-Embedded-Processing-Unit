@@ -39,6 +39,9 @@ python-test:
 documented-commands:
     ./scripts/check_documented_commands.sh
 
+architecture-contracts:
+    ./scripts/check_architecture_contracts.sh
+
 sim:
     ./scripts/check_sim.sh
 

@@ -28,6 +28,11 @@ This document defines the verification checklist for the final architecture fram
 ```bash
 just documented-commands
 ```
+- Static architecture guardrails remain intact:
+
+```bash
+just architecture-contracts
+```
 
 ## 3. Communication Tests
 
@@ -196,8 +201,8 @@ For a release-candidate style run on a headless machine, use:
 just headless-release-candidate
 ```
 
-It runs embedded dry-run, documented-command validation, core pipeline flow, no-skip core readiness
-report, and headless readiness audit in sequence. It writes
+It runs embedded dry-run, documented-command validation, architecture-contract validation, core
+pipeline flow, no-skip core readiness report, and headless readiness audit in sequence. It writes
 `$ARIS_LOGS/readiness/headless_release_candidate_<timestamp>.json` and updates
 `$ARIS_LOGS/readiness/latest_headless_release_candidate.json`. At the end of the run it also
 refreshes `$ARIS_LOGS/readiness/latest_evidence_index.json` so the index links back to the release
