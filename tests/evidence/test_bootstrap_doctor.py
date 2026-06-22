@@ -58,11 +58,13 @@ def _workspace(tmp_path: Path) -> Path:
         "scripts/check_core_pipeline_flow.sh",
         "scripts/check_core_pipeline_repeatability.sh",
         "scripts/generate_readiness_evidence_index.py",
+        "scripts/generate_operational_readiness_audit.py",
         "scripts/summarize_core_pipeline_repeatability.py",
         "scripts/summarize_headless_status.py",
         "scripts/validate_headless_release_candidate.py",
         "scripts/run_core_readiness_report.sh",
         "scripts/check_headless_readiness_audit.sh",
+        "scripts/check_operational_readiness_audit.sh",
     ):
         path = workspace / relative
         path.write_text("#!/usr/bin/env bash\n", encoding="utf-8")
@@ -161,6 +163,16 @@ def test_bootstrap_doctor_requires_release_report_helpers(tmp_path):
 
     assert report["valid"] is False
     assert "missing required file: scripts/validate_headless_release_candidate.py" in report["blockers"]
+
+
+def test_bootstrap_doctor_requires_operational_audit_entrypoint(tmp_path):
+    workspace = _workspace(tmp_path)
+    (workspace / "scripts/check_operational_readiness_audit.sh").unlink()
+
+    report = generate_report(workspace, _env(workspace, tmp_path))
+
+    assert report["valid"] is False
+    assert "missing required file: scripts/check_operational_readiness_audit.sh" in report["blockers"]
 
 
 def test_bootstrap_doctor_requires_core_readiness_child_entrypoints(tmp_path):

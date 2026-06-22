@@ -20,6 +20,7 @@ REQUIRED_STEPS = (
     "core_pipeline_repeatability",
     "core_readiness_report",
     "headless_readiness_audit",
+    "operational_readiness_audit",
 )
 
 REQUIRED_ACCEPTANCE_CRITERIA = (
@@ -111,6 +112,7 @@ def validate(report_path: Path, index_path: Path | None = None) -> list[str]:
         "branch_policy",
         "core_readiness_report",
         "headless_readiness_audit",
+        "operational_readiness_audit",
         "headless_status",
         "readiness_evidence_index",
     )

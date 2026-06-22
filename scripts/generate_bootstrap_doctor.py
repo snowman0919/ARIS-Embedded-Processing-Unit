@@ -50,11 +50,13 @@ REQUIRED_FILES = (
     "scripts/check_core_pipeline_flow.sh",
     "scripts/check_core_pipeline_repeatability.sh",
     "scripts/generate_readiness_evidence_index.py",
+    "scripts/generate_operational_readiness_audit.py",
     "scripts/summarize_core_pipeline_repeatability.py",
     "scripts/summarize_headless_status.py",
     "scripts/validate_headless_release_candidate.py",
     "scripts/run_core_readiness_report.sh",
     "scripts/check_headless_readiness_audit.sh",
+    "scripts/check_operational_readiness_audit.sh",
 )
 REQUIRED_EXECUTABLES = tuple(path for path in REQUIRED_FILES if path.startswith("scripts/"))
 REQUIRED_COMMANDS = ("git", "python3", "nix", "docker")

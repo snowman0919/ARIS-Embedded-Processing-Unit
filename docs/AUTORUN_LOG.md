@@ -2291,3 +2291,45 @@ Entry format:
 - Next:         Publish the headless-status operational scope handoff improvement to remote V6 and
   merge it back to `main`, then continue tightening the remaining hardware-free handoff and
   simulation evidence.
+
+## 2026-06-22 KST — Release Candidate Includes Operational Audit
+
+- Built:        Updated `scripts/check_headless_release_candidate.sh` so every hardware-free
+  release candidate now runs `operational_readiness_audit` after the headless readiness audit and
+  records `evidence.operational_readiness_audit` in the release report.
+- Built:        Updated `scripts/validate_headless_release_candidate.py` so
+  `operational_readiness_audit` is a required release step and evidence path. Updated bootstrap
+  doctor requirements so the operational audit entrypoint and generator are required in new
+  checkouts.
+- Built:        Updated release-candidate validator tests, bootstrap-doctor tests, `README.md`,
+  and `docs/verification_plan.md` for the new release bundle contract.
+- Verified:     Targeted release/bootstrap tests passed (`14 passed`);
+  full `./scripts/check_python_tests.sh` passed (`146 passed`);
+  `./scripts/check_documented_commands.sh` passed (`docs=25 references=207`);
+  reuse-mode `ARIS_HEADLESS_RELEASE_REUSE_EXISTING=1 ./scripts/check_headless_release_candidate.sh`
+  passed and included the `operational_readiness_audit` step.
+- Verified:     Full `./scripts/check_headless_release_candidate.sh` passed on
+  `v6-headless-simulation-embedded@341fcd3` with `headless_release_candidate_valid`.
+  The release steps include `operational_readiness_audit: pass exit_code=0`, and the captured
+  headless status reports `evidence_freshness_reason=matching_head`,
+  `headless_ready=yes`, `release_valid=yes`, `headless_simulation_embedded_ready=yes`,
+  `hardware_evidence_ready=no`, `full_operational_ready=no`, `local_ahead=1`,
+  `upstream_ahead=0`, `main_ahead=0`, and `v6_ahead=0`.
+- Evidence:     Release report
+  `/home/kotori9/aris/logs/readiness/headless_release_candidate_20260622T134601Z.json`;
+  final evidence index
+  `/home/kotori9/aris/logs/readiness/evidence_index_20260622T134601Z_release.json`;
+  headless status
+  `/home/kotori9/aris/logs/readiness/headless_status_20260622T134601Z.json`;
+  core readiness
+  `/home/kotori9/aris/logs/readiness/core_readiness_20260622T134719Z.log`;
+  headless audit
+  `/home/kotori9/aris/logs/readiness/headless_readiness_audit_20260622T135029Z.json`;
+  operational audit
+  `/home/kotori9/aris/logs/readiness/operational_readiness_audit_20260622T135030Z.json`;
+  repeatability
+  `/home/kotori9/aris/logs/pipeline/core_pipeline_repeatability_20260622T134628Z.json`;
+  V3 compare
+  `/home/kotori9/aris/logs/maps/v3_semantic_map_20260622_134743.compare.json`.
+- Next:         Publish the release-bundle operational audit closure to remote V6 and merge it
+  back to `main`, then continue tightening the hardware-free release handoff.

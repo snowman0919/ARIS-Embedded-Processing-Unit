@@ -249,7 +249,8 @@ just headless-release-candidate
 
 It runs bootstrap doctor, embedded dry-run, documented-command validation, architecture-contract
 validation, host-policy validation, branch-policy validation, core pipeline flow, core pipeline
-repeatability, no-skip core readiness report, and headless readiness audit in sequence. It writes
+repeatability, no-skip core readiness report, headless readiness audit, and operational readiness
+audit in sequence. It writes
 `$ARIS_LOGS/readiness/headless_release_candidate_<timestamp>.json` and updates
 `$ARIS_LOGS/readiness/latest_headless_release_candidate.json`. At the end of the run it also
 refreshes `$ARIS_LOGS/readiness/latest_evidence_index.json` so the index links back to the release
@@ -261,7 +262,9 @@ blockers, and real-actuation safety flags so the release JSON remains self-conta
 the hardware-free simulation and embedded dry-run scope. After the final index is refreshed, the command writes
 `$ARIS_LOGS/readiness/latest_headless_status.json` and records it in the release report evidence so
 the status summary, Git freshness, upstream sync, and main/v6 sync state are preserved with the
-release bundle.
+release bundle. The operational audit is non-actuating in the current headless scope: it can report
+`headless_simulation_embedded_ready=true` while keeping `full_operational_ready=false` until HIL and
+field evidence exist.
 
 To inspect the latest release, audit, pipeline, and repeatability evidence without opening raw JSON:
 
