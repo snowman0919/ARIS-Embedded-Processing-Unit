@@ -1,0 +1,13 @@
+lidar:
+  # Replace these values with the exact production LiDAR datasheet once the
+  # final model is locked. The simulator is intentionally profile-driven.
+  model: aris_lidar_3d_default
+  horizontal_fov_deg: 120.0
+  horizontal_samples: 181
+  vertical_angles_deg: [-15.0, -10.0, -5.0, 0.0, 5.0, 10.0, 15.0]
+  scan_rate_hz: 10.0
+  range_min_m: 0.10
+  range_max_m: 40.0
+  range_noise_std_m: 0.01
+  angular_noise_std_deg: 0.02
+  dropout_rate: 0.005

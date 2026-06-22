@@ -1,0 +1,27 @@
+frame: map
+boxes:
+  - id: left_wall
+    label: wall
+    center: [12.0, 2.25, 1.0]
+    size: [24.0, 0.3, 2.0]
+    intensity: 95.0
+  - id: right_wall
+    label: wall
+    center: [12.0, -2.25, 1.0]
+    size: [24.0, 0.3, 2.0]
+    intensity: 95.0
+  - id: front_wall
+    label: wall
+    center: [24.0, 0.0, 1.0]
+    size: [0.3, 4.8, 2.0]
+    intensity: 95.0
+  - id: obstacle_box
+    label: obstacle
+    center: [8.0, 0.8, 0.6]
+    size: [1.0, 0.8, 1.2]
+    intensity: 130.0
+  - id: low_curb
+    label: curb
+    center: [14.0, -1.2, 0.12]
+    size: [3.0, 0.25, 0.24]
+    intensity: 75.0

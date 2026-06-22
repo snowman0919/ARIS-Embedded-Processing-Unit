@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>aris_description</name>
+  <version>0.1.0</version>
+  <description>Single shared ARIS vehicle model (URDF/xacro) and robot_state_publisher bringup. Used by both simulation and the real vehicle so the TF tree and sensor extrinsics stay identical (Sim2Real Strategy 2).</description>
+  <maintainer email="aris@example.invalid">ARIS</maintainer>
+  <license>Apache-2.0</license>
+  <buildtool_depend>ament_python</buildtool_depend>
+  <exec_depend>xacro</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+  <test_depend>python3-pytest</test_depend>
+  <export><build_type>ament_python</build_type></export>
+</package>

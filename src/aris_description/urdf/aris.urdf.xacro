@@ -1,0 +1,117 @@
+<?xml version="1.0"?>
+<!--
+  ARIS vehicle model: the single source of truth for kinematics and sensor
+  extrinsics, shared by simulation and the real vehicle (Sim2Real Strategy 2).
+  robot_state_publisher turns this into the fixed part of the TF tree
+  (base_link -> sensors), identical in sim and on the car.
+-->
+<robot name="aris" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- Confirmed kinematics. Calibrate max_steer on the real vehicle and update here. -->
+  <xacro:property name="wheelbase" value="1.25"/>   <!-- m, rear axle to front axle -->
+  <xacro:property name="max_steer" value="0.6"/>    <!-- rad, steering limit -->
+  <xacro:property name="track" value="0.9"/>        <!-- m, approximate wheel track -->
+  <xacro:property name="body_length" value="${wheelbase + 0.4}"/>
+  <xacro:property name="body_width" value="${track}"/>
+  <xacro:property name="body_height" value="0.4"/>
+  <xacro:property name="body_mass" value="80.0"/>
+  <xacro:property name="sensor_mass" value="0.5"/>
+
+  <!-- Injects simulation-only additions (Gazebo sensor plugins) without touching
+       the kinematics/TF that the real vehicle also relies on. -->
+  <xacro:arg name="use_sim" default="true"/>
+
+  <material name="aris_body"><color rgba="0.15 0.18 0.22 1.0"/></material>
+  <material name="aris_sensor"><color rgba="0.85 0.40 0.15 1.0"/></material>
+
+  <xacro:macro name="box_inertial" params="mass x y z">
+    <inertial>
+      <mass value="${mass}"/>
+      <inertia
+        ixx="${mass * (y * y + z * z) / 12.0}"
+        ixy="0.0"
+        ixz="0.0"
+        iyy="${mass * (x * x + z * z) / 12.0}"
+        iyz="0.0"
+        izz="${mass * (x * x + y * y) / 12.0}"/>
+    </inertial>
+  </xacro:macro>
+
+  <!-- Vehicle base frame: origin at the rear axle on the ground plane. -->
+  <link name="base_link">
+    <xacro:box_inertial mass="${body_mass}" x="${body_length}" y="${body_width}" z="${body_height}"/>
+    <visual>
+      <origin xyz="${wheelbase/2} 0 0.25" rpy="0 0 0"/>
+      <geometry><box size="${body_length} ${body_width} ${body_height}"/></geometry>
+      <material name="aris_body"/>
+    </visual>
+    <collision>
+      <origin xyz="${wheelbase/2} 0 0.25" rpy="0 0 0"/>
+      <geometry><box size="${body_length} ${body_width} ${body_height}"/></geometry>
+    </collision>
+  </link>
+
+  <!-- Fixed sensor frame with a small visual marker. -->
+  <xacro:macro name="sensor_frame" params="name xyz rpy">
+    <link name="${name}">
+      <xacro:box_inertial mass="${sensor_mass}" x="0.08" y="0.08" z="0.08"/>
+      <visual>
+        <geometry><box size="0.08 0.08 0.08"/></geometry>
+        <material name="aris_sensor"/>
+      </visual>
+      <collision>
+        <geometry><box size="0.08 0.08 0.08"/></geometry>
+      </collision>
+    </link>
+    <joint name="${name}_joint" type="fixed">
+      <parent link="base_link"/>
+      <child link="${name}"/>
+      <origin xyz="${xyz}" rpy="${rpy}"/>
+    </joint>
+  </xacro:macro>
+
+  <!-- Extrinsic calibration (PDF ch5). Initial estimates; refine with
+       LiDAR<->camera calibration on the real vehicle and commit back here. -->
+  <xacro:sensor_frame name="lidar_link"        xyz="0.6 0 0.9"     rpy="0 0 0"/>
+  <xacro:sensor_frame name="imu_link"          xyz="0.0 0 0.2"     rpy="0 0 0"/>
+  <xacro:sensor_frame name="gps_link"          xyz="-0.3 0 1.0"    rpy="0 0 0"/>
+  <xacro:sensor_frame name="camera_front_link" xyz="0.95 0 0.6"    rpy="0 0 0"/>
+  <xacro:sensor_frame name="camera_fl_link"    xyz="0.8 0.45 0.6"  rpy="0 0 0.785"/>
+  <xacro:sensor_frame name="camera_fr_link"    xyz="0.8 -0.45 0.6" rpy="0 0 -0.785"/>
+  <xacro:sensor_frame name="camera_left_link"  xyz="0.2 0.5 0.7"   rpy="0 0 1.571"/>
+  <xacro:sensor_frame name="camera_right_link" xyz="0.2 -0.5 0.7"  rpy="0 0 -1.571"/>
+  <xacro:sensor_frame name="camera_rear_link"  xyz="-0.4 0 0.7"    rpy="0 0 3.142"/>
+
+  <xacro:if value="$(arg use_sim)">
+    <gazebo reference="lidar_link">
+      <sensor name="gpu_lidar" type="gpu_lidar">
+        <topic>scan_cloud</topic>
+        <update_rate>10</update_rate>
+        <lidar>
+          <scan>
+            <horizontal>
+              <samples>640</samples>
+              <resolution>1</resolution>
+              <min_angle>-1.396263</min_angle>
+              <max_angle>1.396263</max_angle>
+            </horizontal>
+            <vertical>
+              <samples>16</samples>
+              <resolution>1</resolution>
+              <min_angle>-0.261799</min_angle>
+              <max_angle>0.261799</max_angle>
+            </vertical>
+          </scan>
+          <range>
+            <min>0.08</min>
+            <max>10.0</max>
+            <resolution>0.01</resolution>
+          </range>
+        </lidar>
+        <always_on>1</always_on>
+        <visualize>false</visualize>
+      </sensor>
+    </gazebo>
+  </xacro:if>
+
+</robot>
