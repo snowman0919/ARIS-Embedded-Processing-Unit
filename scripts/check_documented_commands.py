@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 from dataclasses import dataclass
+import os
 from pathlib import Path
 import re
 import sys
@@ -72,9 +73,14 @@ def validate(workspace: Path) -> list[str]:
                     f"{reference.path}:{reference.line_no}: unknown just recipe '{reference.name}'"
                 )
         elif reference.kind == "script":
-            if not (workspace / reference.name).exists():
+            script_path = workspace / reference.name
+            if not script_path.exists():
                 failures.append(
                     f"{reference.path}:{reference.line_no}: missing script './{reference.name}'"
+                )
+            elif not os.access(script_path, os.X_OK):
+                failures.append(
+                    f"{reference.path}:{reference.line_no}: script is not executable './{reference.name}'"
                 )
     return failures
 

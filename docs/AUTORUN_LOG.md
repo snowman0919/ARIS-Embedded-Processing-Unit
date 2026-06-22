@@ -1416,3 +1416,16 @@ Entry format:
   `/home/kotori9/aris/logs/readiness/headless_readiness_audit_20260622T082929Z.json`.
 - Next:         Continue improving headless release evidence and developer-facing diagnostics on
   `milestone/headless-simulation-embedded`.
+
+## 2026-06-22 KST — Documented Script Executability Gate — WIP
+
+- Built:        Tightened `scripts/check_documented_commands.py` so documented `./scripts/...`
+  references must exist and be executable. This makes the fallback "run scripts directly" path in
+  README fail early if executable bits are lost.
+- Verified:     `./scripts/check_documented_commands.sh` passed (`docs=25 references=188`).
+  Targeted documented-command tests passed (`2 passed`); full `./scripts/check_python_tests.sh`
+  passed (`128 passed`); reuse-mode
+  `ARIS_HEADLESS_RELEASE_REUSE_EXISTING=1 ./scripts/check_headless_release_candidate.sh` passed
+  with `headless_release_candidate_valid`.
+- Next:         Commit and push the documented-script executable gate, then run full
+  `./scripts/check_headless_release_candidate.sh` on the committed HEAD.
