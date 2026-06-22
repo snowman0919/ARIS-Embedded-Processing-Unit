@@ -227,7 +227,10 @@ It writes `$ARIS_LOGS/readiness/headless_readiness_audit_<timestamp>.json` and u
 readiness, V2 Gazebo/LiDAR bag evidence, V3/V6 semantic map review evidence, V5 obstacle smoke and
 recorded replay evidence, and a valid embedded dry-run report from `just embedded-dry-run`. HIL
 preflight and field validation are recorded as future blockers outside the current headless scope,
-not as active blockers.
+not as active blockers. The audit JSON also includes `acceptance_thresholds`, which records the
+required six-stage core pipeline, no-skip readiness flags, repeatability floors, maximum repeated
+goal error, V3/V6 advisory-only constraints, V5 tracking floor, and embedded dry-run hardware-free
+requirements used to compute the per-criterion pass/fail state.
 
 For a release-candidate style run on a headless machine, use:
 

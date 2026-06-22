@@ -9,6 +9,57 @@ from pathlib import Path
 from typing import Any
 
 
+ACCEPTANCE_THRESHOLDS: dict[str, Any] = {
+    "core_readiness_no_skip": {
+        "readiness_result": "PASS",
+        "exit_code": 0,
+        "skip_gazebo": "0",
+        "skip_v3": "0",
+        "real_actuation": "0",
+    },
+    "v2_gazebo_stack": {
+        "requires_no_skip_readiness": True,
+        "requires_v2_lidar_bag_evidence": True,
+    },
+    "v3_v6_mapping_review": {
+        "manifest_valid": True,
+        "compare_valid": True,
+        "advisory_only": True,
+        "control_authority": "none",
+    },
+    "core_pipeline_flow": {
+        "required_stages": [
+            "mapping",
+            "semantic_hd_map",
+            "route_graph",
+            "localization",
+            "goal_based_planning",
+            "autonomous_driving",
+        ],
+    },
+    "core_pipeline_repeatability": {
+        "min_runs_completed": 2,
+        "node_path_stable": True,
+        "max_goal_error_m": 1.3,
+        "min_runs_with_samples": 2,
+        "min_scan_cloud_samples": 5,
+        "min_global_path_points": 2,
+        "min_cmd_samples": 20,
+    },
+    "v5_obstacle": {
+        "valid": True,
+        "min_track_age": 2,
+    },
+    "v5_recorded_obstacle_replay": {
+        "valid": True,
+    },
+    "embedded_dry_run": {
+        "valid": True,
+        "hardware_required": False,
+    },
+}
+
+
 def _latest(paths: list[Path]) -> Path | None:
     existing = [path for path in paths if path.exists()]
     if not existing:
@@ -276,6 +327,7 @@ def generate_audit(workspace: Path, logs_dir: Path) -> dict[str, Any]:
         "headless_ready": headless_ready,
         "hardware_scope_active": False,
         "safe_to_enable_real_actuation": False,
+        "acceptance_thresholds": ACCEPTANCE_THRESHOLDS,
         "criteria": criteria,
         "blockers": blockers,
         "future_blockers_not_in_scope": [

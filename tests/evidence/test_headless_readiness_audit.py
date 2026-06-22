@@ -121,6 +121,23 @@ def test_headless_audit_passes_without_hil_or_field(tmp_path):
     assert report["hardware_scope_active"] is False
     assert report["safe_to_enable_real_actuation"] is False
     assert report["blockers"] == []
+    assert report["acceptance_thresholds"]["core_pipeline_flow"]["required_stages"] == [
+        "mapping",
+        "semantic_hd_map",
+        "route_graph",
+        "localization",
+        "goal_based_planning",
+        "autonomous_driving",
+    ]
+    assert report["acceptance_thresholds"]["core_pipeline_repeatability"] == {
+        "min_runs_completed": 2,
+        "node_path_stable": True,
+        "max_goal_error_m": 1.3,
+        "min_runs_with_samples": 2,
+        "min_scan_cloud_samples": 5,
+        "min_global_path_points": 2,
+        "min_cmd_samples": 20,
+    }
     assert report["criteria"]["embedded_dry_run"]["passed"] is True
     assert report["future_blockers_not_in_scope"] == ["hil_preflight", "field_validation"]
 
