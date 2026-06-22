@@ -247,7 +247,9 @@ headless operators can judge when a fresh release-candidate run is needed. Use
 `just headless-release-candidate` runs the hardware-free evidence bundle end to end and writes
 `$ARIS_LOGS/readiness/latest_headless_release_candidate.json`.
 `just branch-policy` writes the latest local/origin branch policy check to
-`$ARIS_LOGS/readiness/latest_branch_policy.json`.
+`$ARIS_LOGS/readiness/latest_branch_policy.json`. The report also includes `main_sync`, which
+records how many commits `origin/main` and `origin/v6-headless-simulation-embedded` are ahead of
+each other so pending mainline PRs are visible from the local readiness evidence.
 
 The Nix shell includes Rust host tools for editing, formatting, clippy, and unit tests. This
 processing-unit repository owns the ROS 2 MCU bridge and binary protocol tests; standalone STM32

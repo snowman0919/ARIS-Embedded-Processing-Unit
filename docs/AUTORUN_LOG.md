@@ -1908,3 +1908,77 @@ Entry format:
 - Next:         Continue improving hardware-free simulation and embedded dry-run reproducibility
   on `milestone/headless-simulation-embedded` while HIL and field validation remain future
   evidence contracts.
+
+## 2026-06-22 KST — vN Context Branches And Fresh V6 Release
+
+- Built:        Reorganized remote branch policy from `milestone/*` back to descriptive
+  `v{num}-{context}` branches: `v1-teach-repeat-route-replay`,
+  `v2-lidar-localization-gazebo`, `v3-semantic-hd-map`, `v4-goal-based-navigation`,
+  `v5-dynamic-obstacle-advisory`, and `v6-headless-simulation-embedded`.
+- Built:        Deleted stale remote `milestone/*` branches, updated `scripts/check_branch_policy.py`
+  and docs to enforce the vN-context branch set, and opened PR #2 from
+  `v6-headless-simulation-embedded` into `main`.
+- Built:        Connected `main` history into the v6 baseline with an `ours` merge so GitHub can
+  create a normal PR while preserving the v6 tree as the proposed mainline state.
+- Verified:     `./scripts/check_branch_policy.sh` reports
+  `branch_policy_valid current=v6-headless-simulation-embedded local=7 origin=7`. Remote heads are
+  `main` plus `v1` through `v6` only.
+- Verified:     Full `./scripts/check_headless_release_candidate.sh` passed on
+  `v6-headless-simulation-embedded@723efa5` with `headless_release_candidate_valid`.
+  `./scripts/check_headless_status.sh` reported `headless_ready=yes`, `release_valid=yes`,
+  `evidence_fresh_for_head=yes`, `evidence_freshness_reason=matching_head`,
+  `hardware_scope_active=no`, `real_actuation_enabled=no`, and repeatability margins
+  `runs=0`, `goal_error_m=0.572`, `scan_cloud=173`, `global_path=28`, `cmd=160`.
+- Evidence:     PR
+  `https://github.com/snowman0919/ARIS-Embedded-Processing-Unit/pull/2`;
+  release report
+  `/home/kotori9/aris/logs/readiness/headless_release_candidate_20260622T120404Z.json`;
+  final evidence index
+  `/home/kotori9/aris/logs/readiness/evidence_index_20260622T120404Z_release.json`;
+  core readiness
+  `/home/kotori9/aris/logs/readiness/core_readiness_20260622T120522Z.log`;
+  headless audit
+  `/home/kotori9/aris/logs/readiness/headless_readiness_audit_20260622T120838Z.json`;
+  repeatability
+  `/home/kotori9/aris/logs/pipeline/core_pipeline_repeatability_20260622T120430Z.json`;
+  V3 compare
+  `/home/kotori9/aris/logs/maps/v3_semantic_map_20260622_120548.compare.json`.
+- Next:         Keep active work on `v6-headless-simulation-embedded` until PR #2 is merged into
+  `main`; continue hardware-free simulation and embedded dry-run improvements while HIL remains a
+  future evidence contract.
+
+## 2026-06-22 KST — Branch Policy Reports Main/V6 Sync
+
+- Built:        Extended `scripts/check_branch_policy.py` so the branch-policy JSON includes a
+  `main_sync` object comparing `origin/main` and `origin/v6-headless-simulation-embedded`.
+  The text summary now prints `main_ahead` and `v6_ahead`, making pending mainline PR drift visible
+  from local readiness evidence.
+- Built:        Updated branch-policy tests and README documentation for the new `main_sync`
+  evidence field.
+- Verified:     Targeted branch-policy tests passed (`3 passed`); full
+  `./scripts/check_python_tests.sh` passed (`142 passed`);
+  `./scripts/check_documented_commands.sh` passed (`docs=25 references=201`);
+  reuse-mode `ARIS_HEADLESS_RELEASE_REUSE_EXISTING=1 ./scripts/check_headless_release_candidate.sh`
+  passed with `headless_release_candidate_valid`.
+- Verified:     Full `./scripts/check_headless_release_candidate.sh` passed on
+  `v6-headless-simulation-embedded@cc1bcad` with `headless_release_candidate_valid`.
+  `./scripts/check_headless_status.sh` reported `headless_ready=yes`, `release_valid=yes`,
+  `evidence_fresh_for_head=yes`, `evidence_freshness_reason=matching_head`,
+  `hardware_scope_active=no`, `real_actuation_enabled=no`, and repeatability margins
+  `runs=0`, `goal_error_m=0.573`, `scan_cloud=146`, `global_path=28`, `cmd=132`.
+- Evidence:     Release report
+  `/home/kotori9/aris/logs/readiness/headless_release_candidate_20260622T121415Z.json`;
+  final evidence index
+  `/home/kotori9/aris/logs/readiness/evidence_index_20260622T121415Z_release.json`;
+  core readiness
+  `/home/kotori9/aris/logs/readiness/core_readiness_20260622T121536Z.log`;
+  headless audit
+  `/home/kotori9/aris/logs/readiness/headless_readiness_audit_20260622T121844Z.json`;
+  repeatability
+  `/home/kotori9/aris/logs/pipeline/core_pipeline_repeatability_20260622T121443Z.json`;
+  V3 compare
+  `/home/kotori9/aris/logs/maps/v3_semantic_map_20260622_121600.compare.json`;
+  branch policy
+  `/home/kotori9/aris/logs/readiness/branch_policy_20260622T121416Z.json`.
+- Next:         Merge PR #3 so `main` receives the latest v6 release evidence and branch-policy
+  sync diagnostics, then continue headless simulation and embedded dry-run improvements.
