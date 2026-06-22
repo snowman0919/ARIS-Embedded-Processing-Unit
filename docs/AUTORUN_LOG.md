@@ -1770,3 +1770,36 @@ Entry format:
   `/home/kotori9/aris/logs/maps/v3_semantic_map_20260622_110552.compare.json`.
 - Next:         Continue strengthening headless simulation reproducibility and operator-facing
   diagnostics on `milestone/headless-simulation-embedded`.
+
+## 2026-06-22 KST — Headless Audit Records Acceptance Thresholds
+
+- Built:        Added top-level `acceptance_thresholds` to
+  `scripts/generate_headless_readiness_audit.py` output. The headless audit now records the
+  no-skip readiness flags, required six-stage core pipeline, repeatability floors and max goal
+  error, V3/V6 advisory-only constraints, V5 tracking floor, V5 replay validity requirement, and
+  embedded dry-run hardware-free requirement used to compute per-criterion pass/fail state.
+- Built:        Updated `docs/verification_plan.md` so the headless audit contract says the JSON
+  includes these thresholds, making the artifact self-explanatory for new headless environments.
+- Verified:     Targeted headless-readiness tests passed (`6 passed`). A direct
+  `./scripts/check_headless_readiness_audit.sh` generated
+  `/home/kotori9/aris/logs/readiness/headless_readiness_audit_20260622T111103Z.json` with
+  `headless_ready=True` and `blockers=0`. Full `./scripts/check_python_tests.sh` passed
+  (`137 passed`); `./scripts/check_documented_commands.sh` passed (`docs=25 references=190`).
+- Verified:     Full `./scripts/check_headless_release_candidate.sh` passed on
+  `milestone/headless-simulation-embedded@91c7bc9` with `headless_release_candidate_valid`.
+  `./scripts/check_headless_status.sh` then reported `headless_ready=yes`, `release_valid=yes`,
+  `evidence_fresh_for_head=yes`, and `evidence_freshness_reason=matching_head`.
+- Evidence:     Release report
+  `/home/kotori9/aris/logs/readiness/headless_release_candidate_20260622T111137Z.json`;
+  final evidence index
+  `/home/kotori9/aris/logs/readiness/evidence_index_20260622T111137Z_release.json`;
+  core readiness
+  `/home/kotori9/aris/logs/readiness/core_readiness_20260622T111257Z.log`;
+  headless audit
+  `/home/kotori9/aris/logs/readiness/headless_readiness_audit_20260622T111613Z.json`;
+  repeatability
+  `/home/kotori9/aris/logs/pipeline/core_pipeline_repeatability_20260622T111204Z.json`;
+  V3 compare
+  `/home/kotori9/aris/logs/maps/v3_semantic_map_20260622_111322.compare.json`.
+- Next:         Continue making the hardware-free simulation evidence more self-describing and
+  reproducible while real hardware/HIL remains out of scope.
