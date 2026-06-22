@@ -491,3 +491,28 @@ Entry format:
   HIL/field evidence.
 - Next:         Add replay scoring that consumes an accepted bag and checks localization continuity,
   TF availability, and bounded pose drift.
+
+## 2026-06-22 11:34 KST — V2: LiDAR Bag Replay Scoring Gate — WIP
+- Built:        Added `scripts/check_v2_lidar_bag_replay.sh`,
+  `scripts/check_v2_recorded_lidar_replay.sh`, `just v2-lidar-bag-replay <bag>`, and
+  `just v2-recorded-lidar-replay-smoke`. The replay scorer first validates rosbag metadata, then
+  mounts the bag read-only into the ROS 2 container, runs `ros2 bag play`, and checks replayed
+  `/cmd_drive`, `/scan_cloud`, `/gazebo/odom`, `/odometry/filtered`, and `/tf` samples.
+- Verified:     `./scripts/check_v2_lidar_bag_replay.sh
+  /home/kotori9/aris/logs/bags/v2_recorded_lidar_20260622T022337Z` passed with
+  `cmd_samples=79`, `cloud_samples=137`, `gazebo_samples=321`, `filtered_samples=107`,
+  `tf_samples=107`, `gazebo_delta_x=3.101`, `filtered_delta_x=3.008`, and
+  `final_gap=(0.000,0.000)`. Then `./scripts/check_v2_recorded_lidar_replay.sh` passed end to end:
+  it wrote `/home/kotori9/aris/logs/bags/v2_recorded_lidar_20260622T023334Z`
+  (`duration_s=13.668`, `messages=788`, `/scan_cloud=107`) and replay-scored it with
+  `cmd_samples=63`, `cloud_samples=107`, `gazebo_samples=403`, `filtered_samples=107`,
+  `tf_samples=108`, `gazebo_delta_x=2.992`, `filtered_delta_x=2.992`, and
+  `final_gap=(0.000,0.000)`. `nix develop -c just v2-lidar-bag-replay
+  /home/kotori9/aris/logs/bags/v2_recorded_lidar_20260622T023334Z` also passed through the
+  documented `just` target.
+- Commit:       Included with the LiDAR bag replay scoring gate change.
+- Stubbed/blocked: This proves the recorded-data replay harness on synthetic Gazebo data. Production
+  V2 still needs real Unitree LiDAR replay scoring, map-generation acceptance, calibrated
+  localization settings, hardware-in-the-loop, and field evidence.
+- Next:         Add a real-bag scoring report format and map-generation acceptance gate so
+  operator-provided LiDAR recordings can become promotion evidence instead of only smoke evidence.

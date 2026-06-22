@@ -86,9 +86,17 @@ v2-gazebo-physics-localization-smoke:
 v2-recorded-lidar-bag-smoke:
     ./scripts/check_v2_recorded_lidar_bag.sh
 
+# V2 recorded-data gate: capture a physics-localization LiDAR bag and replay-score it.
+v2-recorded-lidar-replay-smoke:
+    ./scripts/check_v2_recorded_lidar_replay.sh
+
 # V2 recorded-data gate: validate an existing operator-provided LiDAR bag.
 v2-lidar-bag-contract bag:
     ./scripts/check_v2_lidar_bag_contract.sh "{{bag}}"
+
+# V2 recorded-data gate: replay-score an accepted operator-provided LiDAR bag.
+v2-lidar-bag-replay bag:
+    ./scripts/check_v2_lidar_bag_replay.sh "{{bag}}"
 
 # V2 probe: drifted wheel odom must be corrected by Gazebo gpu_lidar observations.
 v2-gazebo-drift-smoke:

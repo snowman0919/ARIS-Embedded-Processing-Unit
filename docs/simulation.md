@@ -86,6 +86,12 @@ real LiDAR bags must later satisfy.
 Use `just v2-lidar-bag-contract /path/to/bag` to run the same metadata contract against an existing
 operator-provided bag before attempting replay or localization scoring.
 
+Use `just v2-lidar-bag-replay /path/to/bag` after that metadata gate to play an accepted bag back
+inside the ROS 2 container and score localization continuity. It checks that replayed clouds, TF,
+commands, Gazebo odometry, and filtered odometry are live and that filtered odometry stays bounded
+against the recorded Gazebo odometry. `just v2-recorded-lidar-replay-smoke` records a fresh
+synthetic bag and immediately runs that replay score.
+
 `just v2-gazebo-drift-smoke` syncs the Gazebo entity from ground truth while feeding intentionally
 drifted `/wheel_odom` to localization. It verifies that Gazebo gpu_lidar observations reduce the
 wheel-odom lateral error. Gazebo cloud stamps are normalized to ROS receive time in this launch so

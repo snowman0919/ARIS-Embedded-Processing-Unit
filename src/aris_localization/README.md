@@ -74,6 +74,17 @@ It writes an MCAP rosbag under `$ARIS_LOGS/bags/` and validates that `/scan_clou
 Run `nix develop -c just v2-lidar-bag-contract /path/to/bag` for the same metadata gate on an
 operator-provided real bag.
 
+Replay-score an accepted bag with:
+
+```bash
+nix develop -c just v2-lidar-bag-replay /path/to/bag
+```
+
+The replay gate plays the bag inside the ROS 2 container and checks that `/scan_cloud`, `/tf`,
+`/cmd_drive`, `/gazebo/odom`, and `/odometry/filtered` arrive with coherent motion and bounded
+filtered-vs-Gazebo pose gap. `nix develop -c just v2-recorded-lidar-replay-smoke` records a fresh
+synthetic V2 bag and immediately runs that same score.
+
 The Gazebo drift-recovery smoke uses the same gpu_lidar path as a correction source:
 
 ```bash

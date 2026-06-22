@@ -142,3 +142,25 @@ just v2-lidar-bag-contract /path/to/bag
 
 This command does not launch simulation. It only validates `metadata.yaml`, making it suitable as
 the first gate for real LiDAR recordings before replay or localization scoring.
+
+The replay-scoring gate is:
+
+```bash
+just v2-lidar-bag-replay /path/to/bag
+```
+
+It first applies the same metadata contract, then mounts the bag read-only into the ROS 2
+container, plays it back, and listens for `/cmd_drive`, `/scan_cloud`, `/gazebo/odom`,
+`/odometry/filtered`, and `/tf`. The gate requires enough replayed samples, a `lidar_link`
+cloud frame, nonzero moving drive commands, bounded filtered-vs-Gazebo final pose gap, and
+forward motion in both Gazebo odometry and filtered odometry.
+
+To produce synthetic evidence end-to-end:
+
+```bash
+just v2-recorded-lidar-replay-smoke
+```
+
+This records the Gazebo physics-localization path, validates the new bag metadata, finds the
+newly written bag under `$ARIS_LOGS/bags`, and immediately replay-scores it. Operator-provided
+real LiDAR bags should pass `v2-lidar-bag-contract` before `v2-lidar-bag-replay`.
