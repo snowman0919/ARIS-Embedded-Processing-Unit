@@ -104,6 +104,7 @@ def generate_index(workspace: Path, logs_dir: Path) -> dict[str, Any]:
     hil_preflight = _latest(list((logs_dir / "hil").glob("hil_preflight_*.json")))
     field_validation = _latest(list((logs_dir / "field").glob("field_validation_*.json")))
     bootstrap_doctor = _latest(list((logs_dir / "readiness").glob("bootstrap_doctor_*.json")))
+    branch_policy = _latest(list((logs_dir / "readiness").glob("branch_policy_*.json")))
     embedded_dry_run = _latest(list((logs_dir / "embedded").glob("embedded_dry_run_*.json")))
     core_pipeline_flow = _latest(list((logs_dir / "pipeline").glob("core_pipeline_flow_*.json")))
     core_pipeline_repeatability = _latest(
@@ -157,6 +158,10 @@ def generate_index(workspace: Path, logs_dir: Path) -> dict[str, Any]:
         "bootstrap_doctor": {
             "report": _read_json(bootstrap_doctor),
             "report_path": str(bootstrap_doctor) if bootstrap_doctor else None,
+        },
+        "branch_policy": {
+            "report": _read_json(branch_policy),
+            "report_path": str(branch_policy) if branch_policy else None,
         },
         "embedded_dry_run": {
             "report": _read_json(embedded_dry_run),

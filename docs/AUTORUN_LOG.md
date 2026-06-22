@@ -1290,3 +1290,22 @@ Entry format:
   `/home/kotori9/aris/logs/pipeline/core_pipeline_repeatability_20260622T075417Z.json`.
 - Scope note:   This proves the current named milestone branch in the hardware-free scope only.
   HIL, real sensors, real actuators, and closed-site field validation remain future milestones.
+
+## 2026-06-22 KST — Branch Policy Release Gate — WIP
+
+- Built:        Added `scripts/check_branch_policy.py`, `scripts/check_branch_policy.sh`, and
+  `just branch-policy`. The gate validates the current branch plus local and `origin/*`
+  tracking branches against the approved ARIS milestone branch set and rejects version-only or
+  task-level branches such as `v6` and `codex/v2-*`.
+- Built:        Wired `branch_policy` into the headless release-candidate step list, final
+  release validator, readiness evidence index, README quick-start/smoke-test docs, and HANDOFF
+  gate sequence.
+- Verified:     `./scripts/check_branch_policy.sh` passed with
+  `branch_policy_valid current=milestone/headless-simulation-embedded local=7 origin=7`.
+  Targeted branch/release/index tests passed (`6 passed`); full
+  `./scripts/check_python_tests.sh` passed (`125 passed`); `./scripts/check_documented_commands.sh`
+  passed (`docs=25 references=187`); reuse-mode
+  `ARIS_HEADLESS_RELEASE_REUSE_EXISTING=1 ./scripts/check_headless_release_candidate.sh` passed
+  and produced a report containing the `branch_policy` step and evidence link.
+- Next:         Commit and push the branch-policy gate, then run a full headless release-candidate
+  on the committed HEAD.

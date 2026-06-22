@@ -28,6 +28,12 @@ Remote branches use descriptive milestone names instead of version-only branch n
 milestone/teach-repeat-route-replay -> milestone/lidar-localization-gazebo -> milestone/semantic-hd-map -> milestone/goal-based-navigation -> milestone/dynamic-obstacle-advisory -> milestone/headless-simulation-embedded
 ```
 
+The branch policy gate is:
+
+```bash
+just branch-policy
+```
+
 ## 2. Runtime Autonomy Sequence
 
 ```mermaid

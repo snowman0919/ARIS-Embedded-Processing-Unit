@@ -44,6 +44,7 @@ available.
 cd /home/sbeen/aris/aris-dev-env
 nix develop
 just bootstrap-doctor
+just branch-policy
 just check-host
 just docker-build
 just headless-release-candidate
@@ -55,6 +56,7 @@ directly:
 ```bash
 ./scripts/check_host.sh
 ./scripts/check_bootstrap_doctor.sh
+./scripts/check_branch_policy.sh
 ./scripts/check_headless_release_candidate.sh
 ./scripts/check_core_readiness.sh
 ./scripts/run_core_readiness_report.sh
@@ -193,6 +195,7 @@ just python-test     # ROS-free Python unit tests on the host
 just documented-commands # verify README/docs command references resolve to local recipes/scripts
 just architecture-contracts # static guardrails for /cmd_drive, HAL, and AI advisory boundaries
 just host-policy    # verify host entrypoints keep the no-sudo/no-apt policy
+just branch-policy  # verify local/origin branches use ARIS feature/milestone names only
 just ros2-build      # colcon build for starter packages
 just protocol-test   # Python MCU protocol tests on host dev shell
 just mcu-serial-loopback # PTY serial loopback for MCU binary transport

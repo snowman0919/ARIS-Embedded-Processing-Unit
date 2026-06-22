@@ -48,6 +48,9 @@ architecture-contracts:
 host-policy:
     ./scripts/check_host_policy.sh
 
+branch-policy:
+    ./scripts/check_branch_policy.sh
+
 sim:
     ./scripts/check_sim.sh
 

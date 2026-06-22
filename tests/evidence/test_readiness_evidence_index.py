@@ -108,6 +108,11 @@ def test_readiness_evidence_index_collects_latest_artifacts(tmp_path):
         "artifact_type": "aris_bootstrap_doctor_report",
         "valid": True,
     }
+    branch_policy = {
+        "artifact_type": "aris_branch_policy_report",
+        "valid": True,
+        "current_branch": "milestone/headless-simulation-embedded",
+    }
     pipeline_report = {
         "artifact_type": "aris_core_pipeline_flow_report",
         "valid": True,
@@ -162,6 +167,10 @@ def test_readiness_evidence_index_collects_latest_artifacts(tmp_path):
         json.dumps(bootstrap_report),
         encoding="utf-8",
     )
+    (readiness / "branch_policy_20260101T000000Z.json").write_text(
+        json.dumps(branch_policy),
+        encoding="utf-8",
+    )
     (pipeline / "core_pipeline_flow_20260101T000000Z.json").write_text(
         json.dumps(pipeline_report),
         encoding="utf-8",
@@ -202,6 +211,8 @@ def test_readiness_evidence_index_collects_latest_artifacts(tmp_path):
     assert index["embedded_dry_run"]["report_path"].endswith(".json")
     assert index["bootstrap_doctor"]["report"]["valid"] is True
     assert index["bootstrap_doctor"]["report_path"].endswith(".json")
+    assert index["branch_policy"]["report"]["valid"] is True
+    assert index["branch_policy"]["report_path"].endswith(".json")
     assert index["core_pipeline_flow"]["report"]["valid"] is True
     assert index["core_pipeline_flow"]["report_path"].endswith(".json")
     assert index["core_pipeline_repeatability"]["report"]["valid"] is True
