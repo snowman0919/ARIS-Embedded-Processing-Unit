@@ -80,6 +80,27 @@ def summarize(logs_dir: Path, workspace: Path | None = None) -> dict[str, Any]:
     real_actuation_enabled = os.environ.get("ARIS_ENABLE_REAL_ACTUATION", "0") == "1"
     hardware_scope_active = (audit or {}).get("hardware_scope_active") is True
     safe_to_enable_real_actuation = (audit or {}).get("safe_to_enable_real_actuation") is True
+    repeatability = {
+        "valid": (repeat or {}).get("valid"),
+        "runs_completed": repeat_summary.get("runs_completed"),
+        "node_path_stable": repeat_summary.get("node_path_stable"),
+        "goal_error_max_m": repeat_summary.get("goal_error_max_m"),
+        "goal_error_spread_m": repeat_summary.get("goal_error_spread_m"),
+        "scan_cloud_samples_min": repeat_summary.get("scan_cloud_samples_min"),
+        "global_path_points_min": repeat_summary.get("global_path_points_min"),
+        "cmd_samples_min": repeat_summary.get("cmd_samples_min"),
+    }
+    core_pipeline = {
+        "valid": pipeline.get("valid"),
+        "semantic_map_snapshot": pipeline.get("semantic_map_snapshot"),
+        "node_path": (pipeline_stages.get("route_graph") or {}).get("node_path"),
+        "goal_error_m": (pipeline_stages.get("autonomous_driving") or {}).get("goal_error_m"),
+        "stages": {
+            name: (stage or {}).get("passed")
+            for name, stage in pipeline_stages.items()
+            if isinstance(stage, dict)
+        },
+    }
 
     return {
         "artifact_type": "aris_headless_status_summary",
@@ -126,27 +147,9 @@ def summarize(logs_dir: Path, workspace: Path | None = None) -> dict[str, Any]:
             if isinstance(criterion, dict)
         },
         "acceptance_thresholds": acceptance_thresholds,
-        "core_pipeline": {
-            "valid": pipeline.get("valid"),
-            "semantic_map_snapshot": pipeline.get("semantic_map_snapshot"),
-            "node_path": (pipeline_stages.get("route_graph") or {}).get("node_path"),
-            "goal_error_m": (pipeline_stages.get("autonomous_driving") or {}).get("goal_error_m"),
-            "stages": {
-                name: (stage or {}).get("passed")
-                for name, stage in pipeline_stages.items()
-                if isinstance(stage, dict)
-            },
-        },
-        "repeatability": {
-            "valid": (repeat or {}).get("valid"),
-            "runs_completed": repeat_summary.get("runs_completed"),
-            "node_path_stable": repeat_summary.get("node_path_stable"),
-            "goal_error_max_m": repeat_summary.get("goal_error_max_m"),
-            "goal_error_spread_m": repeat_summary.get("goal_error_spread_m"),
-            "scan_cloud_samples_min": repeat_summary.get("scan_cloud_samples_min"),
-            "global_path_points_min": repeat_summary.get("global_path_points_min"),
-            "cmd_samples_min": repeat_summary.get("cmd_samples_min"),
-        },
+        "acceptance_evaluation": _acceptance_evaluation(core_pipeline, repeatability, acceptance_thresholds),
+        "core_pipeline": core_pipeline,
+        "repeatability": repeatability,
         "release_steps": release_steps,
         "release_evidence": release_evidence,
         "evidence_age": {
@@ -190,6 +193,88 @@ def _artifact_age(path: Path | None, now: datetime) -> dict[str, Any]:
         "mtime_utc": mtime.isoformat().replace("+00:00", "Z"),
         "age_seconds": max(0, int((now - mtime).total_seconds())),
     }
+
+
+def _float_value(value: object) -> float | None:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _int_value(value: object) -> int | None:
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _acceptance_evaluation(
+    core_pipeline: dict[str, Any],
+    repeatability: dict[str, Any],
+    thresholds: dict[str, Any],
+) -> dict[str, Any]:
+    pipeline_thresholds = thresholds.get("core_pipeline_flow") or {}
+    repeat_thresholds = thresholds.get("core_pipeline_repeatability") or {}
+    required_stages = [
+        str(stage)
+        for stage in pipeline_thresholds.get("required_stages", [])
+    ]
+    observed_stages = core_pipeline.get("stages") or {}
+    missing_or_failed_stages = [
+        stage
+        for stage in required_stages
+        if observed_stages.get(stage) is not True
+    ]
+
+    max_goal_error = _float_value(repeat_thresholds.get("max_goal_error_m"))
+    goal_error = _float_value(repeatability.get("goal_error_max_m"))
+    runs_required = _int_value(repeat_thresholds.get("min_runs_completed"))
+    runs_observed = _int_value(repeatability.get("runs_completed"))
+    scan_required = _int_value(repeat_thresholds.get("min_scan_cloud_samples"))
+    scan_observed = _int_value(repeatability.get("scan_cloud_samples_min"))
+    path_required = _int_value(repeat_thresholds.get("min_global_path_points"))
+    path_observed = _int_value(repeatability.get("global_path_points_min"))
+    cmd_required = _int_value(repeat_thresholds.get("min_cmd_samples"))
+    cmd_observed = _int_value(repeatability.get("cmd_samples_min"))
+
+    margins = {
+        "runs_completed": _margin_min(runs_observed, runs_required),
+        "goal_error_m": _margin_max(goal_error, max_goal_error),
+        "scan_cloud_samples": _margin_min(scan_observed, scan_required),
+        "global_path_points": _margin_min(path_observed, path_required),
+        "cmd_samples": _margin_min(cmd_observed, cmd_required),
+    }
+    repeatability_passed = all(
+        margin is None or margin >= 0
+        for margin in margins.values()
+    ) and (
+        repeat_thresholds.get("node_path_stable") is not True
+        or repeatability.get("node_path_stable") is True
+    )
+    return {
+        "core_pipeline_flow": {
+            "required_stages": required_stages,
+            "missing_or_failed_stages": missing_or_failed_stages,
+            "passed": bool(required_stages) and not missing_or_failed_stages,
+        },
+        "core_pipeline_repeatability": {
+            "passed": repeatability_passed,
+            "margins": margins,
+        },
+    }
+
+
+def _margin_min(observed: int | None, required: int | None) -> int | None:
+    if observed is None or required is None:
+        return None
+    return observed - required
+
+
+def _margin_max(observed: float | None, maximum: float | None) -> float | None:
+    if observed is None or maximum is None:
+        return None
+    return maximum - observed
 
 
 def _freshness_reason(
@@ -290,6 +375,12 @@ def _format_age(age: dict[str, Any] | None) -> str:
     return f"{days}d {hours}h"
 
 
+def _format_margin(value: object) -> str:
+    if isinstance(value, float):
+        return f"{value:.3f}".rstrip("0").rstrip(".")
+    return str(value)
+
+
 def format_text(summary: dict[str, Any]) -> str:
     pipeline = summary["core_pipeline"]
     repeat = summary["repeatability"]
@@ -348,6 +439,20 @@ def format_text(summary: dict[str, Any]) -> str:
                 repeat_thresholds.get("min_scan_cloud_samples"),
                 repeat_thresholds.get("min_global_path_points"),
                 repeat_thresholds.get("min_cmd_samples"),
+            )
+        )
+    evaluation = summary.get("acceptance_evaluation") or {}
+    repeat_eval = evaluation.get("core_pipeline_repeatability") or {}
+    margins = repeat_eval.get("margins") or {}
+    if margins:
+        lines.append(
+            "  repeatability_margins: runs={} goal_error_m={} scan_cloud={} "
+            "global_path={} cmd={}".format(
+                _format_margin(margins.get("runs_completed")),
+                _format_margin(margins.get("goal_error_m")),
+                _format_margin(margins.get("scan_cloud_samples")),
+                _format_margin(margins.get("global_path_points")),
+                _format_margin(margins.get("cmd_samples")),
             )
         )
     if not required_stages and not repeat_thresholds:

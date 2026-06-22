@@ -119,6 +119,19 @@ def test_headless_status_summary_collects_latest_evidence(tmp_path):
     assert summary["repeatability"]["global_path_points_min"] == 6
     assert summary["repeatability"]["cmd_samples_min"] == 24
     assert summary["acceptance_thresholds"]["core_pipeline_repeatability"]["max_goal_error_m"] == 1.3
+    assert summary["acceptance_evaluation"]["core_pipeline_flow"]["missing_or_failed_stages"] == [
+        "mapping",
+        "semantic_hd_map",
+        "localization",
+        "goal_based_planning",
+    ]
+    assert summary["acceptance_evaluation"]["core_pipeline_repeatability"]["margins"] == {
+        "runs_completed": 0,
+        "goal_error_m": 0.8,
+        "scan_cloud_samples": 7,
+        "global_path_points": 4,
+        "cmd_samples": 4,
+    }
     assert summary["release_evidence"]["bootstrap_doctor"].endswith("bootstrap.json")
     assert summary["release_evidence"]["embedded_dry_run"].endswith("embedded.json")
     assert summary["evidence_age"]["headless_release_candidate"]["age_seconds"] is not None
@@ -151,6 +164,7 @@ def test_headless_status_summary_collects_latest_evidence(tmp_path):
         "repeatability: min_runs=2 max_goal_error_m=1.3 min_scan_cloud_samples=5 "
         "min_global_path_points=2 min_cmd_samples=20"
     ) in text
+    assert "repeatability_margins: runs=0 goal_error_m=0.8 scan_cloud=7 global_path=4 cmd=4" in text
 
 
 def test_headless_status_summary_marks_fresh_evidence_for_matching_head(tmp_path, monkeypatch):
