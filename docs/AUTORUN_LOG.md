@@ -1838,3 +1838,34 @@ Entry format:
   `/home/kotori9/aris/logs/maps/v3_semantic_map_20260622_112048.compare.json`.
 - Next:         Continue improving self-describing headless evidence and simulation reproducibility
   on `milestone/headless-simulation-embedded`.
+
+## 2026-06-22 KST — Headless Status Shows Acceptance Margins
+
+- Built:        Extended `scripts/summarize_headless_status.py` with `acceptance_evaluation`.
+  The JSON summary now includes missing/failed required core-pipeline stages and repeatability
+  margins against the headless audit thresholds. Text output prints the repeatability margin line
+  next to the thresholds, so operators can see how much room remains before a threshold failure.
+- Built:        Updated README text for `headless-status` to mention repeatability margins against
+  the acceptance thresholds.
+- Verified:     Targeted headless-status tests passed (`7 passed`). Full
+  `./scripts/check_python_tests.sh` passed (`137 passed`);
+  `./scripts/check_documented_commands.sh` passed (`docs=25 references=190`).
+- Verified:     Full `./scripts/check_headless_release_candidate.sh` passed on
+  `milestone/headless-simulation-embedded@bff04e8` with `headless_release_candidate_valid`.
+  `./scripts/check_headless_status.sh` then reported `headless_ready=yes`, `release_valid=yes`,
+  `evidence_fresh_for_head=yes`, `evidence_freshness_reason=matching_head`, and repeatability
+  margins `runs=0`, `goal_error_m=0.582`, `scan_cloud=147`, `global_path=33`, `cmd=132`.
+- Evidence:     Release report
+  `/home/kotori9/aris/logs/readiness/headless_release_candidate_20260622T112656Z.json`;
+  final evidence index
+  `/home/kotori9/aris/logs/readiness/evidence_index_20260622T112656Z_release.json`;
+  core readiness
+  `/home/kotori9/aris/logs/readiness/core_readiness_20260622T112815Z.log`;
+  headless audit
+  `/home/kotori9/aris/logs/readiness/headless_readiness_audit_20260622T113123Z.json`;
+  repeatability
+  `/home/kotori9/aris/logs/pipeline/core_pipeline_repeatability_20260622T112723Z.json`;
+  V3 compare
+  `/home/kotori9/aris/logs/maps/v3_semantic_map_20260622_112839.compare.json`.
+- Next:         Continue improving headless evidence traceability and simulation reproducibility
+  while hardware/HIL remains out of scope.
