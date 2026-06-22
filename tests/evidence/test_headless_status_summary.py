@@ -94,9 +94,22 @@ def test_headless_status_summary_collects_latest_evidence(tmp_path):
             "cmd_samples_min": 24,
         },
     }
+    branch_policy = {
+        "artifact_type": "aris_branch_policy_report",
+        "valid": True,
+        "main_sync": {
+            "base": "origin/main",
+            "head": "origin/v6-headless-simulation-embedded",
+            "available": True,
+            "main_ahead": 1,
+            "v6_ahead": 3,
+            "main_contains_v6": False,
+        },
+    }
     (readiness / "latest_headless_release_candidate.json").write_text(json.dumps(release), encoding="utf-8")
     (readiness / "latest_headless_readiness_audit.json").write_text(json.dumps(audit), encoding="utf-8")
     (readiness / "latest_evidence_index.json").write_text(json.dumps(index), encoding="utf-8")
+    (readiness / "latest_branch_policy.json").write_text(json.dumps(branch_policy), encoding="utf-8")
     (pipeline / "latest_core_pipeline_repeatability.json").write_text(json.dumps(repeat), encoding="utf-8")
 
     summary = summarize(logs)
@@ -118,6 +131,14 @@ def test_headless_status_summary_collects_latest_evidence(tmp_path):
     assert summary["repeatability"]["scan_cloud_samples_min"] == 12
     assert summary["repeatability"]["global_path_points_min"] == 6
     assert summary["repeatability"]["cmd_samples_min"] == 24
+    assert summary["main_sync"] == {
+        "base": "origin/main",
+        "head": "origin/v6-headless-simulation-embedded",
+        "available": True,
+        "main_ahead": 1,
+        "v6_ahead": 3,
+        "main_contains_v6": False,
+    }
     assert summary["acceptance_thresholds"]["core_pipeline_repeatability"]["max_goal_error_m"] == 1.3
     assert summary["acceptance_evaluation"]["core_pipeline_flow"]["missing_or_failed_stages"] == [
         "mapping",
@@ -136,6 +157,8 @@ def test_headless_status_summary_collects_latest_evidence(tmp_path):
     assert summary["release_evidence"]["embedded_dry_run"].endswith("embedded.json")
     assert summary["evidence_age"]["headless_release_candidate"]["age_seconds"] is not None
     assert summary["evidence_age"]["headless_release_candidate"]["mtime_utc"].endswith("Z")
+    assert summary["evidence_age"]["branch_policy"]["age_seconds"] is not None
+    assert summary["evidence"]["branch_policy"].endswith("latest_branch_policy.json")
     assert "headless_ready: yes" in text
     assert "evidence_fresh_for_head: no" in text
     assert "evidence_freshness_reason: missing_git_evidence" in text
@@ -165,6 +188,10 @@ def test_headless_status_summary_collects_latest_evidence(tmp_path):
         "min_global_path_points=2 min_cmd_samples=20"
     ) in text
     assert "repeatability_margins: runs=0 goal_error_m=0.8 scan_cloud=7 global_path=4 cmd=4" in text
+    assert "Main sync" in text
+    assert "main_ahead: 1" in text
+    assert "v6_ahead: 3" in text
+    assert "main_contains_v6: no" in text
 
 
 def test_headless_status_summary_marks_fresh_evidence_for_matching_head(tmp_path, monkeypatch):
