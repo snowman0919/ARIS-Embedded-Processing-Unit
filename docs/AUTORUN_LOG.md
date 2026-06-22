@@ -1196,3 +1196,20 @@ Entry format:
 - Scope note:   This proves current-HEAD headless simulation and embedded dry-run readiness only.
   It still does not claim HIL, real-sensor, real-actuator, or field readiness.
 - Next:         Commit and push to `v6`.
+
+## 2026-06-22 16:30 KST — Headless Freshness Runtime Scope — WIP
+- Built:        Refined `scripts/summarize_headless_status.py` so freshness ignores
+  `docs/AUTORUN_LOG.md`-only commits. This prevents the evidence-log commit itself from making the
+  freshly generated runtime evidence look stale while still reporting runtime-relevant changes after
+  the evidence commit.
+- Verified:     `./scripts/check_headless_status.sh` now reports `evidence_fresh_for_head: yes`
+  for current `v6@f75154e` against evidence `v6@a1a1a16` because the only changed path is
+  `docs/AUTORUN_LOG.md`; the JSON output reports `changed_since_evidence=["docs/AUTORUN_LOG.md"]`
+  and `relevant_changes_since_evidence=[]`. Targeted status-summary tests passed (`5 passed`).
+  Full `./scripts/check_python_tests.sh` passed (`120 passed`). `./scripts/check_documented_commands.sh`,
+  `./scripts/check_architecture_contracts.sh`, `./scripts/check_host_policy.sh`, and
+  `git diff --check` passed.
+- Commit:       Pending headless freshness runtime-scope commit.
+- Scope note:   This is a status-reporting fix only; the full headless evidence remains the
+  release-candidate bundle generated at `v6@a1a1a16`.
+- Next:         Commit and push to `v6`.

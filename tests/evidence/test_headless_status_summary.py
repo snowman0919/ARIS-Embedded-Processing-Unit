@@ -115,6 +115,82 @@ def test_headless_status_summary_marks_fresh_evidence_for_matching_head(tmp_path
     assert summary["git"]["evidence_fresh_for_head"] is True
 
 
+def test_headless_status_summary_accepts_autorun_log_only_changes(tmp_path, monkeypatch):
+    logs = tmp_path / "logs"
+    readiness = logs / "readiness"
+    pipeline = logs / "pipeline"
+    readiness.mkdir(parents=True)
+    pipeline.mkdir()
+    (readiness / "latest_headless_release_candidate.json").write_text(
+        json.dumps({"valid": True, "steps": [{"name": "ok", "passed": True, "exit_code": 0}]}),
+        encoding="utf-8",
+    )
+    (readiness / "latest_headless_readiness_audit.json").write_text(
+        json.dumps({"headless_ready": True, "blockers": []}),
+        encoding="utf-8",
+    )
+    (readiness / "latest_evidence_index.json").write_text(
+        json.dumps({"git": {"branch": "v6", "commit": "abc1234"}}),
+        encoding="utf-8",
+    )
+    (pipeline / "latest_core_pipeline_repeatability.json").write_text(
+        json.dumps({"valid": True, "summary": {}}),
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr(
+        "summarize_headless_status._current_git",
+        lambda workspace: {"branch": "v6", "commit": "def5678"},
+    )
+    monkeypatch.setattr(
+        "summarize_headless_status._changed_since",
+        lambda workspace, evidence_commit: ["docs/AUTORUN_LOG.md"],
+    )
+
+    summary = summarize(logs, tmp_path / "workspace")
+
+    assert summary["git"]["evidence_fresh_for_head"] is True
+    assert summary["git"]["relevant_changes_since_evidence"] == []
+
+
+def test_headless_status_summary_rejects_runtime_relevant_changes(tmp_path, monkeypatch):
+    logs = tmp_path / "logs"
+    readiness = logs / "readiness"
+    pipeline = logs / "pipeline"
+    readiness.mkdir(parents=True)
+    pipeline.mkdir()
+    (readiness / "latest_headless_release_candidate.json").write_text(
+        json.dumps({"valid": True, "steps": [{"name": "ok", "passed": True, "exit_code": 0}]}),
+        encoding="utf-8",
+    )
+    (readiness / "latest_headless_readiness_audit.json").write_text(
+        json.dumps({"headless_ready": True, "blockers": []}),
+        encoding="utf-8",
+    )
+    (readiness / "latest_evidence_index.json").write_text(
+        json.dumps({"git": {"branch": "v6", "commit": "abc1234"}}),
+        encoding="utf-8",
+    )
+    (pipeline / "latest_core_pipeline_repeatability.json").write_text(
+        json.dumps({"valid": True, "summary": {}}),
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr(
+        "summarize_headless_status._current_git",
+        lambda workspace: {"branch": "v6", "commit": "def5678"},
+    )
+    monkeypatch.setattr(
+        "summarize_headless_status._changed_since",
+        lambda workspace, evidence_commit: ["scripts/check_core_pipeline_flow.sh"],
+    )
+
+    summary = summarize(logs, tmp_path / "workspace")
+
+    assert summary["git"]["evidence_fresh_for_head"] is False
+    assert summary["git"]["relevant_changes_since_evidence"] == ["scripts/check_core_pipeline_flow.sh"]
+
+
 def test_headless_status_summary_reports_missing_evidence_as_not_ready(tmp_path):
     logs = tmp_path / "logs"
     logs.mkdir()

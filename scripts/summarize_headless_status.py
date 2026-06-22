@@ -10,6 +10,9 @@ import subprocess
 from typing import Any
 
 
+FRESHNESS_IGNORED_PATHS = {"docs/AUTORUN_LOG.md"}
+
+
 def summarize(logs_dir: Path, workspace: Path | None = None) -> dict[str, Any]:
     readiness_dir = logs_dir / "readiness"
     pipeline_dir = logs_dir / "pipeline"
@@ -26,10 +29,17 @@ def summarize(logs_dir: Path, workspace: Path | None = None) -> dict[str, Any]:
     evidence_git = (index or {}).get("git") or {}
     evidence_commit = evidence_git.get("commit")
     current_commit = current_git.get("commit")
+    changed_since_evidence = _changed_since(workspace, str(evidence_commit)) if workspace and evidence_commit else []
+    relevant_changes_since_evidence = [
+        path for path in changed_since_evidence if path not in FRESHNESS_IGNORED_PATHS
+    ]
     evidence_fresh = bool(
         evidence_commit
         and current_commit
-        and str(current_commit).startswith(str(evidence_commit))
+        and (
+            str(current_commit).startswith(str(evidence_commit))
+            or not relevant_changes_since_evidence
+        )
     )
 
     criteria = (audit or {}).get("criteria") or {}
@@ -56,6 +66,9 @@ def summarize(logs_dir: Path, workspace: Path | None = None) -> dict[str, Any]:
             "current": current_git,
             "evidence": evidence_git,
             "evidence_fresh_for_head": evidence_fresh,
+            "changed_since_evidence": changed_since_evidence,
+            "freshness_ignored_paths": sorted(FRESHNESS_IGNORED_PATHS),
+            "relevant_changes_since_evidence": relevant_changes_since_evidence,
         },
         "headless_ready": (audit or {}).get("headless_ready") is True,
         "release_valid": (release or {}).get("valid") is True and all_release_steps_passed,
@@ -131,6 +144,19 @@ def _git(workspace: Path, *args: str) -> str | None:
     except (OSError, subprocess.CalledProcessError):
         return None
     return result.stdout.strip() or None
+
+
+def _changed_since(workspace: Path, evidence_commit: str) -> list[str]:
+    try:
+        result = subprocess.run(
+            ("git", "-C", str(workspace), "diff", "--name-only", f"{evidence_commit}..HEAD"),
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+    except (OSError, subprocess.CalledProcessError):
+        return []
+    return [line for line in result.stdout.splitlines() if line]
 
 
 def _format_bool(value: bool) -> str:
