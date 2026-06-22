@@ -22,6 +22,12 @@ Milestone order:
 V0 manual control -> V1 trajectory replay -> V2 LiDAR localization -> V3 Semantic HD Map -> V4 goal-based navigation -> V5 dynamic obstacle avoidance -> V6 multimodal semantic update
 ```
 
+Remote branches use descriptive milestone names instead of version-only branch names:
+
+```text
+milestone/teach-repeat-route-replay -> milestone/lidar-localization-gazebo -> milestone/semantic-hd-map -> milestone/goal-based-navigation -> milestone/dynamic-obstacle-advisory -> milestone/headless-simulation-embedded
+```
+
 ## 2. Runtime Autonomy Sequence
 
 ```mermaid

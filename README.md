@@ -20,16 +20,17 @@ See `docs/codebase_boundaries.md` for the local directory conventions.
 
 Use ARIS feature/milestone branches only:
 
-- `v1`: teach-and-repeat route replay baseline.
-- `v2`: LiDAR localization, Gazebo, and recorded-bag evidence baseline.
-- `v3`: semantic map artifact, manifest, and repeat-pass compare baseline.
-- `v4`: route graph and goal-based navigation baseline.
-- `v5`: dynamic obstacle advisory, tracking, and recorded replay baseline.
-- `v6`: advisory-only semantic review and current headless integration baseline.
+- `milestone/teach-repeat-route-replay`: teach-and-repeat route replay baseline.
+- `milestone/lidar-localization-gazebo`: LiDAR localization, Gazebo, and recorded-bag evidence baseline.
+- `milestone/semantic-hd-map`: semantic map artifact, manifest, and repeat-pass compare baseline.
+- `milestone/goal-based-navigation`: route graph and goal-based navigation baseline.
+- `milestone/dynamic-obstacle-advisory`: dynamic obstacle advisory, tracking, and recorded replay baseline.
+- `milestone/headless-simulation-embedded`: current hardware-free simulation and embedded-software integration baseline.
 
-Do not create task-level remote branches such as `codex/v2-*` or `codex/v3-*`. New work should
-advance the relevant ARIS milestone branch. The current active branch is `v6` because it carries
-the latest headless simulation and embedded-software integration state.
+Do not create task-level remote branches such as `codex/v2-*` or version-only branches such as
+`v6`. New work should advance the relevant ARIS milestone branch. The current active branch is
+`milestone/headless-simulation-embedded` because no hardware is attached and it carries the latest
+headless simulation and embedded dry-run state.
 
 Current execution scope is headless: no vehicle hardware is assumed to be attached. HIL and field
 documents remain as future evidence contracts, but active development should prioritize simulation,

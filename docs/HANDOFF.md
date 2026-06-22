@@ -6,8 +6,11 @@ handoff notes.
 ## Current State
 
 - Repository: `ARIS-Embedded-Processing-Unit`, local path `/home/sbeen/aris/aris-dev-env`.
-- Active milestone branch: `v6`.
-- Remote branch policy: keep ARIS milestone branches only (`v1` through `v6` plus `main`).
+- Active milestone branch: `milestone/headless-simulation-embedded`.
+- Remote branch policy: keep ARIS feature/milestone branches only:
+  `milestone/teach-repeat-route-replay`, `milestone/lidar-localization-gazebo`,
+  `milestone/semantic-hd-map`, `milestone/goal-based-navigation`,
+  `milestone/dynamic-obstacle-advisory`, `milestone/headless-simulation-embedded`, plus `main`.
 - Current execution scope: headless simulation, recorded/replayed data, ROS 2 processing software,
   and embedded-interface dry-run software.
 - No vehicle hardware is attached. HIL and field validation are future evidence contracts, not
@@ -39,9 +42,9 @@ points back to the release report.
 
 The most recent full run passed and wrote:
 
-- `/home/kotori9/aris/logs/readiness/headless_release_candidate_20260622T064544Z.json`
-- `/home/kotori9/aris/logs/readiness/headless_readiness_audit_20260622T064914Z.json`
-- `/home/kotori9/aris/logs/readiness/evidence_index_20260622T064927Z.json`
+- `/home/kotori9/aris/logs/readiness/headless_release_candidate_20260622T074238Z.json`
+- `/home/kotori9/aris/logs/readiness/headless_readiness_audit_20260622T074708Z.json`
+- `/home/kotori9/aris/logs/readiness/evidence_index_20260622T074238Z_release.json`
 
 The current `headless_ready` result is true for the hardware-free scope. This is not real-actuation
 readiness.
@@ -80,7 +83,8 @@ planner or teleop -> /cmd_drive -> HAL -> simulator or STM32
 - AI/advisory code must not publish `/cmd_drive`, clear faults, release E-stop, or enable
   actuation.
 - Prefer Nix and repo scripts/Just targets for reproducibility.
-- Commit and push meaningful changes to the relevant ARIS milestone branch, currently `v6`.
+- Commit and push meaningful changes to the relevant ARIS milestone branch, currently
+  `milestone/headless-simulation-embedded`.
 
 ## Primary Commands
 
@@ -146,7 +150,8 @@ The full project goal is not complete. Remaining work for practical real-world u
 - GUI/operator map viewer, goal selection, monitoring, and review UX.
 
 Until hardware is attached, continue improving headless simulation, recorded/replayed evidence,
-embedded-interface dry-runs, documentation, and release-candidate reproducibility on `v6`.
+embedded-interface dry-runs, documentation, and release-candidate reproducibility on
+`milestone/headless-simulation-embedded`.
 
 ## Update Discipline
 

@@ -1256,4 +1256,17 @@ Entry format:
 - Commit:       Pending bootstrap-doctor release-gate evidence log commit.
 - Scope note:   This improves new-environment reproducibility and current headless release evidence.
   It does not claim HIL, real-sensor, real-actuator, or field readiness.
-- Next:         Commit and push to `v6`.
+
+## 2026-06-22 KST — Feature/Milestone Branch Rename
+
+- Built:        Replaced version-only remote branches with descriptive ARIS milestone branches:
+  `milestone/teach-repeat-route-replay`, `milestone/lidar-localization-gazebo`,
+  `milestone/semantic-hd-map`, `milestone/goal-based-navigation`,
+  `milestone/dynamic-obstacle-advisory`, and `milestone/headless-simulation-embedded`.
+  Deleted remote `v1` through `v6` and removed the local version-only aliases.
+- Built:        Renamed the active local branch to `milestone/headless-simulation-embedded`
+  and set it to track `origin/milestone/headless-simulation-embedded`.
+- Scope note:   Current active work remains hardware-free: headless simulation, recorded/replayed
+  data, ROS 2 processing software, and embedded-interface dry-run software only.
+- Next:         Continue headless simulation and embedded dry-run work on
+  `milestone/headless-simulation-embedded`.
