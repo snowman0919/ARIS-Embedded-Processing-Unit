@@ -32,7 +32,14 @@ from std_msgs.msg import String
 samples = []
 
 def on_cmd(msg: AckermannDriveStamped) -> None:
-    samples.append((time.monotonic(), float(msg.drive.speed), float(msg.drive.acceleration)))
+    samples.append(
+        (
+            time.monotonic(),
+            float(msg.drive.speed),
+            float(msg.drive.acceleration),
+            float(msg.drive.steering_angle),
+        )
+    )
 
 rclpy.init()
 node = rclpy.create_node("aris_v5_dynamic_obstacle_smoke")
@@ -45,7 +52,33 @@ while time.monotonic() < deadline:
 
 if not samples:
     raise SystemExit("no /cmd_drive samples before advisory")
-baseline_speed = max(speed for _, speed, _ in samples)
+baseline_speed = max(speed for _, speed, _, _ in samples)
+baseline_min_steering = min(steering for _, _, _, steering in samples)
+
+detour_start = time.monotonic()
+detour = String()
+detour.data = json.dumps(
+    {
+        "action": "detour",
+        "closest_distance_m": 2.4,
+        "closing_speed_mps": 0.1,
+        "detour_forward_m": 2.0,
+        "detour_lateral_m": -1.2,
+        "point_count": 8,
+        "reason": "inside_detour_distance",
+    },
+    sort_keys=True,
+)
+while time.monotonic() - detour_start < 2.0:
+    pub.publish(detour)
+    rclpy.spin_once(node, timeout_sec=0.05)
+
+detour_samples = [item for item in samples if item[0] >= detour_start + 0.2]
+if not detour_samples:
+    raise SystemExit("no /cmd_drive samples during detour advisory")
+detour_min_speed = min(speed for _, speed, _, _ in detour_samples)
+detour_min_accel = min(accel for _, _, accel, _ in detour_samples)
+detour_min_steering = min(steering for _, _, _, steering in detour_samples)
 
 slow_start = time.monotonic()
 slow = String()
@@ -66,8 +99,8 @@ while time.monotonic() - slow_start < 2.0:
 slow_samples = [item for item in samples if item[0] >= slow_start + 0.2]
 if not slow_samples:
     raise SystemExit("no /cmd_drive samples during slow advisory")
-slow_min_speed = min(speed for _, speed, _ in slow_samples)
-slow_min_accel = min(accel for _, _, accel in slow_samples)
+slow_min_speed = min(speed for _, speed, _, _ in slow_samples)
+slow_min_accel = min(accel for _, _, accel, _ in slow_samples)
 
 stop_start = time.monotonic()
 stop = String()
@@ -88,16 +121,22 @@ while time.monotonic() - stop_start < 2.0:
 stop_samples = [item for item in samples if item[0] >= stop_start + 0.2]
 if not stop_samples:
     raise SystemExit("no /cmd_drive samples during stop advisory")
-stop_min_speed = min(speed for _, speed, _ in stop_samples)
-stop_min_accel = min(accel for _, _, accel in stop_samples)
+stop_min_speed = min(speed for _, speed, _, _ in stop_samples)
+stop_min_accel = min(accel for _, _, accel, _ in stop_samples)
 
 node.destroy_node()
 rclpy.shutdown()
 
 print(
-    "v5_dynamic_obstacle baseline_speed={:.3f} slow_min_speed={:.3f} "
-    "slow_min_accel={:.3f} stop_min_speed={:.3f} stop_min_accel={:.3f}".format(
+    "v5_dynamic_obstacle baseline_speed={:.3f} baseline_min_steering={:.3f} "
+    "detour_min_speed={:.3f} detour_min_accel={:.3f} detour_min_steering={:.3f} "
+    "slow_min_speed={:.3f} slow_min_accel={:.3f} "
+    "stop_min_speed={:.3f} stop_min_accel={:.3f}".format(
         baseline_speed,
+        baseline_min_steering,
+        detour_min_speed,
+        detour_min_accel,
+        detour_min_steering,
         slow_min_speed,
         slow_min_accel,
         stop_min_speed,
@@ -108,6 +147,12 @@ print(
 failures = []
 if baseline_speed < 0.5:
     failures.append(f"baseline planner speed too low before advisory: {baseline_speed:.3f}")
+if detour_min_speed > 0.35:
+    failures.append(f"detour advisory did not cap speed: {detour_min_speed:.3f}")
+if detour_min_accel > -0.09:
+    failures.append(f"detour advisory did not request gentle braking: {detour_min_accel:.3f}")
+if detour_min_steering > -0.05:
+    failures.append(f"detour advisory did not steer toward local bypass: {detour_min_steering:.3f}")
 if slow_min_speed > 0.35:
     failures.append(f"slow advisory did not cap speed: {slow_min_speed:.3f}")
 if slow_min_accel > -0.19:

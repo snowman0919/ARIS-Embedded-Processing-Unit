@@ -19,7 +19,7 @@ def test_dynamic_obstacle_detector_ignores_points_outside_corridor():
     assert decision.reason == "insufficient_points"
 
 
-def test_dynamic_obstacle_detector_slows_for_corridor_points():
+def test_dynamic_obstacle_detector_detours_for_corridor_points():
     decision = evaluate_dynamic_obstacle(
         [
             PointXYZ(2.5, 0.1, 0.0),
@@ -29,9 +29,11 @@ def test_dynamic_obstacle_detector_slows_for_corridor_points():
         config=DynamicObstacleConfig(slow_distance_m=3.0, stop_distance_m=1.0),
     )
 
-    assert decision.action == "slow"
+    assert decision.action == "detour"
     assert decision.closest_distance_m == 2.5
     assert decision.point_count == 3
+    assert decision.detour_lateral_m < 0.0
+    assert decision.detour_forward_m == 2.5
 
 
 def test_dynamic_obstacle_detector_stops_inside_stop_distance():

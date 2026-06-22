@@ -665,9 +665,36 @@ Entry format:
 - Build/tests:  `python3 -m py_compile` passed for the new V5/evidence modules; `bash -n` passed
   for `check_v5_dynamic_obstacle.sh` and `check_core_readiness.sh`; `./scripts/check_python_tests.sh`
   passed (`82 passed`); `git diff --check` passed. Targeted V5/evidence tests passed (`23 passed`).
-- Commit:       Pending V5 dynamic-obstacle advisory commit.
+- Commit:       `396ec5a` — `Add V5 dynamic obstacle advisory gate`.
 - Stubbed/blocked: This is simulation evidence for speed limiting and stop braking through the
   existing `/cmd_drive` contract. It is not yet a tracked multi-object dynamic obstacle system,
   full local replan, real LiDAR/camera validation, HIL, or field evidence.
 - Next:         Commit and push the V5 advisory gate to `origin/v3`; then extend V5 from slow/stop
   advisory into local detour/replan and real sensor replay scoring.
+
+## 2026-06-22 13:55 KST — V5: Local Detour Advisory Gate — WIP
+- Built:        Extended the V5 dynamic-obstacle advisory contract with `detour`,
+  `detour_lateral_m`, and `detour_forward_m`. `dynamic_obstacle_node` now proposes a local detour
+  for non-emergency obstacles inside the forward corridor while preserving `stop` for close or fast
+  closing obstacles. `local_planner_node` inserts a short temporary bypass waypoint for `detour`
+  advisories before publishing `/cmd_drive`, then keeps the existing speed/brake limiting path.
+  The V5 smoke and readiness evidence index now capture detour steering, speed, and braking
+  metrics.
+- Verified:     `./scripts/check_v5_dynamic_obstacle.sh` passed with
+  `baseline_speed=1.269`, `detour_min_speed=0.270`, `detour_min_accel=-0.100`,
+  `detour_min_steering=-0.927`, `slow_min_speed=0.320`, `slow_min_accel=-0.200`,
+  `stop_min_speed=0.000`, and `stop_min_accel=-1.000`. Then
+  `ARIS_CORE_READINESS_SKIP_GAZEBO=1 ./scripts/run_core_readiness_report.sh` passed with
+  `skip_v3=0`, `skip_gazebo=1`, `result=PASS`, and `ARIS core readiness passed (7 checks).` The
+  report is `/home/kotori9/aris/logs/readiness/core_readiness_20260622T045510Z.log`; the evidence
+  index is `/home/kotori9/aris/logs/readiness/evidence_index_20260622T045510Z.json` and includes
+  `detour_min_steering=-0.927`.
+- Build/tests:  `python3 -m py_compile` passed for the changed V5/evidence modules; `bash -n
+  scripts/check_v5_dynamic_obstacle.sh` passed; targeted V5/evidence tests passed (`25 passed`);
+  full `./scripts/check_python_tests.sh` passed (`84 passed`); `git diff --check` passed.
+- Commit:       Pending V5 local detour advisory commit.
+- Stubbed/blocked: This is still local simulation evidence. It does not yet track persistent
+  objects, perform full route-graph replanning, replay real LiDAR obstacle bags, validate camera
+  fusion, or prove behavior in HIL/field runs.
+- Next:         Commit and push the local detour increment to `origin/v3`; then connect V5 obstacle
+  evidence to recorded/replayed bags and add object persistence/replan scoring.

@@ -51,18 +51,17 @@ def _read_json(path: Path | None) -> dict[str, Any] | None:
 def _read_v5_dynamic_obstacle(readiness_log: Path | None) -> dict[str, float] | None:
     if not readiness_log or not readiness_log.exists():
         return None
-    pattern = re.compile(
-        r"^v5_dynamic_obstacle "
-        r"baseline_speed=(?P<baseline_speed>[0-9.]+) "
-        r"slow_min_speed=(?P<slow_min_speed>[0-9.]+) "
-        r"slow_min_accel=(?P<slow_min_accel>-?[0-9.]+) "
-        r"stop_min_speed=(?P<stop_min_speed>[0-9.]+) "
-        r"stop_min_accel=(?P<stop_min_accel>-?[0-9.]+)"
-    )
     for line in readiness_log.read_text(encoding="utf-8", errors="replace").splitlines():
-        match = pattern.match(line)
-        if match:
-            return {key: float(value) for key, value in match.groupdict().items()}
+        if not line.startswith("v5_dynamic_obstacle "):
+            continue
+        metrics: dict[str, float] = {}
+        for item in line.split()[1:]:
+            if "=" not in item:
+                continue
+            key, value = item.split("=", 1)
+            if re.fullmatch(r"[A-Za-z0-9_]+", key):
+                metrics[key] = float(value)
+        return metrics or None
     return None
 
 

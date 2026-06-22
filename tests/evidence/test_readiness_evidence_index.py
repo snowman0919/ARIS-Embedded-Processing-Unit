@@ -25,7 +25,9 @@ def test_readiness_evidence_index_collects_latest_artifacts(tmp_path):
         "real_actuation=0\n"
         "result=PASS\n"
         "exit_code=0\n"
-        "v5_dynamic_obstacle baseline_speed=1.280 slow_min_speed=0.320 "
+        "v5_dynamic_obstacle baseline_speed=1.280 baseline_min_steering=0.100 "
+        "detour_min_speed=0.320 detour_min_accel=-0.100 detour_min_steering=-0.200 "
+        "slow_min_speed=0.320 "
         "slow_min_accel=-0.200 stop_min_speed=0.000 stop_min_accel=-1.000\n",
         encoding="utf-8",
     )
@@ -63,4 +65,5 @@ def test_readiness_evidence_index_collects_latest_artifacts(tmp_path):
     assert index["v3_semantic_map"]["manifest"]["valid"]
     assert index["v3_semantic_map"]["compare"]["metric_overlap_ratio"] == 1.0
     assert index["v5_dynamic_obstacle"]["baseline_speed"] == 1.28
+    assert index["v5_dynamic_obstacle"]["detour_min_steering"] == -0.2
     assert index["v5_dynamic_obstacle"]["stop_min_accel"] == -1.0

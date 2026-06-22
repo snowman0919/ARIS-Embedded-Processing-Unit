@@ -21,6 +21,7 @@ from .cmd_drive import local_plan_to_ackermann
 from .dynamic_obstacle_advisory import (
     DynamicObstacleAdvisory,
     apply_dynamic_obstacle_advisory,
+    path_with_dynamic_detour,
     parse_dynamic_obstacle_advisory,
 )
 from .pure_pursuit import Pose2D, PurePursuit
@@ -43,6 +44,7 @@ class LocalPlannerNode(Node):
         self.declare_parameter("goal_tolerance_m", 0.8)
         self.declare_parameter("dynamic_obstacle_timeout_s", 0.6)
         self.declare_parameter("dynamic_obstacle_slow_speed_mps", 0.4)
+        self.declare_parameter("dynamic_obstacle_detour_lateral_m", 1.0)
         self.declare_parameter("route_file", "")
         self.planner = PurePursuit(
             wheelbase_m=float(self.get_parameter("wheelbase_m").value),
@@ -55,6 +57,9 @@ class LocalPlannerNode(Node):
         )
         self.dynamic_obstacle_slow_speed_mps = float(
             self.get_parameter("dynamic_obstacle_slow_speed_mps").value
+        )
+        self.dynamic_obstacle_detour_lateral_m = float(
+            self.get_parameter("dynamic_obstacle_detour_lateral_m").value
         )
         self.estop = False
         self.dynamic_obstacle: DynamicObstacleAdvisory | None = None
@@ -91,12 +96,19 @@ class LocalPlannerNode(Node):
             y=float(msg.pose.pose.position.y),
             yaw=yaw_from_odom(msg),
         )
+        dynamic_obstacle = self._current_dynamic_obstacle_advisory()
+        active_path = path_with_dynamic_detour(
+            pose,
+            self.path,
+            dynamic_obstacle,
+            default_lateral_m=self.dynamic_obstacle_detour_lateral_m,
+        )
         command = self.planner.command(
-            pose, self.path, estop=self.estop or self._near_goal(pose)
+            pose, active_path, estop=self.estop or self._near_goal(pose)
         )
         command = apply_dynamic_obstacle_advisory(
             command,
-            self._current_dynamic_obstacle_advisory(),
+            dynamic_obstacle,
             slow_speed_mps=self.dynamic_obstacle_slow_speed_mps,
         )
         fields = local_plan_to_ackermann(command)

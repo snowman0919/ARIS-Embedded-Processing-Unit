@@ -70,6 +70,8 @@ class DynamicObstacleNode(Node):
         self.declare_parameter("stop_distance_m", 1.4)
         self.declare_parameter("min_points", 3)
         self.declare_parameter("closing_stop_mps", 1.2)
+        self.declare_parameter("detour_lateral_m", 1.0)
+        self.declare_parameter("detour_forward_m", 2.0)
         self.declare_parameter("sample_stride", 2)
 
         self.config = DynamicObstacleConfig(
@@ -78,6 +80,8 @@ class DynamicObstacleNode(Node):
             stop_distance_m=float(self.get_parameter("stop_distance_m").value),
             min_points=int(self.get_parameter("min_points").value),
             closing_stop_mps=float(self.get_parameter("closing_stop_mps").value),
+            detour_lateral_m=float(self.get_parameter("detour_lateral_m").value),
+            detour_forward_m=float(self.get_parameter("detour_forward_m").value),
         )
         self.sample_stride = int(self.get_parameter("sample_stride").value)
         self.previous_closest_m: float | None = None

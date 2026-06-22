@@ -28,9 +28,10 @@ filters points inside the forward driving corridor, and publishes
 `/aris/perception/dynamic_obstacle` as a JSON advisory:
 
 - `clear`: no local speed limit.
+- `detour`: local planner inserts a short bypass waypoint and caps speed.
 - `slow`: local planner caps speed and applies partial braking.
 - `stop`: local planner commands zero speed and full braking.
 
-The smoke gate `just v5-dynamic-obstacle-smoke` verifies that those advisories affect `/cmd_drive`
-without changing the existing simulator/HAL control contract. It is still simulation evidence, not
-a field-validated tracker or full dynamic replan.
+The smoke gate `just v5-dynamic-obstacle-smoke` verifies that detour/slow/stop advisories affect
+`/cmd_drive` without changing the existing simulator/HAL control contract. It is still simulation
+evidence, not a field-validated tracker or full dynamic replan.

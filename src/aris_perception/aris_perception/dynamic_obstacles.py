@@ -21,6 +21,8 @@ class DynamicObstacleDecision:
     closing_speed_mps: float
     point_count: int
     reason: str
+    detour_lateral_m: float | None = None
+    detour_forward_m: float | None = None
 
     def as_dict(self) -> dict[str, float | int | str | None]:
         return {
@@ -29,6 +31,8 @@ class DynamicObstacleDecision:
             "closing_speed_mps": self.closing_speed_mps,
             "point_count": self.point_count,
             "reason": self.reason,
+            "detour_lateral_m": self.detour_lateral_m,
+            "detour_forward_m": self.detour_forward_m,
         }
 
 
@@ -42,6 +46,8 @@ class DynamicObstacleConfig:
     z_max_m: float = 1.8
     min_points: int = 3
     closing_stop_mps: float = 1.2
+    detour_lateral_m: float = 1.0
+    detour_forward_m: float = 2.0
 
 
 def evaluate_dynamic_obstacle(
@@ -87,12 +93,15 @@ def evaluate_dynamic_obstacle(
             reason="closing_fast",
         )
     if closest <= config.slow_distance_m:
+        detour_lateral = _choose_detour_side(candidates, config.detour_lateral_m)
         return DynamicObstacleDecision(
-            action="slow",
+            action="detour",
             closest_distance_m=closest,
             closing_speed_mps=closing_speed,
             point_count=len(candidates),
-            reason="inside_slow_distance",
+            reason="inside_detour_distance",
+            detour_lateral_m=detour_lateral,
+            detour_forward_m=max(config.detour_forward_m, min(closest, config.slow_distance_m)),
         )
     return DynamicObstacleDecision(
         action="clear",
@@ -112,3 +121,10 @@ def _in_corridor(point: PointXYZ, config: DynamicObstacleConfig) -> bool:
         and abs(point.y) <= config.corridor_half_width_m
         and config.z_min_m <= point.z <= config.z_max_m
     )
+
+
+def _choose_detour_side(points: list[PointXYZ], lateral_m: float) -> float:
+    mean_y = sum(point.y for point in points) / max(len(points), 1)
+    if mean_y >= 0.0:
+        return -abs(lateral_m)
+    return abs(lateral_m)

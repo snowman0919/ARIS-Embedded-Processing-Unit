@@ -120,8 +120,8 @@ just core-readiness
 ```
 
 It runs unit, MCU protocol loopback, `/scan_cloud` contract, operator goal, V3 semantic map
-snapshot/manifest/compare acceptance, V4 goal navigation, V5 dynamic-obstacle slow/stop advisory,
-and V2 Gazebo stack smokes. The Gazebo stack includes cloud contract, static localization,
+snapshot/manifest/compare acceptance, V4 goal navigation, V5 dynamic-obstacle detour/slow/stop
+advisory, and V2 Gazebo stack smokes. The Gazebo stack includes cloud contract, static localization,
 moving pose-sync localization,
 pose-sync-free Ackermann physics motion, physics-fed localization, and drift recovery. Set
 `ARIS_CORE_READINESS_SKIP_V3=1` only when the environment cannot run the V3 map artifact gate; that
@@ -145,8 +145,9 @@ $ARIS_LOGS/readiness/latest_evidence_index.json
 ```
 
 The index points at the latest readiness report, latest V2 LiDAR bag metadata, latest V3 semantic
-map manifest, latest V3 repeat-pass compare report, and V5 dynamic-obstacle slow/stop metrics when
-present. It is the quick machine-readable view of the current software evidence bundle.
+map manifest, latest V3 repeat-pass compare report, and V5 dynamic-obstacle detour/slow/stop
+metrics when present. It is the quick machine-readable view of the current software evidence
+bundle.
 
 ## 12. Recorded LiDAR Acceptance Gate
 
