@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import math
 import struct
+from pathlib import Path
 
 import rclpy
 from rclpy.node import Node
@@ -21,11 +22,17 @@ class SemanticMapNode(Node):
         self.declare_parameter("change_threshold", 0.65)
         self.declare_parameter("confirmation_threshold", 0.75)
         self.declare_parameter("max_cloud_points", 200)
-        self.map = SemanticHDMap(
-            resolution_m=float(self.get_parameter("resolution_m").value),
-            change_threshold=float(self.get_parameter("change_threshold").value),
-            confirmation_threshold=float(self.get_parameter("confirmation_threshold").value),
-        )
+        self.declare_parameter("snapshot_file", "")
+        self.snapshot_file = str(self.get_parameter("snapshot_file").value).strip()
+        if self.snapshot_file and Path(self.snapshot_file).exists():
+            self.map = SemanticHDMap.load_snapshot(self.snapshot_file)
+            self.get_logger().info(f"Loaded semantic map snapshot from {self.snapshot_file}")
+        else:
+            self.map = SemanticHDMap(
+                resolution_m=float(self.get_parameter("resolution_m").value),
+                change_threshold=float(self.get_parameter("change_threshold").value),
+                confirmation_threshold=float(self.get_parameter("confirmation_threshold").value),
+            )
         self.max_cloud_points = int(self.get_parameter("max_cloud_points").value)
         self.semantic_updates = 0
         self.change_events = 0
@@ -81,12 +88,15 @@ class SemanticMapNode(Node):
                 "semantic_updates": self.semantic_updates,
                 "change_events": self.change_events,
                 "review_events": self.review_events,
+                "review_queue": len(self.map.review_queue),
                 "blocked_cells": blocked_cells,
                 "labels": label_counts,
             },
             sort_keys=True,
         )
         self.summary_pub.publish(msg)
+        if self.snapshot_file:
+            self.map.save_snapshot(self.snapshot_file, map_id="aris-v3-sim")
 
 
 def _read_xyz_sampled(msg: PointCloud2, max_points: int) -> list[tuple[float, float, float]]:

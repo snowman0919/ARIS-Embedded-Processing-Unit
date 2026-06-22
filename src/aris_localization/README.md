@@ -54,6 +54,15 @@ It sends `/cmd_drive` through the simulation HAL bridge into Gazebo's Ackermann 
 then requires `/gazebo/odom`, Gazebo `/pose/info`, and `/scan_cloud` to stay live. This is a
 physics-motion gate, not a full localization acceptance test yet.
 
+The Gazebo physics-localization smoke uses Gazebo's odometry as the localization prior:
+
+```bash
+nix develop -c just v2-gazebo-physics-localization-smoke
+```
+
+It remaps `/gazebo/odom` to the node's `/wheel_odom` input and requires `/odometry/filtered` to
+follow the physics-driven ARIS entity while the gpu_lidar cloud remains live.
+
 The Gazebo drift-recovery smoke uses the same gpu_lidar path as a correction source:
 
 ```bash

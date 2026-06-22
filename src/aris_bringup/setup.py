@@ -23,6 +23,7 @@ setup(
     entry_points={
         "console_scripts": [
             "teleop_node = aris_bringup.teleop_node:main",
+            "operator_api_node = aris_bringup.operator_api_node:main",
         ],
     },
 )

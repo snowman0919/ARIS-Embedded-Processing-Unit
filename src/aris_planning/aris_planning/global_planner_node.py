@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import math
 
-from geometry_msgs.msg import Pose, PoseArray
+from geometry_msgs.msg import Pose, PoseArray, PoseStamped
 from nav_msgs.msg import Odometry
 import rclpy
 from rclpy.node import Node
@@ -49,6 +49,7 @@ class GlobalPlannerNode(Node):
         self.path_pub = self.create_publisher(PoseArray, "/global_path", 10)
         self.summary_pub = self.create_publisher(String, "/aris/planning/global_plan", 10)
         self.create_subscription(Odometry, "/odometry/filtered", self._on_odom, 20)
+        self.create_subscription(PoseStamped, "/goal_pose", self._on_goal_pose, 10)
         self.create_timer(0.5, self._publish_plan)
         self.get_logger().info(f"V4 global planner up: goal={self.goal_node}")
 
@@ -57,6 +58,18 @@ class GlobalPlannerNode(Node):
             float(msg.pose.pose.position.x),
             float(msg.pose.pose.position.y),
             yaw_from_odom(msg),
+        )
+
+    def _on_goal_pose(self, msg: PoseStamped) -> None:
+        if msg.header.frame_id and msg.header.frame_id != "map":
+            self.get_logger().warn(f"Ignoring goal outside map frame: {msg.header.frame_id}")
+            return
+        self.goal_x = float(msg.pose.position.x)
+        self.goal_y = float(msg.pose.position.y)
+        self.goal_node = nearest_route_node(self.hd_map.route_nodes, self.goal_x, self.goal_y)
+        self.get_logger().info(
+            f"Updated V4 goal from /goal_pose: node={self.goal_node} "
+            f"({self.goal_x:.2f}, {self.goal_y:.2f})"
         )
 
     def _publish_plan(self) -> None:

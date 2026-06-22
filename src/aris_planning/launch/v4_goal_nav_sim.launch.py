@@ -64,6 +64,11 @@ def generate_launch_description():
                 ],
             ),
             Node(
+                package="aris_bringup",
+                executable="operator_api_node",
+                output="screen",
+            ),
+            Node(
                 package="aris_planning",
                 executable="global_planner_node",
                 output="screen",

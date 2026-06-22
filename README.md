@@ -4,6 +4,19 @@ Reproducible user-space development environment for ARIS, an outdoor autonomous 
 
 The host stays clean: Nix provides lightweight host tools, while ROS2, CUDA/AI, simulation, and embedded toolchains run in Docker. No host command in this repository requires sudo.
 
+## Codebase Boundary
+
+This repository is the ARIS processing-unit codebase: ROS 2 packages, simulation,
+localization, perception, planning, bringup, Docker/Nix tooling, and verification scripts.
+
+Standalone codebases live separately:
+
+- Flutter operator UI: `snowman0919/ARIS-Flutter-Interface`
+- STM32 safety MCU firmware: `snowman0919/ARIS-Embedded-MCU`
+- DGX Spark AI/Isaac lab: `snowman0919/ARIS-AI`
+
+See `docs/codebase_boundaries.md` for the local directory conventions.
+
 ## Quick Start
 
 ```bash
@@ -29,6 +42,7 @@ directly:
 ./scripts/check_v2_gazebo_localization.sh
 ./scripts/check_v2_gazebo_moving_localization.sh
 ./scripts/check_v2_gazebo_physics.sh
+./scripts/check_v2_gazebo_physics_localization.sh
 ./scripts/check_v2_gazebo_drift_recovery.sh
 ./scripts/check_v2_gazebo_stack.sh
 ./scripts/check_lidar_sim.sh
@@ -152,6 +166,7 @@ just v2-lidar-smoke  # Gazebo gpu_lidar -> normalized /scan_cloud smoke
 just v2-gazebo-localization-smoke # Gazebo /scan_cloud -> localization smoke
 just v2-gazebo-moving-smoke # moving sim pose -> Gazebo entity -> localization smoke
 just v2-gazebo-physics-smoke # /cmd_drive -> Gazebo Ackermann physics motion smoke
+just v2-gazebo-physics-localization-smoke # Gazebo physics odom -> localization smoke
 just v2-gazebo-drift-smoke # Gazebo gpu_lidar corrects drifted wheel odom
 just v2-gazebo-stack-smoke # run all headless Gazebo V2 checks
 just scan-cloud-contract # validate /scan_cloud PointCloud2 fields, frame, and TF

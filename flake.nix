@@ -38,11 +38,14 @@
             ruff
             mypy
             pre-commit
+            flutter
+            dart
             cmake
             ninja
             pkg-config
             clang
             clang-tools
+            gtk3
             gdb
             usbutils
             pciutils

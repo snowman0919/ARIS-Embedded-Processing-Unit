@@ -73,3 +73,30 @@ def test_route_graph_tracks_traversable_edges():
 def test_traversability_cost_reflects_semantic_risk():
     assert traversability_for_label("road", 1.0) < traversability_for_label("mud", 1.0)
     assert traversability_for_label("mud", 1.0) < traversability_for_label("debris", 1.0)
+
+
+def test_semantic_map_snapshot_round_trips(tmp_path):
+    hd_map = SemanticHDMap(resolution_m=0.25, change_threshold=0.6, confirmation_threshold=0.8)
+    hd_map.mark_occupied(1.0, 2.0, 0.7)
+    hd_map.apply_semantic_observation(
+        SemanticObservation(x=1.0, y=2.0, label="road", confidence=0.95)
+    )
+    hd_map.apply_semantic_observation(
+        SemanticObservation(x=1.0, y=2.0, label="debris", confidence=0.9)
+    )
+    hd_map.add_route_node(RouteNode("a", 0.0, 0.0))
+    hd_map.add_route_node(RouteNode("b", 1.0, 0.0))
+    hd_map.add_route_edge(RouteEdge("a", "b", cost=1.5, blocked=True))
+
+    snapshot_file = tmp_path / "semantic_map.json"
+    hd_map.save_snapshot(snapshot_file, map_id="unit-test-map")
+
+    loaded = SemanticHDMap.load_snapshot(snapshot_file)
+    cell = loaded.cell_for_point(1.0, 2.0)
+
+    assert loaded.resolution_m == pytest.approx(0.25)
+    assert loaded.cells[cell].top_label == "road"
+    assert loaded.cells[cell].labels["debris"] == pytest.approx(0.9)
+    assert loaded.route_edges[0].blocked
+    assert loaded.review_queue[0].reason == "change_detected"
+    assert loaded.to_snapshot(map_id="unit-test-map") == hd_map.to_snapshot(map_id="unit-test-map")

@@ -108,7 +108,8 @@ just core-readiness
 
 It runs unit, MCU protocol loopback, `/scan_cloud` contract, operator goal, V4 goal navigation, and
 V2 Gazebo stack smokes. The Gazebo stack includes cloud contract, static localization, moving
-pose-sync localization, pose-sync-free Ackermann physics motion, and drift recovery. Set
+pose-sync localization, pose-sync-free Ackermann physics motion, physics-fed localization, and
+drift recovery. Set
 `ARIS_CORE_READINESS_SKIP_GAZEBO=1` only when the environment cannot run headless Gazebo; that skip
 weakens the evidence and must be recorded in the run log.
 

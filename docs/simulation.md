@@ -47,6 +47,7 @@ just v2-lidar-smoke
 just v2-gazebo-localization-smoke
 just v2-gazebo-moving-smoke
 just v2-gazebo-physics-smoke
+just v2-gazebo-physics-localization-smoke
 just v2-gazebo-drift-smoke
 just v2-gazebo-stack-smoke
 ```
@@ -71,13 +72,19 @@ through `gazebo_cmd_drive_bridge_node` and `ros_gz_bridge` into Gazebo's Ackerma
 This is the first pose-sync-free V2 gate: `/gazebo/odom` and Gazebo `/pose/info` must show the ARIS
 entity moving while `/scan_cloud` continues to publish.
 
+`just v2-gazebo-physics-localization-smoke` extends that pose-sync-free path by remapping
+`/gazebo/odom` into the localization wheel-odom contract. It verifies that Gazebo physics motion
+feeds `lidar_localization_node`, which then publishes `/odometry/filtered` from live gpu_lidar
+clouds.
+
 `just v2-gazebo-drift-smoke` syncs the Gazebo entity from ground truth while feeding intentionally
 drifted `/wheel_odom` to localization. It verifies that Gazebo gpu_lidar observations reduce the
 wheel-odom lateral error. Gazebo cloud stamps are normalized to ROS receive time in this launch so
 LiDAR, wheel odom, and ground-truth samples share a comparable time base.
 
 `just v2-gazebo-stack-smoke` runs the complete headless Gazebo V2 sequence: cloud contract,
-static localization, moving pose sync, pose-sync-free physics motion, and drift recovery.
+static localization, moving pose sync, pose-sync-free physics motion, physics-fed localization, and
+drift recovery.
 
 The deterministic software LiDAR surrogate remains available for algorithm development and CI-like
 checks that do not need Gazebo rendering:

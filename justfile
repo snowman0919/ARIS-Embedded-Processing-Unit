@@ -78,6 +78,10 @@ v2-gazebo-moving-smoke:
 v2-gazebo-physics-smoke:
     ./scripts/check_v2_gazebo_physics.sh
 
+# V2 probe: Gazebo physics odom drives LiDAR localization without pose sync.
+v2-gazebo-physics-localization-smoke:
+    ./scripts/check_v2_gazebo_physics_localization.sh
+
 # V2 probe: drifted wheel odom must be corrected by Gazebo gpu_lidar observations.
 v2-gazebo-drift-smoke:
     ./scripts/check_v2_gazebo_drift_recovery.sh

@@ -7,8 +7,10 @@ can be tested before those external assets exist.
 
 from __future__ import annotations
 
+import json
 import math
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Iterable
 
 
@@ -87,6 +89,7 @@ class SemanticHDMap:
         self.cells: dict[Cell, SemanticCellState] = {}
         self.route_nodes: dict[str, RouteNode] = {}
         self.route_edges: list[RouteEdge] = []
+        self.review_queue: list[MapUpdateDecision] = []
 
     def cell_for_point(self, x: float, y: float) -> Cell:
         return (math.floor(x / self.resolution_m), math.floor(y / self.resolution_m))
@@ -107,7 +110,7 @@ class SemanticHDMap:
         confidence = observation.confidence
 
         if confidence < self.change_threshold:
-            return MapUpdateDecision(
+            decision = MapUpdateDecision(
                 cell=cell,
                 label=observation.label,
                 applied=False,
@@ -115,6 +118,8 @@ class SemanticHDMap:
                 review_required=True,
                 reason="low_confidence",
             )
+            self.review_queue.append(decision)
+            return decision
 
         change_detected = (
             prior_label is not None
@@ -126,7 +131,7 @@ class SemanticHDMap:
         state.observations += 1
         self.metric_cells.add(cell)
 
-        return MapUpdateDecision(
+        decision = MapUpdateDecision(
             cell=cell,
             label=observation.label,
             applied=True,
@@ -134,6 +139,9 @@ class SemanticHDMap:
             review_required=change_detected or confidence < self.confirmation_threshold,
             reason="change_detected" if change_detected else "applied",
         )
+        if decision.review_required:
+            self.review_queue.append(decision)
+        return decision
 
     def add_route_node(self, node: RouteNode) -> None:
         self.route_nodes[node.node_id] = node
@@ -155,6 +163,117 @@ class SemanticHDMap:
             self.cells[cell] = SemanticCellState()
         return self.cells[cell]
 
+    def to_snapshot(self, *, map_id: str = "aris-semantic-map") -> dict:
+        """Return a deterministic JSON-serializable map snapshot."""
+        return {
+            "schema_version": 1,
+            "map_id": map_id,
+            "resolution_m": self.resolution_m,
+            "change_threshold": self.change_threshold,
+            "confirmation_threshold": self.confirmation_threshold,
+            "metric_cells": [list(cell) for cell in sorted(self.metric_cells)],
+            "cells": [
+                {
+                    "cell": list(cell),
+                    "occupancy": state.occupancy,
+                    "labels": dict(sorted(state.labels.items())),
+                    "traversability": state.traversability,
+                    "observations": state.observations,
+                }
+                for cell, state in sorted(self.cells.items())
+            ],
+            "route_nodes": [
+                {
+                    "node_id": node.node_id,
+                    "x": node.x,
+                    "y": node.y,
+                }
+                for node in sorted(self.route_nodes.values(), key=lambda item: item.node_id)
+            ],
+            "route_edges": [
+                {
+                    "from_node": edge.from_node,
+                    "to_node": edge.to_node,
+                    "cost": edge.cost,
+                    "blocked": edge.blocked,
+                }
+                for edge in self.route_edges
+            ],
+            "review_queue": [
+                {
+                    "cell": list(decision.cell),
+                    "label": decision.label,
+                    "applied": decision.applied,
+                    "change_detected": decision.change_detected,
+                    "review_required": decision.review_required,
+                    "reason": decision.reason,
+                }
+                for decision in self.review_queue
+            ],
+        }
+
+    def save_snapshot(self, path: str | Path, *, map_id: str = "aris-semantic-map") -> None:
+        target = Path(path)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(
+            json.dumps(self.to_snapshot(map_id=map_id), indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
+
+    @classmethod
+    def from_snapshot(cls, snapshot: dict) -> "SemanticHDMap":
+        if snapshot.get("schema_version") != 1:
+            raise ValueError("unsupported semantic map snapshot schema_version")
+        hd_map = cls(
+            resolution_m=float(snapshot["resolution_m"]),
+            change_threshold=float(snapshot["change_threshold"]),
+            confirmation_threshold=float(snapshot["confirmation_threshold"]),
+        )
+        hd_map.metric_cells = {_cell_from_json(cell) for cell in snapshot.get("metric_cells", [])}
+        for item in snapshot.get("cells", []):
+            cell = _cell_from_json(item["cell"])
+            hd_map.cells[cell] = SemanticCellState(
+                occupancy=_clamp01(float(item["occupancy"])),
+                labels={str(k): _clamp01(float(v)) for k, v in item.get("labels", {}).items()},
+                traversability=_clamp01(float(item["traversability"])),
+                observations=int(item.get("observations", 0)),
+            )
+        for item in snapshot.get("route_nodes", []):
+            node = RouteNode(
+                node_id=str(item["node_id"]),
+                x=float(item["x"]),
+                y=float(item["y"]),
+            )
+            hd_map.route_nodes[node.node_id] = node
+        for item in snapshot.get("route_edges", []):
+            hd_map.route_edges.append(
+                RouteEdge(
+                    from_node=str(item["from_node"]),
+                    to_node=str(item["to_node"]),
+                    cost=float(item["cost"]),
+                    blocked=bool(item.get("blocked", False)),
+                )
+            )
+        for item in snapshot.get("review_queue", []):
+            hd_map.review_queue.append(
+                MapUpdateDecision(
+                    cell=_cell_from_json(item["cell"]),
+                    label=str(item["label"]),
+                    applied=bool(item["applied"]),
+                    change_detected=bool(item["change_detected"]),
+                    review_required=bool(item["review_required"]),
+                    reason=str(item["reason"]),
+                )
+            )
+        return hd_map
+
+    @classmethod
+    def load_snapshot(cls, path: str | Path) -> "SemanticHDMap":
+        data = json.loads(Path(path).read_text(encoding="utf-8"))
+        if not isinstance(data, dict):
+            raise ValueError("semantic map snapshot must be a JSON object")
+        return cls.from_snapshot(data)
+
 
 def traversability_for_label(label: str, confidence: float) -> float:
     normalized = label.lower()
@@ -173,3 +292,9 @@ def traversability_for_label(label: str, confidence: float) -> float:
 
 def _clamp01(value: float) -> float:
     return max(0.0, min(1.0, float(value)))
+
+
+def _cell_from_json(value: object) -> Cell:
+    if not isinstance(value, list | tuple) or len(value) != 2:
+        raise ValueError("cell must be a two-item list")
+    return (int(value[0]), int(value[1]))

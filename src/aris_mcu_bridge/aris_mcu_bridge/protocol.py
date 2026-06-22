@@ -10,6 +10,8 @@ MAGIC = b"AR"
 VERSION = 1
 HEADER = struct.Struct("<2sBBHI")
 CRC = struct.Struct("<I")
+CONTROL_PAYLOAD = struct.Struct("<fff")
+STATE_REPORT_PAYLOAD = struct.Struct("<ffffH???")
 HEARTBEAT_TIMEOUT_S = 0.200
 
 
@@ -38,6 +40,24 @@ class ControlCommand:
     target_velocity_mps: float
     target_steering_rad: float
     brake: float
+
+
+@dataclass(frozen=True)
+class McuStateReport:
+    steering_angle_rad: float
+    wheel_speed_mps: float
+    brake: float
+    battery_voltage: float
+    fault_code: int = 0
+    estop: bool = False
+    heartbeat_ok: bool = True
+    ups_ok: bool = True
+
+
+@dataclass(frozen=True)
+class McuFaultReport:
+    fault_code: int
+    reason: str
 
 
 def encode_frame(msg_type: MessageType, sequence: int, payload: bytes = b"") -> bytes:
@@ -77,8 +97,7 @@ def decode_frame(data: bytes, expected_sequence: int | None = None) -> Frame:
 
 
 def encode_control(sequence: int, command: ControlCommand) -> bytes:
-    payload = struct.pack(
-        "<fff",
+    payload = CONTROL_PAYLOAD.pack(
         command.target_velocity_mps,
         command.target_steering_rad,
         command.brake,
@@ -89,9 +108,9 @@ def encode_control(sequence: int, command: ControlCommand) -> bytes:
 def decode_control(frame: Frame) -> ControlCommand:
     if frame.msg_type != MessageType.CMD_CONTROL:
         raise ProtocolError("not a control command frame")
-    if len(frame.payload) != 12:
+    if len(frame.payload) != CONTROL_PAYLOAD.size:
         raise ProtocolError("control payload must be 12 bytes")
-    velocity, steering, brake = struct.unpack("<fff", frame.payload)
+    velocity, steering, brake = CONTROL_PAYLOAD.unpack(frame.payload)
     return ControlCommand(velocity, steering, brake)
 
 
@@ -101,6 +120,60 @@ def encode_heartbeat(sequence: int) -> bytes:
 
 def encode_estop(sequence: int, reason: str = "operator") -> bytes:
     return encode_frame(MessageType.CMD_ESTOP, sequence, reason.encode("utf-8")[:128])
+
+
+def encode_state_report(sequence: int, report: McuStateReport) -> bytes:
+    if not 0 <= report.fault_code <= 0xFFFF:
+        raise ProtocolError("fault_code must fit uint16")
+    payload = STATE_REPORT_PAYLOAD.pack(
+        report.steering_angle_rad,
+        report.wheel_speed_mps,
+        report.brake,
+        report.battery_voltage,
+        report.fault_code,
+        report.estop,
+        report.heartbeat_ok,
+        report.ups_ok,
+    )
+    return encode_frame(MessageType.STATE_REPORT, sequence, payload)
+
+
+def decode_state_report(frame: Frame) -> McuStateReport:
+    if frame.msg_type != MessageType.STATE_REPORT:
+        raise ProtocolError("not a state report frame")
+    if len(frame.payload) != STATE_REPORT_PAYLOAD.size:
+        raise ProtocolError("state report payload has wrong size")
+    steering, wheel_speed, brake, battery, fault_code, estop, heartbeat_ok, ups_ok = (
+        STATE_REPORT_PAYLOAD.unpack(frame.payload)
+    )
+    return McuStateReport(
+        steering_angle_rad=steering,
+        wheel_speed_mps=wheel_speed,
+        brake=brake,
+        battery_voltage=battery,
+        fault_code=fault_code,
+        estop=estop,
+        heartbeat_ok=heartbeat_ok,
+        ups_ok=ups_ok,
+    )
+
+
+def encode_fault_report(sequence: int, report: McuFaultReport) -> bytes:
+    if not 0 <= report.fault_code <= 0xFFFF:
+        raise ProtocolError("fault_code must fit uint16")
+    reason = report.reason.encode("utf-8")[:128]
+    payload = struct.pack("<H", report.fault_code) + reason
+    return encode_frame(MessageType.FAULT_REPORT, sequence, payload)
+
+
+def decode_fault_report(frame: Frame) -> McuFaultReport:
+    if frame.msg_type != MessageType.FAULT_REPORT:
+        raise ProtocolError("not a fault report frame")
+    if len(frame.payload) < 2:
+        raise ProtocolError("fault report payload too short")
+    fault_code = struct.unpack("<H", frame.payload[:2])[0]
+    reason = frame.payload[2:].decode("utf-8", errors="replace")
+    return McuFaultReport(fault_code=fault_code, reason=reason)
 
 
 class HeartbeatMonitor:
