@@ -2067,3 +2067,39 @@ Entry format:
 - Next:         After GitHub push credentials are restored, reconcile the local branch with
   `origin/v6-headless-simulation-embedded` without losing the AUTORUN history, then continue
   headless simulation and embedded dry-run improvements.
+
+## 2026-06-22 KST — Headless Status Shows Upstream Sync
+
+- Built:        Extended `scripts/summarize_headless_status.py` so `just headless-status` and
+  `./scripts/check_headless_status.sh --json` report the current local branch's upstream sync
+  state. The new `Upstream sync` section shows `upstream`, `head`, `upstream_ahead`,
+  `local_ahead`, and `local_contains_upstream`.
+- Built:        Updated `tests/evidence/test_headless_status_summary.py` and `README.md` so the
+  status-summary contract documents local branch versus upstream drift in addition to the
+  `origin/main` versus `origin/v6-headless-simulation-embedded` drift.
+- Verified:     Targeted headless-status tests passed (`7 passed`); full
+  `./scripts/check_python_tests.sh` passed (`142 passed`);
+  `./scripts/check_documented_commands.sh` passed (`docs=25 references=201`);
+  reuse-mode `ARIS_HEADLESS_RELEASE_REUSE_EXISTING=1 ./scripts/check_headless_release_candidate.sh`
+  passed with `headless_release_candidate_valid`.
+- Verified:     Full `./scripts/check_headless_release_candidate.sh` passed on
+  `v6-headless-simulation-embedded@80e0cd7` with `headless_release_candidate_valid`.
+  `./scripts/check_headless_status.sh` reported `headless_ready=yes`, `release_valid=yes`,
+  `evidence_fresh_for_head=yes`, `evidence_freshness_reason=matching_head`, `local_ahead=6`,
+  `main_ahead=3`, `v6_ahead=0`, and repeatability margins from the fresh evidence.
+- Evidence:     Release report
+  `/home/kotori9/aris/logs/readiness/headless_release_candidate_20260622T124405Z.json`;
+  final evidence index
+  `/home/kotori9/aris/logs/readiness/evidence_index_20260622T124405Z_release.json`;
+  core readiness
+  `/home/kotori9/aris/logs/readiness/core_readiness_20260622T124524Z.log`;
+  headless audit
+  `/home/kotori9/aris/logs/readiness/headless_readiness_audit_20260622T124833Z.json`;
+  repeatability
+  `/home/kotori9/aris/logs/pipeline/core_pipeline_repeatability_20260622T124432Z.json`;
+  V3 compare
+  `/home/kotori9/aris/logs/maps/v3_semantic_map_20260622_124547.compare.json`;
+  branch policy
+  `/home/kotori9/aris/logs/readiness/branch_policy_20260622T124406Z.json`.
+- Next:         Publish the upstream-sync status improvement to remote v6 and main through the
+  available GitHub path, then keep improving headless simulation and embedded dry-run evidence.
