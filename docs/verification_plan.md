@@ -171,7 +171,7 @@ machine-readable view of the current software evidence bundle.
 
 ## 12. Headless Simulation And Embedded Audit
 
-The current hardware-free completion audit command is:
+The current hardware-free completion audit commands are:
 
 ```bash
 just embedded-dry-run
@@ -184,6 +184,17 @@ readiness, V2 Gazebo/LiDAR bag evidence, V3/V6 semantic map review evidence, V5 
 recorded replay evidence, and a valid embedded dry-run report from `just embedded-dry-run`. HIL
 preflight and field validation are recorded as future blockers outside the current headless scope,
 not as active blockers.
+
+For a release-candidate style run on a headless machine, use:
+
+```bash
+just headless-release-candidate
+```
+
+It runs embedded dry-run, core pipeline flow, no-skip core readiness report, and headless readiness
+audit in sequence. It writes
+`$ARIS_LOGS/readiness/headless_release_candidate_<timestamp>.json` and updates
+`$ARIS_LOGS/readiness/latest_headless_release_candidate.json`.
 
 ## 13. Operational Readiness Audit
 

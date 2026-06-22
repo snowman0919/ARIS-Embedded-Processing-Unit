@@ -972,3 +972,25 @@ Entry format:
 - Scope note:   This is headless simulation and software evidence. It does not claim HIL, real
   sensor, real actuator, or field readiness.
 - Next:         Commit and push to `v6`.
+
+## 2026-06-22 15:45 KST — Headless Release Candidate Gate — WIP
+- Built:        Added `scripts/check_headless_release_candidate.sh` and
+  `just headless-release-candidate`. The gate runs the current hardware-free evidence bundle in
+  sequence: embedded dry-run, core pipeline flow, no-skip core readiness report, and headless
+  readiness audit. It writes a machine-readable summary under
+  `$ARIS_LOGS/readiness/headless_release_candidate_<timestamp>.json`.
+- Verified:     `./scripts/check_headless_release_candidate.sh` passed and wrote
+  `/home/kotori9/aris/logs/readiness/headless_release_candidate_20260622T064544Z.json` with
+  `valid=true`. The run included embedded dry-run
+  `/home/kotori9/aris/logs/embedded/embedded_dry_run_20260622T064544Z.json`, core pipeline flow
+  `/home/kotori9/aris/logs/pipeline/core_pipeline_flow_20260622T064544Z.json`, no-skip core
+  readiness `/home/kotori9/aris/logs/readiness/core_readiness_20260622T064610Z.log`, and headless
+  audit `/home/kotori9/aris/logs/readiness/headless_readiness_audit_20260622T064914Z.json` with
+  `headless_ready=true`. A refreshed evidence index at
+  `/home/kotori9/aris/logs/readiness/evidence_index_20260622T064927Z.json` links the latest bundle.
+- Build/tests:  Full `./scripts/check_python_tests.sh` passed (`106 passed`); targeted evidence
+  index test passed; `bash -n`, `python3 -m py_compile`, and `git diff --check` passed.
+- Commit:       Pending headless release-candidate gate commit.
+- Scope note:   This is still hardware-free headless evidence only. HIL, real sensor, real
+  actuator, and field validation remain outside the current active scope.
+- Next:         Commit and push to `v6`.

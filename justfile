@@ -195,6 +195,9 @@ operational-readiness-audit:
 headless-readiness-audit:
     ./scripts/check_headless_readiness_audit.sh
 
+headless-release-candidate:
+    ./scripts/check_headless_release_candidate.sh
+
 field-validation manifest:
     ./scripts/check_field_validation.sh "{{manifest}}"
 

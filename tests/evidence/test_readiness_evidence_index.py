@@ -95,6 +95,10 @@ def test_readiness_evidence_index_collects_latest_artifacts(tmp_path):
         "artifact_type": "aris_headless_readiness_audit",
         "headless_ready": True,
     }
+    headless_release_candidate = {
+        "artifact_type": "aris_headless_release_candidate_report",
+        "valid": True,
+    }
     embedded_report = {
         "artifact_type": "aris_embedded_dry_run_report",
         "valid": True,
@@ -137,6 +141,10 @@ def test_readiness_evidence_index_collects_latest_artifacts(tmp_path):
         json.dumps(headless_audit),
         encoding="utf-8",
     )
+    (readiness / "headless_release_candidate_20260101T000000Z.json").write_text(
+        json.dumps(headless_release_candidate),
+        encoding="utf-8",
+    )
     (embedded / "embedded_dry_run_20260101T000000Z.json").write_text(
         json.dumps(embedded_report),
         encoding="utf-8",
@@ -171,6 +179,8 @@ def test_readiness_evidence_index_collects_latest_artifacts(tmp_path):
     assert index["operational_readiness_audit"]["report_path"].endswith(".json")
     assert index["headless_readiness_audit"]["report"]["headless_ready"] is True
     assert index["headless_readiness_audit"]["report_path"].endswith(".json")
+    assert index["headless_release_candidate"]["report"]["valid"] is True
+    assert index["headless_release_candidate"]["report_path"].endswith(".json")
     assert index["embedded_dry_run"]["report"]["valid"] is True
     assert index["embedded_dry_run"]["report_path"].endswith(".json")
     assert index["core_pipeline_flow"]["report"]["valid"] is True

@@ -107,6 +107,9 @@ def generate_index(workspace: Path, logs_dir: Path) -> dict[str, Any]:
     core_pipeline_flow = _latest(list((logs_dir / "pipeline").glob("core_pipeline_flow_*.json")))
     operational_audit = _latest(list((logs_dir / "readiness").glob("operational_readiness_audit_*.json")))
     headless_audit = _latest(list((logs_dir / "readiness").glob("headless_readiness_audit_*.json")))
+    headless_release_candidate = _latest(
+        list((logs_dir / "readiness").glob("headless_release_candidate_*.json"))
+    )
     bag_metadata = _latest_bag_metadata(logs_dir)
 
     readiness_values = _read_key_values(readiness_log) if readiness_log else {}
@@ -162,6 +165,10 @@ def generate_index(workspace: Path, logs_dir: Path) -> dict[str, Any]:
         "headless_readiness_audit": {
             "report": _read_json(headless_audit),
             "report_path": str(headless_audit) if headless_audit else None,
+        },
+        "headless_release_candidate": {
+            "report": _read_json(headless_release_candidate),
+            "report_path": str(headless_release_candidate) if headless_release_candidate else None,
         },
     }
 
