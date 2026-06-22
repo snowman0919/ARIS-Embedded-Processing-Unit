@@ -1061,3 +1061,23 @@ Entry format:
 - Scope note:   Static guardrail only; full runtime evidence remains covered by the normal
   headless release-candidate run.
 - Next:         Commit and push to `v6`.
+
+## 2026-06-22 16:01 KST — Host Policy Guardrail — WIP
+- Built:        Added `scripts/check_host_policy.py`, `scripts/check_host_policy.sh`, and
+  `just host-policy`. The checker scans host entrypoints (`justfile` and `scripts/*.sh`) for
+  forbidden host-side privilege/package-management commands while allowing the existing vcan helper
+  container bootstrap exception. Added `host_policy` to `just headless-release-candidate` in both
+  normal and reuse-existing-evidence modes, and documented the command in README/HANDOFF and the
+  verification plan.
+- Verified:     `./scripts/check_host_policy.sh` passed with `host_policy_valid`.
+  `python3 -m pytest tests/evidence/test_host_policy.py` passed (`1 passed`).
+  `./scripts/check_documented_commands.sh` passed with `docs=25` and `references=163`.
+  `./scripts/check_architecture_contracts.sh` passed. Reuse-mode
+  `ARIS_HEADLESS_RELEASE_REUSE_EXISTING=1 ./scripts/check_headless_release_candidate.sh` passed and
+  wrote `/home/kotori9/aris/logs/readiness/headless_release_candidate_20260622T070151Z.json` with
+  `valid=true` and a passing `host_policy` step. Full `./scripts/check_python_tests.sh` passed
+  (`109 passed`), and `git diff --check` passed.
+- Commit:       Pending host-policy guardrail commit.
+- Scope note:   Host entrypoint static guardrail only. Docker/container package installation remains
+  allowed where appropriate; real hardware setup stays outside the current headless scope.
+- Next:         Commit and push to `v6`.

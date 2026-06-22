@@ -42,6 +42,9 @@ documented-commands:
 architecture-contracts:
     ./scripts/check_architecture_contracts.sh
 
+host-policy:
+    ./scripts/check_host_policy.sh
+
 sim:
     ./scripts/check_sim.sh
 

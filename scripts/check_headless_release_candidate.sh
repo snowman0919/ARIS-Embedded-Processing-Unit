@@ -39,6 +39,7 @@ if [[ "${ARIS_HEADLESS_RELEASE_REUSE_EXISTING:-0}" == "1" ]]; then
   printf '%s\t%s\t%s\t%s\n' embedded_dry_run 0 "$timestamp" "$timestamp" >>"$steps_file"
   printf '%s\t%s\t%s\t%s\n' documented_commands 0 "$timestamp" "$timestamp" >>"$steps_file"
   printf '%s\t%s\t%s\t%s\n' architecture_contracts 0 "$timestamp" "$timestamp" >>"$steps_file"
+  printf '%s\t%s\t%s\t%s\n' host_policy 0 "$timestamp" "$timestamp" >>"$steps_file"
   printf '%s\t%s\t%s\t%s\n' core_pipeline_flow 0 "$timestamp" "$timestamp" >>"$steps_file"
   printf '%s\t%s\t%s\t%s\n' core_readiness_report 0 "$timestamp" "$timestamp" >>"$steps_file"
   printf '%s\t%s\t%s\t%s\n' headless_readiness_audit 0 "$timestamp" "$timestamp" >>"$steps_file"
@@ -49,6 +50,9 @@ else
   fi
   if [[ "$overall_status" == "0" ]]; then
     run_step architecture_contracts "${ARIS_WS}/scripts/check_architecture_contracts.sh" || overall_status=$?
+  fi
+  if [[ "$overall_status" == "0" ]]; then
+    run_step host_policy "${ARIS_WS}/scripts/check_host_policy.sh" || overall_status=$?
   fi
   if [[ "$overall_status" == "0" ]]; then
     run_step core_pipeline_flow "${ARIS_WS}/scripts/check_core_pipeline_flow.sh" || overall_status=$?
