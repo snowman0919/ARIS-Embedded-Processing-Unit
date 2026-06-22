@@ -43,3 +43,16 @@ promoted later without reopening the full JSON by hand. Validate an existing sna
 ```bash
 ./scripts/validate_semantic_map_snapshot.py /path/to/v3_semantic_map.json
 ```
+
+When an older V3 snapshot is available in `$ARIS_LOGS/maps`, the smoke also writes:
+
+```text
+$ARIS_LOGS/maps/v3_semantic_map_<timestamp>.compare.json
+```
+
+The compare report scores repeat-pass stability: metric-cell overlap, route-graph overlap, top-label
+changes, high-risk cell delta, and review-queue delta. Compare existing snapshots with:
+
+```bash
+./scripts/compare_semantic_map_snapshots.py /path/to/baseline.json /path/to/candidate.json
+```

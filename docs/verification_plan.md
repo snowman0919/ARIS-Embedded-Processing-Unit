@@ -195,6 +195,21 @@ route graph size, review queue size, and validation status. Existing snapshots c
 ./scripts/validate_semantic_map_snapshot.py /path/to/v3_semantic_map.json
 ```
 
+When a previous V3 semantic map snapshot exists in `$ARIS_LOGS/maps`, the same smoke also writes a
+repeat-pass comparison report:
+
+```text
+$ARIS_LOGS/maps/v3_semantic_map_<timestamp>.compare.json
+```
+
+The compare report records baseline/candidate SHA-256 values, metric-cell overlap, route-graph
+overlap, semantic top-label changes, high-risk cell delta, and review-queue delta. Existing
+snapshot pairs can be scored with:
+
+```bash
+./scripts/compare_semantic_map_snapshots.py /path/to/baseline.json /path/to/candidate.json
+```
+
 This is simulation-only V3 map artifact evidence. Production V3 still requires camera streams,
 segmentation model selection, calibrated camera/LiDAR projection, review tooling, and real
 repeat-pass map data.

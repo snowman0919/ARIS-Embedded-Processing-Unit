@@ -15,10 +15,19 @@ aris_compose run --rm aris-ros2-dev bash -lc '
   route_file="/aris/data/routes/v3_semantic_route_$(date +%Y%m%d_%H%M%S).csv"
   snapshot_file="/aris/logs/maps/v3_semantic_map_$(date +%Y%m%d_%H%M%S).json"
   manifest_file="${snapshot_file%.json}.manifest.json"
+  compare_file="${snapshot_file%.json}.compare.json"
   launch_log=/tmp/aris_v3_semantic_map_launch.log
   summary_file=/tmp/aris_v3_semantic_map_summary.json
   mkdir -p /aris/data/routes
   mkdir -p /aris/logs/maps
+  baseline_snapshot="$(
+    find /aris/logs/maps -maxdepth 1 -type f -name "v3_semantic_map_*.json" \
+      ! -name "*.manifest.json" ! -name "*.compare.json" \
+      -printf "%T@ %p\n" 2>/dev/null \
+      | sort -n \
+      | tail -1 \
+      | cut -d" " -f2-
+  )"
 
   python3 - <<PY
 import csv
@@ -36,6 +45,11 @@ PY
   timeout -s INT 20s ros2 launch aris_mapping v3_semantic_map_sim.launch.py \
     route_file:="$route_file" snapshot_file:="$snapshot_file" >"$launch_log" 2>&1 &
   launch_pid=$!
+  cleanup_launch() {
+    kill -INT "$launch_pid" >/dev/null 2>&1 || true
+    wait "$launch_pid" || true
+  }
+  trap cleanup_launch EXIT
   sleep 4
 
   python3 - <<PY
@@ -91,6 +105,9 @@ if "debris" not in summary.get("labels", {}):
 if failures:
     raise SystemExit("; ".join(failures))
 PY
+
+  cleanup_launch
+  trap - EXIT
 
   python3 - <<PY
 import json
@@ -153,6 +170,18 @@ PY
     --min-high-risk-cells 1
   echo "v3_semantic_map_manifest path=$manifest_file"
 
-  kill -INT "$launch_pid" >/dev/null 2>&1 || true
-  wait "$launch_pid" || true
+  if [[ -n "$baseline_snapshot" && -f "$baseline_snapshot" ]]; then
+    /workspaces/aris/scripts/compare_semantic_map_snapshots.py \
+      "$baseline_snapshot" \
+      "$snapshot_file" \
+      --report-out "$compare_file" \
+      --min-metric-overlap 0.70 \
+      --min-route-overlap 0.95 \
+      --max-label-changes 2 \
+      --max-high-risk-delta 2 \
+      --max-review-queue-delta 5
+    echo "v3_semantic_map_compare path=$compare_file baseline=$baseline_snapshot"
+  else
+    echo "v3_semantic_map_compare skipped=no-baseline"
+  fi
 '

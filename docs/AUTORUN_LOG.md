@@ -561,3 +561,29 @@ Entry format:
   workflow, HIL, or field evidence.
 - Next:         Connect real/operator bag replay output to the same manifest format and add map
   comparison scoring between repeat passes.
+
+## 2026-06-22 12:20 KST — V3: Semantic Map Repeat-Pass Compare — WIP
+- Built:        Added `scripts/compare_semantic_map_snapshots.py`, which compares two semantic map
+  snapshots for repeat-pass stability: metric-cell overlap, route-graph overlap, top-label changes,
+  high-risk cell delta, and review-queue delta. Updated `./scripts/check_v3_semantic_map.sh` to
+  stop the map launch before generating manifest/compare artifacts, preventing snapshot SHA races,
+  and to write `$ARIS_LOGS/maps/v3_semantic_map_<timestamp>.compare.json` whenever a previous V3
+  snapshot exists.
+- Verified:     Standalone compare passed between
+  `/home/kotori9/aris/logs/maps/v3_semantic_map_20260622_031032.json` and
+  `/home/kotori9/aris/logs/maps/v3_semantic_map_20260622_031517.json` with
+  `metric_overlap=0.961`, `route_overlap=1.000`, `label_changes=0`, `high_risk_delta=0`, and
+  `review_queue_delta=1`. `nix develop -c just v3-semantic-smoke` then passed and wrote
+  `/home/kotori9/aris/logs/maps/v3_semantic_map_20260622_031956.json`,
+  `/home/kotori9/aris/logs/maps/v3_semantic_map_20260622_031956.manifest.json`, and
+  `/home/kotori9/aris/logs/maps/v3_semantic_map_20260622_031956.compare.json`. The final snapshot
+  SHA-256 is `4a215e1562bace81ac49d588379b7c3a95c239ff2e238d205722a961100f5d08`, matching both
+  manifest and compare report; compare reported `metric_overlap=0.992`, `route_overlap=1.000`,
+  `label_changes=0`, `high_risk_delta=0`, and `review_queue_delta=2`. `./scripts/check_python_tests.sh`
+  passed (`75 passed`).
+- Commit:       Included with the semantic map repeat-pass compare change.
+- Stubbed/blocked: The compare score is still simulation repeat-pass evidence. Production V3 needs
+  real repeat-pass datasets, calibrated sensor projection, operator review tooling, HIL, and field
+  evidence before map updates can be promoted for real driving.
+- Next:         Use the same compare report format with operator-provided datasets and add stricter
+  layer-specific thresholds once real sensor noise envelopes are known.
