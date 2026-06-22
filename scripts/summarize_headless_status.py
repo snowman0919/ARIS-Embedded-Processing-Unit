@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from pathlib import Path
 import subprocess
 from typing import Any
@@ -60,6 +61,9 @@ def summarize(logs_dir: Path, workspace: Path | None = None) -> dict[str, Any]:
         if isinstance(step, dict)
     ]
     all_release_steps_passed = bool(release_steps) and all(step.get("passed") is True for step in release_steps)
+    real_actuation_enabled = os.environ.get("ARIS_ENABLE_REAL_ACTUATION", "0") == "1"
+    hardware_scope_active = (audit or {}).get("hardware_scope_active") is True
+    safe_to_enable_real_actuation = (audit or {}).get("safe_to_enable_real_actuation") is True
 
     return {
         "artifact_type": "aris_headless_status_summary",
@@ -76,8 +80,14 @@ def summarize(logs_dir: Path, workspace: Path | None = None) -> dict[str, Any]:
         },
         "headless_ready": (audit or {}).get("headless_ready") is True,
         "release_valid": (release or {}).get("valid") is True and all_release_steps_passed,
-        "hardware_scope_active": (audit or {}).get("hardware_scope_active") is True,
-        "safe_to_enable_real_actuation": (audit or {}).get("safe_to_enable_real_actuation") is True,
+        "hardware_scope_active": hardware_scope_active,
+        "real_actuation_enabled": real_actuation_enabled,
+        "safe_to_enable_real_actuation": safe_to_enable_real_actuation,
+        "execution_scope": {
+            "hardware_scope_active": hardware_scope_active,
+            "real_actuation_enabled": real_actuation_enabled,
+            "safe_to_enable_real_actuation": safe_to_enable_real_actuation,
+        },
         "blockers": (audit or {}).get("blockers") or [],
         "criteria": {
             name: {
@@ -183,7 +193,9 @@ def format_text(summary: dict[str, Any]) -> str:
         f"  evidence_fresh_for_head: {_format_bool(bool(git.get('evidence_fresh_for_head')))}",
         f"  current_git: {current_git.get('branch')}@{current_git.get('commit')}",
         f"  evidence_git: {evidence_git.get('branch')}@{evidence_git.get('commit')}",
-        f"  real_actuation_enabled: {_format_bool(bool(summary['safe_to_enable_real_actuation']))}",
+        f"  hardware_scope_active: {_format_bool(bool(summary['hardware_scope_active']))}",
+        f"  real_actuation_enabled: {_format_bool(bool(summary['real_actuation_enabled']))}",
+        f"  safe_to_enable_real_actuation: {_format_bool(bool(summary['safe_to_enable_real_actuation']))}",
         f"  blockers: {len(summary['blockers'])}",
         "",
         "Core pipeline",

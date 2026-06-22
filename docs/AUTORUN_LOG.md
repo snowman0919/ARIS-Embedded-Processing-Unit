@@ -1542,3 +1542,24 @@ Entry format:
   `/home/kotori9/aris/logs/pipeline/core_pipeline_repeatability_20260622T085701Z.json`.
 - Next:         Continue strengthening new-environment reproducibility and headless simulation
   coverage on `milestone/headless-simulation-embedded`.
+
+## 2026-06-22 KST — Headless Status Separates Actuation Scope — WIP
+
+- Built:        Updated `scripts/summarize_headless_status.py` so `just headless-status` separates
+  `hardware_scope_active`, `real_actuation_enabled`, and `safe_to_enable_real_actuation` instead
+  of presenting actuation safety as if it were the current environment state. The JSON summary now
+  also carries an `execution_scope` object with the same three fields.
+- Built:        Clarified the README `headless-status` description so users know the command
+  reports both evidence freshness and whether hardware scope or real actuation is active.
+- Verified:     `./scripts/check_headless_status.sh` now reports hardware scope inactive, real
+  actuation disabled, and not safe to enable real actuation for the current no-hardware scope.
+  Targeted headless-status tests passed (`6 passed`); full `./scripts/check_python_tests.sh`
+  passed (`132 passed`); `./scripts/check_documented_commands.sh` passed (`docs=25 references=190`);
+  reuse-mode `ARIS_HEADLESS_RELEASE_REUSE_EXISTING=1 ./scripts/check_headless_release_candidate.sh`
+  passed with `headless_release_candidate_valid`.
+- Evidence:     Reuse release report
+  `/home/kotori9/aris/logs/readiness/headless_release_candidate_20260622T101504Z.json`; final
+  evidence index
+  `/home/kotori9/aris/logs/readiness/evidence_index_20260622T101504Z_release.json`.
+- Next:         Commit and push the status-scope reporting fix; a full simulation refresh is not
+  required because the runtime evidence remains the release bundle from `f2129c6`.

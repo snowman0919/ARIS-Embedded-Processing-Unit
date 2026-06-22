@@ -73,6 +73,12 @@ def test_headless_status_summary_collects_latest_evidence(tmp_path):
     assert summary["release_valid"] is True
     assert summary["git"]["evidence_fresh_for_head"] is False
     assert summary["safe_to_enable_real_actuation"] is False
+    assert summary["real_actuation_enabled"] is False
+    assert summary["execution_scope"] == {
+        "hardware_scope_active": False,
+        "real_actuation_enabled": False,
+        "safe_to_enable_real_actuation": False,
+    }
     assert summary["core_pipeline"]["node_path"] == ["approach", "goal"]
     assert summary["repeatability"]["runs_completed"] == 2
     assert summary["repeatability"]["scan_cloud_samples_min"] == 12
@@ -80,6 +86,9 @@ def test_headless_status_summary_collects_latest_evidence(tmp_path):
     assert summary["repeatability"]["cmd_samples_min"] == 24
     assert "headless_ready: yes" in text
     assert "evidence_fresh_for_head: no" in text
+    assert "hardware_scope_active: no" in text
+    assert "real_actuation_enabled: no" in text
+    assert "safe_to_enable_real_actuation: no" in text
     assert "run: just headless-release-candidate" in text
     assert "node_path: approach -> goal" in text
     assert "scan_cloud_samples_min: 12" in text
@@ -213,3 +222,44 @@ def test_headless_status_summary_reports_missing_evidence_as_not_ready(tmp_path)
     assert summary["headless_ready"] is False
     assert summary["release_valid"] is False
     assert summary["evidence"]["headless_release_candidate"] is None
+
+
+def test_headless_status_summary_reports_real_actuation_env(tmp_path, monkeypatch):
+    logs = tmp_path / "logs"
+    readiness = logs / "readiness"
+    pipeline = logs / "pipeline"
+    readiness.mkdir(parents=True)
+    pipeline.mkdir()
+    (readiness / "latest_headless_release_candidate.json").write_text(
+        json.dumps({"valid": True, "steps": [{"name": "ok", "passed": True, "exit_code": 0}]}),
+        encoding="utf-8",
+    )
+    (readiness / "latest_headless_readiness_audit.json").write_text(
+        json.dumps(
+            {
+                "headless_ready": True,
+                "hardware_scope_active": False,
+                "safe_to_enable_real_actuation": False,
+                "blockers": [],
+            }
+        ),
+        encoding="utf-8",
+    )
+    (readiness / "latest_evidence_index.json").write_text(
+        json.dumps({"git": {"branch": "v6", "commit": "abc1234"}}),
+        encoding="utf-8",
+    )
+    (pipeline / "latest_core_pipeline_repeatability.json").write_text(
+        json.dumps({"valid": True, "summary": {}}),
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("ARIS_ENABLE_REAL_ACTUATION", "1")
+
+    summary = summarize(logs)
+    text = format_text(summary)
+
+    assert summary["real_actuation_enabled"] is True
+    assert summary["safe_to_enable_real_actuation"] is False
+    assert summary["execution_scope"]["real_actuation_enabled"] is True
+    assert "real_actuation_enabled: yes" in text
+    assert "safe_to_enable_real_actuation: no" in text
