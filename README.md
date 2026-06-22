@@ -16,6 +16,18 @@ Standalone codebases live separately:
 
 See `docs/codebase_boundaries.md` for the local directory conventions.
 
+## Branch Policy
+
+Use milestone branches only:
+
+- `v1`: teach-and-repeat route replay baseline.
+- `v2`: LiDAR localization, Gazebo, and recorded-bag evidence baseline.
+- `v3`: semantic map artifact, manifest, repeat-pass compare, and current readiness baseline.
+
+Do not create feature-level remote branches such as `codex/v2-*` or `codex/v3-*`. New work should
+advance the active milestone branch, currently `v3`, and older milestone branches should move only
+when intentionally redefining that milestone baseline.
+
 
 ## Quick Start
 

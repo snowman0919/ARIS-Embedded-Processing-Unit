@@ -98,7 +98,20 @@ Every milestone must record:
 
 A milestone is complete only when its acceptance evidence exists. A compiling build alone is not evidence.
 
-## 10. Current Headless Readiness Gate
+## 10. Branch Policy
+
+Remote branches are milestone baselines, not feature branches:
+
+| Branch | Meaning |
+|---|---|
+| `v1` | V1 teach-and-repeat route replay baseline |
+| `v2` | V2 LiDAR localization, Gazebo, and recorded-bag evidence baseline |
+| `v3` | V3 semantic map artifact, manifest, repeat-pass compare, and current readiness baseline |
+
+Feature-level remote branches such as `codex/v2-*` or `codex/v3-*` should not be kept. New changes
+advance the active milestone branch, currently `v3`, after their evidence is recorded.
+
+## 11. Current Headless Readiness Gate
 
 The current reproducible software readiness command is:
 
@@ -124,7 +137,7 @@ just core-readiness-report
 Reports are written to `$ARIS_LOGS/readiness/core_readiness_<timestamp>.log`, with
 `$ARIS_LOGS/readiness/latest.log` pointing at the most recent run.
 
-## 11. Recorded LiDAR Acceptance Gate
+## 12. Recorded LiDAR Acceptance Gate
 
 The current reproducible recorded-data command is:
 
@@ -167,7 +180,7 @@ This records the Gazebo physics-localization path, validates the new bag metadat
 newly written bag under `$ARIS_LOGS/bags`, and immediately replay-scores it. Operator-provided
 real LiDAR bags should pass `v2-lidar-bag-contract` before `v2-lidar-bag-replay`.
 
-## 12. Semantic Map Snapshot Acceptance Gate
+## 13. Semantic Map Snapshot Acceptance Gate
 
 The current reproducible V3 simulation map-generation command is:
 

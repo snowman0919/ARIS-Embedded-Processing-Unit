@@ -604,3 +604,17 @@ Entry format:
   prior full Gazebo stack runs but not by this specific report.
 - Next:         Run a full no-skip core readiness report after the major-branch cleanup, or on the
   next release candidate when the full Gazebo stack cost is acceptable.
+
+## 2026-06-22 12:26 KST — Branch Hygiene: Major Milestones Only — WIP
+- Built:        Consolidated remote feature branches into milestone branches. Remote branches now
+  intentionally keep only `main`, `v1`, `v2`, and `v3`; local `v1`, `v2`, and `v3` were aligned to
+  the same milestone commits. Added the major-only branch policy to `README.md` and
+  `docs/verification_plan.md`.
+- Verified:     `git ls-remote --heads origin` lists only `main`, `v1`, `v2`, and `v3`.
+  `origin/v1=c4d2897`, `origin/v2=eec7b8a`, and `origin/v3=f46041e`. Deleted stale remote
+  branches `codex/v2-*` and `codex/v3-*`.
+- Commit:       Included with the branch policy documentation change.
+- Stubbed/blocked: This is repository hygiene, not product readiness. Production completion still
+  depends on real sensor, HIL, and field evidence.
+- Next:         Continue future work directly on the active milestone branch (`v3`) unless the user
+  explicitly asks to redefine a previous milestone baseline.
