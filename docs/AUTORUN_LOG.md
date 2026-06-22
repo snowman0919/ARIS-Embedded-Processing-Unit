@@ -2251,3 +2251,43 @@ Entry format:
 - Next:         Publish the scope-status audit improvement to remote V6 and merge it back to
   `main`, then keep reducing practical-use gaps that are still addressable without attached
   hardware.
+
+## 2026-06-22 KST — Headless Status Shows Operational Scope
+
+- Built:        Updated `scripts/summarize_headless_status.py` so `just headless-status` and
+  `./scripts/check_headless_status.sh --json` include the latest operational audit `scope_status`.
+  The handoff summary now shows active headless software readiness, full operational readiness, and
+  remaining HIL/field evidence in the same view as release freshness and repeatability.
+- Built:        Updated `tests/evidence/test_headless_status_summary.py`, `README.md`, and
+  `docs/verification_plan.md` to cover and document the new Operational scope summary.
+- Verified:     Targeted headless-status tests passed (`7 passed`);
+  full `./scripts/check_python_tests.sh` passed (`145 passed`);
+  `./scripts/check_documented_commands.sh` passed (`docs=25 references=207`).
+- Verified:     Full `./scripts/check_headless_release_candidate.sh` passed on
+  `v6-headless-simulation-embedded@df91813` with `headless_release_candidate_valid`.
+  The captured headless status reports `evidence_freshness_reason=matching_head`,
+  `headless_ready=yes`, `release_valid=yes`, `headless_simulation_embedded_ready=yes`,
+  `hardware_evidence_ready=no`, `full_operational_ready=no`, `local_ahead=1`,
+  `upstream_ahead=0`, `main_ahead=0`, and `v6_ahead=0`.
+- Verified:     `./scripts/check_operational_readiness_audit.sh` produced
+  `/home/kotori9/aris/logs/readiness/operational_readiness_audit_20260622T134154Z.json`
+  with `headless_simulation_embedded_ready=true`, `hardware_evidence_ready=false`,
+  `full_operational_ready=false`, and remaining evidence for `hil_preflight` plus
+  `field_validation`.
+- Evidence:     Release report
+  `/home/kotori9/aris/logs/readiness/headless_release_candidate_20260622T133716Z.json`;
+  final evidence index
+  `/home/kotori9/aris/logs/readiness/evidence_index_20260622T133716Z_release.json`;
+  headless status
+  `/home/kotori9/aris/logs/readiness/headless_status_20260622T133716Z.json`;
+  core readiness
+  `/home/kotori9/aris/logs/readiness/core_readiness_20260622T133834Z.log`;
+  headless audit
+  `/home/kotori9/aris/logs/readiness/headless_readiness_audit_20260622T134145Z.json`;
+  repeatability
+  `/home/kotori9/aris/logs/pipeline/core_pipeline_repeatability_20260622T133743Z.json`;
+  V3 compare
+  `/home/kotori9/aris/logs/maps/v3_semantic_map_20260622_133857.compare.json`.
+- Next:         Publish the headless-status operational scope handoff improvement to remote V6 and
+  merge it back to `main`, then continue tightening the remaining hardware-free handoff and
+  simulation evidence.
