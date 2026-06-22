@@ -70,6 +70,11 @@ def test_readiness_evidence_index_collects_latest_artifacts(tmp_path):
         "valid": True,
         "metrics": {"track_age": 2, "detour_min_steering": -0.2},
     }
+    obstacle_replay_report = {
+        "artifact_type": "aris_v5_obstacle_bag_replay_report",
+        "valid": True,
+        "metrics": {"advisory_samples": 4, "action_counts": {"detour": 4}},
+    }
     hil_report = {
         "artifact_type": "aris_hil_preflight_report",
         "ready_for_hil": False,
@@ -85,6 +90,10 @@ def test_readiness_evidence_index_collects_latest_artifacts(tmp_path):
     (maps / "v3_semantic_map_20260101.v6_review.json").write_text(json.dumps(review), encoding="utf-8")
     (obstacles / "v5_dynamic_obstacle_20260101T000000Z.json").write_text(
         json.dumps(obstacle_report),
+        encoding="utf-8",
+    )
+    (obstacles / "v5_obstacle_bag_replay_20260101T000000Z.json").write_text(
+        json.dumps(obstacle_replay_report),
         encoding="utf-8",
     )
     (hil / "hil_preflight_20260101T000000Z.json").write_text(
@@ -109,6 +118,8 @@ def test_readiness_evidence_index_collects_latest_artifacts(tmp_path):
     assert index["v5_dynamic_obstacle"]["metrics"]["track_age"] == 2
     assert index["v5_dynamic_obstacle"]["report"]["valid"]
     assert index["v5_dynamic_obstacle"]["report_path"].endswith(".json")
+    assert index["v5_obstacle_bag_replay"]["report"]["valid"]
+    assert index["v5_obstacle_bag_replay"]["report_path"].endswith(".json")
     assert index["v6_semantic_review"]["report"]["advisory_only"]
     assert index["v6_semantic_review"]["report_path"].endswith(".v6_review.json")
     assert index["hil_preflight"]["report"]["safe_to_enable_real_actuation"] is False

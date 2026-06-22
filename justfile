@@ -137,6 +137,10 @@ v4-goal-smoke:
 v5-dynamic-obstacle-smoke:
     ./scripts/check_v5_dynamic_obstacle.sh
 
+# V5 operator-data gate: replay a LiDAR bag through the obstacle detector and score advisories.
+v5-obstacle-bag-replay bag:
+    ./scripts/check_v5_obstacle_bag_replay.sh "{{bag}}"
+
 # V6 offline gate: generate advisory-only semantic review from V3 map artifacts.
 v6-semantic-review-smoke:
     ./scripts/check_v6_semantic_review.sh

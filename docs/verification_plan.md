@@ -161,7 +161,8 @@ just operational-readiness-audit
 It writes `$ARIS_LOGS/readiness/operational_readiness_audit_<timestamp>.json` and updates
 `$ARIS_LOGS/readiness/latest_operational_readiness_audit.json`. The audit aggregates the latest
 readiness index, V2 Gazebo/LiDAR evidence, V3 map manifest and repeat-pass compare, V5 dynamic
-obstacle report, V6 advisory-only semantic review, HIL preflight, and field-validation evidence.
+obstacle report, V5 obstacle bag replay score, V6 advisory-only semantic review, HIL preflight,
+and field-validation evidence.
 It records `achieved`, `practical_use_ready`, `safe_to_enable_real_actuation`, per-criterion pass
 states, and blockers. This audit is the machine-readable guardrail for deciding whether the
 project can be considered practically usable; current simulation evidence can pass while HIL or
@@ -225,7 +226,28 @@ This records the Gazebo physics-localization path, validates the new bag metadat
 newly written bag under `$ARIS_LOGS/bags`, and immediately replay-scores it. Operator-provided
 real LiDAR bags should pass `v2-lidar-bag-contract` before `v2-lidar-bag-replay`.
 
-## 15. Semantic Map Snapshot Acceptance Gate
+## 15. V5 Obstacle Bag Replay Gate
+
+The operator-data obstacle replay command is:
+
+```bash
+just v5-obstacle-bag-replay /path/to/bag
+```
+
+This gate accepts a rosbag directory or `metadata.yaml`, validates a sensor-focused `/scan_cloud`
+contract, replays the bag inside the ROS 2 container, runs `dynamic_obstacle_node`, and scores
+`/aris/perception/dynamic_obstacle` advisories. It writes:
+
+```text
+$ARIS_LOGS/obstacles/v5_obstacle_bag_replay_<timestamp>.json
+```
+
+The report records bag path, cloud sample count, advisory count, action counts, closest obstacle
+distance, max track age, thresholds, and failures. This is the bridge between simulation-only V5
+evidence and real/operator obstacle recordings. A missing or invalid replay score keeps the
+operational readiness audit from claiming practical-use readiness.
+
+## 16. Semantic Map Snapshot Acceptance Gate
 
 The current reproducible V3 simulation map-generation command is:
 

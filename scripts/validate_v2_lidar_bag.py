@@ -110,6 +110,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--storage", default="mcap", help="Expected rosbag storage identifier")
     parser.add_argument("--min-duration-s", type=float, default=3.0)
     parser.add_argument(
+        "--scan-only",
+        action="store_true",
+        help="Require only /scan_cloud metadata; useful for sensor-only obstacle bags",
+    )
+    parser.add_argument(
         "--min-topic",
         action="append",
         default=[],
@@ -119,7 +124,10 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
 
-    contract = dict(DEFAULT_TOPIC_CONTRACT)
+    if args.scan_only:
+        contract = {"/scan_cloud": DEFAULT_TOPIC_CONTRACT["/scan_cloud"]}
+    else:
+        contract = dict(DEFAULT_TOPIC_CONTRACT)
     for topic, count in args.min_topic:
         expected_type = contract.get(topic, ("", 0))[0]
         contract[topic] = (expected_type, count)

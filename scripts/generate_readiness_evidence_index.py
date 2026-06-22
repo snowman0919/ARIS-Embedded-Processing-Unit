@@ -100,6 +100,7 @@ def generate_index(workspace: Path, logs_dir: Path) -> dict[str, Any]:
     map_compare = _latest(list((logs_dir / "maps").glob("v3_semantic_map_*.compare.json")))
     semantic_review = _latest(list((logs_dir / "maps").glob("v3_semantic_map_*.v6_review.json")))
     obstacle_report = _latest(list((logs_dir / "obstacles").glob("v5_dynamic_obstacle_*.json")))
+    obstacle_replay_report = _latest(list((logs_dir / "obstacles").glob("v5_obstacle_bag_replay_*.json")))
     hil_preflight = _latest(list((logs_dir / "hil").glob("hil_preflight_*.json")))
     operational_audit = _latest(list((logs_dir / "readiness").glob("operational_readiness_audit_*.json")))
     bag_metadata = _latest_bag_metadata(logs_dir)
@@ -125,6 +126,10 @@ def generate_index(workspace: Path, logs_dir: Path) -> dict[str, Any]:
             "metrics": _read_v5_dynamic_obstacle(readiness_log),
             "report": _read_json(obstacle_report),
             "report_path": str(obstacle_report) if obstacle_report else None,
+        },
+        "v5_obstacle_bag_replay": {
+            "report": _read_json(obstacle_replay_report),
+            "report_path": str(obstacle_replay_report) if obstacle_replay_report else None,
         },
         "v6_semantic_review": {
             "report": _read_json(semantic_review),

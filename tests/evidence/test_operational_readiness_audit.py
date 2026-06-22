@@ -42,6 +42,10 @@ def _write_index(logs: Path, *, ready_for_hil: bool) -> None:
                     },
                     "report_path": str(logs / "obstacles" / "v5.json"),
                 },
+                "v5_obstacle_bag_replay": {
+                    "report": None,
+                    "report_path": None,
+                },
                 "v6_semantic_review": {
                     "report": {
                         "advisory_only": True,
@@ -73,10 +77,12 @@ def test_operational_audit_keeps_goal_unachieved_without_hil_and_field(tmp_path)
     assert report["criteria"]["core_pipeline_3d_sim"]["passed"] is True
     assert report["criteria"]["v3_v6_mapping_review"]["passed"] is True
     assert report["criteria"]["v5_obstacle"]["passed"] is True
+    assert report["criteria"]["v5_obstacle_bag_replay"]["passed"] is False
     assert report["criteria"]["hil_preflight"]["passed"] is False
     assert report["criteria"]["field_validation"]["passed"] is False
     assert report["achieved"] is False
     assert any("hil_preflight" in blocker for blocker in report["blockers"])
+    assert any("v5_obstacle_bag_replay" in blocker for blocker in report["blockers"])
     assert any("field_validation" in blocker for blocker in report["blockers"])
 
 
@@ -87,6 +93,7 @@ def test_operational_audit_requires_field_and_real_actuation_safety(tmp_path):
     report = generate_audit(tmp_path / "workspace", logs)
 
     assert report["criteria"]["hil_preflight"]["passed"] is True
+    assert report["criteria"]["v5_obstacle_bag_replay"]["passed"] is False
     assert report["criteria"]["field_validation"]["passed"] is False
     assert report["safe_to_enable_real_actuation"] is False
     assert report["achieved"] is False
@@ -119,3 +126,25 @@ def test_operational_audit_falls_back_to_latest_v5_and_hil_artifacts(tmp_path):
     assert report["criteria"]["v5_obstacle"]["passed"] is True
     assert report["criteria"]["hil_preflight"]["passed"] is True
     assert report["criteria"]["field_validation"]["passed"] is False
+
+
+def test_operational_audit_accepts_latest_v5_obstacle_replay_report(tmp_path):
+    logs = tmp_path / "logs"
+    _write_index(logs, ready_for_hil=True)
+    obstacles = logs / "obstacles"
+    obstacles.mkdir()
+    (obstacles / "v5_obstacle_bag_replay_20260101T000001Z.json").write_text(
+        json.dumps(
+            {
+                "valid": True,
+                "bag_path": "/bags/operator_obstacle",
+                "metrics": {"advisory_samples": 3, "action_counts": {"detour": 3}},
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    report = generate_audit(tmp_path / "workspace", logs)
+
+    assert report["criteria"]["v5_obstacle_bag_replay"]["passed"] is True
+    assert report["criteria"]["v5_obstacle_bag_replay"]["evidence"]["advisory_samples"] == 3

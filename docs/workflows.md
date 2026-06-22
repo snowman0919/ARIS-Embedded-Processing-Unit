@@ -143,6 +143,9 @@ Current simulation gate:
    velocity in readiness evidence.
 7. The smoke writes `$ARIS_LOGS/obstacles/v5_dynamic_obstacle_<timestamp>.json`, and the readiness
    evidence index links to the latest V5 obstacle report.
+8. Operator or real sensor obstacle bags are replay-scored with
+   `just v5-obstacle-bag-replay /path/to/bag`, which writes
+   `$ARIS_LOGS/obstacles/v5_obstacle_bag_replay_<timestamp>.json`.
 
 ## 10. V6 Multimodal Semantic Update Workflow
 

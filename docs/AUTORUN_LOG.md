@@ -836,3 +836,27 @@ Entry format:
   hardware visibility and field validation remain missing.
 - Next:         Commit and push this audit artifact to `origin/v3`; then add real/replayed sensor
   obstacle/map scoring and HIL evidence once devices or operator bags are available.
+
+## 2026-06-22 15:03 KST — V5: Operator Obstacle Bag Replay Gate — WIP
+- Built:        Added `scripts/check_v5_obstacle_bag_replay.sh`, `just v5-obstacle-bag-replay`,
+  and `/scan_cloud` scan-only metadata validation for sensor-focused obstacle bags. The gate
+  replays an operator rosbag, runs `dynamic_obstacle_node`, scores
+  `/aris/perception/dynamic_obstacle` advisories, and writes
+  `$ARIS_LOGS/obstacles/v5_obstacle_bag_replay_<timestamp>.json`. The readiness evidence index now
+  links the latest V5 obstacle replay report, and the operational readiness audit has a separate
+  `v5_obstacle_bag_replay` criterion.
+- Verified:     `python3 scripts/validate_v2_lidar_bag.py --scan-only
+  /home/kotori9/aris/logs/bags/v2_recorded_lidar_20260622T023334Z` passed with
+  `/scan_cloud` count `107`. `./scripts/check_operational_readiness_audit.sh` wrote
+  `/home/kotori9/aris/logs/readiness/operational_readiness_audit_20260622T060308Z.json` with
+  `achieved=false` and three blockers: missing V5 operator/real obstacle bag replay score, HIL
+  preflight not ready, and missing closed-site field validation. A refreshed evidence index at
+  `/home/kotori9/aris/logs/readiness/evidence_index_20260622T060316Z.json` links the latest audit.
+- Build/tests:  `python3 -m py_compile` passed for the bag validator, evidence index, and audit
+  scripts; `bash -n scripts/check_v5_obstacle_bag_replay.sh` passed; targeted evidence tests
+  passed (`7 passed`).
+- Commit:       Pending V5 obstacle bag replay gate commit.
+- Stubbed/blocked: No operator/real obstacle rosbag with visible dynamic obstacles has been
+  provided yet, so the new replay criterion correctly remains unpassed.
+- Next:         Commit and push this replay gate to `origin/v3`; then run it against a real or
+  operator-provided obstacle bag and use the generated report as V5 replay evidence.

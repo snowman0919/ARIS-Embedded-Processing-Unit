@@ -59,6 +59,11 @@ def generate_audit(workspace: Path, logs_dir: Path) -> dict[str, Any]:
     index_path, index = _readiness_index(logs_dir)
     field_path, field_report = _latest_field_report(logs_dir)
     v5_path, latest_v5_report = _latest_json(logs_dir, "obstacles", "v5_dynamic_obstacle_*.json")
+    v5_replay_path, latest_v5_replay_report = _latest_json(
+        logs_dir,
+        "obstacles",
+        "v5_obstacle_bag_replay_*.json",
+    )
     v6_path, latest_v6_report = _latest_json(logs_dir, "maps", "v3_semantic_map_*.v6_review.json")
     hil_path, latest_hil_report = _latest_json(logs_dir, "hil", "hil_preflight_*.json")
     criteria: dict[str, dict[str, Any]] = {}
@@ -142,6 +147,22 @@ def generate_audit(workspace: Path, logs_dir: Path) -> dict[str, Any]:
             "detour_min_steering": obstacle_metrics.get("detour_min_steering"),
         },
         [] if obstacle_passed else ["valid V5 dynamic obstacle report with persistent tracking evidence is required"],
+    )
+
+    v5_replay = (index or {}).get("v5_obstacle_bag_replay") or {}
+    replay_report = v5_replay.get("report") or latest_v5_replay_report or {}
+    replay_metrics = replay_report.get("metrics") or {}
+    replay_passed = replay_report.get("valid") is True
+    criteria["v5_obstacle_bag_replay"] = _criterion(
+        replay_passed,
+        {
+            "report_path": v5_replay.get("report_path") or (str(v5_replay_path) if v5_replay_path else None),
+            "valid": replay_report.get("valid"),
+            "bag_path": replay_report.get("bag_path"),
+            "advisory_samples": replay_metrics.get("advisory_samples"),
+            "action_counts": replay_metrics.get("action_counts"),
+        },
+        [] if replay_passed else ["valid operator or real/replayed V5 obstacle bag score is missing"],
     )
 
     hil = (index or {}).get("hil_preflight") or {}
