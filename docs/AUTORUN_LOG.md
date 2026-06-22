@@ -1120,3 +1120,23 @@ Entry format:
 - Scope note:   This strengthens repeated headless simulation evidence. It does not claim real
   sensor, HIL, actuator, or field readiness.
 - Next:         Commit and push to `v6`.
+
+## 2026-06-22 16:18 KST — Headless Status Summary — WIP
+- Built:        Added `scripts/summarize_headless_status.py`, `scripts/check_headless_status.sh`,
+  and `just headless-status`. The command reads the latest headless release candidate, headless
+  readiness audit, evidence index, and core-pipeline repeatability report, then prints a concise
+  human-readable status. `--json` emits the same summary as machine-readable JSON. Updated README,
+  HANDOFF, and the verification plan.
+- Verified:     `./scripts/check_headless_status.sh` printed `headless_ready: yes`,
+  `release_valid: yes`, the stable detour path `approach -> detour_a -> detour_b -> detour_c ->
+  goal`, and the repeatability metrics from
+  `/home/kotori9/aris/logs/pipeline/core_pipeline_repeatability_20260622T071138Z.json`.
+  `./scripts/check_headless_status.sh --json` produced valid JSON with `headless_ready=True` and
+  `release_valid=True`. Targeted status-summary tests passed (`2 passed`). Full
+  `./scripts/check_python_tests.sh` passed (`115 passed`). `./scripts/check_documented_commands.sh`
+  passed with `docs=25` and `references=175`; `./scripts/check_architecture_contracts.sh`,
+  `./scripts/check_host_policy.sh`, and `git diff --check` passed.
+- Commit:       Pending headless status summary commit.
+- Scope note:   This improves operator/developer usability for latest headless evidence. It does
+  not claim hardware/HIL/field readiness.
+- Next:         Commit and push to `v6`.

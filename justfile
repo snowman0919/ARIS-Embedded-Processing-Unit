@@ -207,6 +207,9 @@ operational-readiness-audit:
 headless-readiness-audit:
     ./scripts/check_headless_readiness_audit.sh
 
+headless-status:
+    ./scripts/check_headless_status.sh
+
 headless-release-candidate:
     ./scripts/check_headless_release_candidate.sh
 

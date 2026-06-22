@@ -227,6 +227,14 @@ candidate report that produced it. The final report is validated by
 `scripts/validate_headless_release_candidate.py`, which requires every release step to pass and
 requires the release report and final evidence index to point at each other.
 
+To inspect the latest release, audit, pipeline, and repeatability evidence without opening raw JSON:
+
+```bash
+just headless-status
+```
+
+The same summary is available as JSON with `./scripts/check_headless_status.sh --json`.
+
 ## 13. Operational Readiness Audit
 
 The current completion audit command is:

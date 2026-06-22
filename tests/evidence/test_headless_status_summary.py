@@ -1,0 +1,85 @@
+import json
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "scripts"))
+
+from summarize_headless_status import format_text, summarize
+
+
+def test_headless_status_summary_collects_latest_evidence(tmp_path):
+    logs = tmp_path / "logs"
+    readiness = logs / "readiness"
+    pipeline = logs / "pipeline"
+    readiness.mkdir(parents=True)
+    pipeline.mkdir()
+
+    release = {
+        "artifact_type": "aris_headless_release_candidate_report",
+        "valid": True,
+        "steps": [
+            {"name": "embedded_dry_run", "passed": True, "exit_code": 0},
+            {"name": "core_pipeline_repeatability", "passed": True, "exit_code": 0},
+        ],
+    }
+    audit = {
+        "artifact_type": "aris_headless_readiness_audit",
+        "headless_ready": True,
+        "hardware_scope_active": False,
+        "safe_to_enable_real_actuation": False,
+        "blockers": [],
+        "criteria": {
+            "core_pipeline_repeatability": {
+                "passed": True,
+                "blockers": [],
+            }
+        },
+    }
+    index = {
+        "core_pipeline_flow": {
+            "report": {
+                "valid": True,
+                "semantic_map_snapshot": "/aris/logs/maps/map.json",
+                "stages": {
+                    "route_graph": {"passed": True, "node_path": ["approach", "goal"]},
+                    "autonomous_driving": {"passed": True, "goal_error_m": 0.4},
+                },
+            }
+        }
+    }
+    repeat = {
+        "artifact_type": "aris_core_pipeline_repeatability_report",
+        "valid": True,
+        "summary": {
+            "runs_completed": 2,
+            "node_path_stable": True,
+            "goal_error_max_m": 0.5,
+            "goal_error_spread_m": 0.1,
+        },
+    }
+    (readiness / "latest_headless_release_candidate.json").write_text(json.dumps(release), encoding="utf-8")
+    (readiness / "latest_headless_readiness_audit.json").write_text(json.dumps(audit), encoding="utf-8")
+    (readiness / "latest_evidence_index.json").write_text(json.dumps(index), encoding="utf-8")
+    (pipeline / "latest_core_pipeline_repeatability.json").write_text(json.dumps(repeat), encoding="utf-8")
+
+    summary = summarize(logs)
+    text = format_text(summary)
+
+    assert summary["headless_ready"] is True
+    assert summary["release_valid"] is True
+    assert summary["safe_to_enable_real_actuation"] is False
+    assert summary["core_pipeline"]["node_path"] == ["approach", "goal"]
+    assert summary["repeatability"]["runs_completed"] == 2
+    assert "headless_ready: yes" in text
+    assert "node_path: approach -> goal" in text
+
+
+def test_headless_status_summary_reports_missing_evidence_as_not_ready(tmp_path):
+    logs = tmp_path / "logs"
+    logs.mkdir()
+
+    summary = summarize(logs)
+
+    assert summary["headless_ready"] is False
+    assert summary["release_valid"] is False
+    assert summary["evidence"]["headless_release_candidate"] is None

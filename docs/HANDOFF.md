@@ -101,6 +101,7 @@ just host-policy
 just core-readiness-report
 just core-pipeline-flow
 just core-pipeline-repeatability
+just headless-status
 just headless-release-candidate
 ```
 
@@ -124,6 +125,12 @@ Important latest symlinks:
 - `$ARIS_LOGS/readiness/latest_evidence_index.json`
 - `$ARIS_LOGS/pipeline/latest_core_pipeline_flow.json`
 - `$ARIS_LOGS/embedded/latest_embedded_dry_run.json`
+
+For a quick human-readable status from those latest artifacts:
+
+```bash
+just headless-status
+```
 
 ## Remaining Scope
 

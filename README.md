@@ -181,6 +181,7 @@ just core-readiness-report # core-readiness with timestamped log under ARIS_LOGS
 just core-pipeline-flow # V3 semantic map artifact -> V4 route graph -> localization -> /cmd_drive
 just core-pipeline-repeatability # repeat core-pipeline-flow and summarize stability
 just headless-readiness-audit # aggregate current headless simulation + embedded dry-run evidence
+just headless-status # human-readable summary of the latest headless release evidence
 just headless-release-candidate # run the full hardware-free release-candidate evidence bundle
 just gpu-test        # CUDA/GPU visibility inside a container
 just ros2-test       # ROS2 CLI and demo pub/sub inside container
@@ -225,6 +226,9 @@ just firmware-test   # standalone STM32 crate test path if firmware/ is present 
 `$ARIS_LOGS/readiness/latest_operational_readiness_audit.json`.
 `just headless-readiness-audit` writes the current hardware-free simulation and embedded software
 audit to `$ARIS_LOGS/readiness/latest_headless_readiness_audit.json`.
+`just headless-status` prints a concise human-readable summary of the latest headless release,
+audit, pipeline, and repeatability evidence. Use `./scripts/check_headless_status.sh --json` for
+the same summary as JSON.
 `just headless-release-candidate` runs the hardware-free evidence bundle end to end and writes
 `$ARIS_LOGS/readiness/latest_headless_release_candidate.json`.
 
