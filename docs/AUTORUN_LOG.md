@@ -1734,3 +1734,39 @@ Entry format:
   `/home/kotori9/aris/logs/maps/v3_semantic_map_20260622_105710.compare.json`.
 - Next:         Continue tightening hardware-free simulation evidence and operator diagnostics
   while keeping real hardware/HIL out of scope until hardware is attached.
+
+## 2026-06-22 KST — Headless Freshness Explains Dirty Worktrees
+
+- Built:        Updated `scripts/summarize_headless_status.py` so headless status now reports a
+  `freshness_reason` in JSON and text output. The status command distinguishes matching evidence
+  commits, ignored documentation/log-only changes, runtime-relevant commits since evidence, missing
+  Git evidence, and runtime-relevant uncommitted worktree changes.
+- Built:        Extended freshness evaluation to inspect uncommitted worktree changes as well as
+  committed differences since the evidence commit. This prevents a dirty runtime-relevant worktree
+  from being reported as fresh simply because `HEAD` still matches the previous release evidence.
+- Built:        Updated README text for `headless-status` to document that the command explains why
+  evidence is fresh or stale.
+- Verified:     Targeted headless-status tests passed (`7 passed`), including the new dirty
+  worktree case. Full `./scripts/check_python_tests.sh` passed (`137 passed`);
+  `./scripts/check_documented_commands.sh` passed (`docs=25 references=190`).
+- Verified:     Before committing, `./scripts/check_headless_status.sh` correctly reported
+  `evidence_fresh_for_head=no`, `evidence_freshness_reason=runtime_relevant_worktree_changes`,
+  and `relevant_worktree_changes=README.md`.
+- Verified:     Full `./scripts/check_headless_release_candidate.sh` passed on
+  `milestone/headless-simulation-embedded@5e1ca64` with `headless_release_candidate_valid`.
+  `./scripts/check_headless_status.sh` then reported `headless_ready=yes`, `release_valid=yes`,
+  `evidence_fresh_for_head=yes`, and `evidence_freshness_reason=matching_head`.
+- Evidence:     Release report
+  `/home/kotori9/aris/logs/readiness/headless_release_candidate_20260622T110406Z.json`;
+  final evidence index
+  `/home/kotori9/aris/logs/readiness/evidence_index_20260622T110406Z_release.json`;
+  core readiness
+  `/home/kotori9/aris/logs/readiness/core_readiness_20260622T110526Z.log`;
+  headless audit
+  `/home/kotori9/aris/logs/readiness/headless_readiness_audit_20260622T110843Z.json`;
+  repeatability
+  `/home/kotori9/aris/logs/pipeline/core_pipeline_repeatability_20260622T110433Z.json`;
+  V3 compare
+  `/home/kotori9/aris/logs/maps/v3_semantic_map_20260622_110552.compare.json`.
+- Next:         Continue strengthening headless simulation reproducibility and operator-facing
+  diagnostics on `milestone/headless-simulation-embedded`.
