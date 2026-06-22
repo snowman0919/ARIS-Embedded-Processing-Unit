@@ -2024,3 +2024,22 @@ Entry format:
   `origin/v6-headless-simulation-embedded`.
 - Next:         Push local commit `6a5775e` to `v6-headless-simulation-embedded`, refresh PR #3,
   and merge it into `main` so `main` catches up with the latest v6 headless-status diagnostics.
+
+## 2026-06-22 KST — PR #3 Merged To Main
+
+- Built:        Merged PR #3, `v6-headless-simulation-embedded` into `main`, using the GitHub
+  connector after local HTTPS push remained unavailable. The merge commit on `origin/main` is
+  `b360956`.
+- Verified:     `git fetch origin --prune` updated `origin/main` from `2d0e4be` to `b360956`.
+  GitHub reports PR #3 as `closed`, `merged=true`, with head `6b36b11` and merge commit
+  `b360956`.
+- Verified:     `./scripts/check_branch_policy.sh` now reports
+  `branch_policy_valid current=v6-headless-simulation-embedded local=7 origin=7 main_ahead=2
+  v6_ahead=0`, meaning `origin/main` contains the remote v6 branch plus its two merge commits.
+  `./scripts/check_headless_status.sh` now prints `main_ahead=2`, `v6_ahead=0`, and
+  `main_contains_v6=yes` in the `Main sync` section.
+- Blocked:      Local commits `6a5775e` and `2d9ebae` remain unpublished because
+  `git push origin v6-headless-simulation-embedded` still requires HTTPS credentials unavailable
+  in this headless session.
+- Next:         Restore GitHub push credentials, push the local v6 branch, then open or update a
+  follow-up PR for the two local headless-status diagnostic commits.
