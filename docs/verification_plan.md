@@ -100,16 +100,23 @@ A milestone is complete only when its acceptance evidence exists. A compiling bu
 
 ## 10. Branch Policy
 
-Remote branches are milestone baselines, not feature branches:
+Remote branches are ARIS feature/milestone baselines, not task branches:
 
 | Branch | Meaning |
 |---|---|
 | `v1` | V1 teach-and-repeat route replay baseline |
 | `v2` | V2 LiDAR localization, Gazebo, and recorded-bag evidence baseline |
-| `v3` | V3 semantic map artifact, manifest, repeat-pass compare, and current readiness baseline |
+| `v3` | V3 semantic map artifact, manifest, and repeat-pass compare baseline |
+| `v4` | V4 route graph and goal-based navigation baseline |
+| `v5` | V5 dynamic obstacle advisory, tracking, and recorded replay baseline |
+| `v6` | V6 advisory-only semantic review and current headless integration baseline |
 
-Feature-level remote branches such as `codex/v2-*` or `codex/v3-*` should not be kept. New changes
-advance the active milestone branch, currently `v3`, after their evidence is recorded.
+Task-level remote branches such as `codex/v2-*` or `codex/v3-*` should not be kept. New changes
+advance the relevant ARIS milestone branch after their evidence is recorded.
+
+Current hardware scope is headless. No serial, CAN, camera, LiDAR, actuator, or vehicle bench
+hardware is assumed to be attached. HIL and field sections below define future evidence contracts;
+they are not active execution blockers for simulation and embedded dry-run software work.
 
 ## 11. Current Headless Readiness Gate
 

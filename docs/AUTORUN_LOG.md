@@ -908,3 +908,21 @@ Entry format:
   obstacle bag. It removes the replay-path blocker but does not replace HIL or field validation.
 - Next:         Run full tests, commit, and push to `origin/v3`; then use the same replay scorer on
   operator/real obstacle bags when available.
+
+## 2026-06-22 15:38 KST — Branch Policy: ARIS Milestone Branches — WIP
+- Built:        Reframed branch policy around ARIS feature/milestone branches `v1` through `v6`
+  instead of keeping only `v1` through `v3`. The active integration branch is now `v6`, reflecting
+  the current headless simulation and embedded-software state.
+- Verified:     `git ls-remote --heads origin` now lists `main`, `v1`, `v2`, `v3`, `v4`, `v5`,
+  and `v6`. The milestone pointers are `v1=c4d2897`, `v2=eec7b8a`, `v3=f46041e`, `v4=b4ab6f6`,
+  `v5=ba8992a`, and `v6=94735ae` before the final policy-log amend. `v3` was intentionally moved
+  back from the mixed integration tip to the V3 semantic-map baseline; later work is preserved on
+  `v5`/`v6`.
+- Build/tests:  Full `./scripts/check_python_tests.sh` passed (`100 passed`); `git diff --check`
+  passed.
+- Commit:       `94735ae` before final policy-log amend — `Document ARIS milestone branch policy`.
+- Scope note:   No hardware is currently connected; active work is limited to headless simulation,
+  recorded/replayed data, ROS 2 processing software, and embedded dry-run software. HIL and field
+  documents remain future evidence contracts only.
+- Next:         Continue headless simulation and embedded dry-run work on the relevant milestone
+  branch, currently `v6`.
