@@ -1491,5 +1491,19 @@ Entry format:
   `/home/kotori9/aris/logs/readiness/headless_release_candidate_20260622T084732Z.json`; final
   evidence index
   `/home/kotori9/aris/logs/readiness/evidence_index_20260622T084732Z_release.json`.
-- Next:         Commit and push the bootstrap fallback-script gate, then refresh full headless
-  evidence if runtime-relevant files changed.
+- Verified:     Full `./scripts/check_headless_release_candidate.sh` passed on
+  `milestone/headless-simulation-embedded@8f8e4d6` with `headless_release_candidate_valid`.
+  The refreshed bootstrap doctor enforced the complete release-gate fallback script set before the
+  embedded dry-run, pipeline, semantic map/review, V4/V5 behavior, and V2 Gazebo stack checks ran.
+- Evidence:     Release report
+  `/home/kotori9/aris/logs/readiness/headless_release_candidate_20260622T084829Z.json`;
+  final evidence index
+  `/home/kotori9/aris/logs/readiness/evidence_index_20260622T084829Z_release.json`;
+  core readiness
+  `/home/kotori9/aris/logs/readiness/core_readiness_20260622T084948Z.log`;
+  headless audit
+  `/home/kotori9/aris/logs/readiness/headless_readiness_audit_20260622T085256Z.json`;
+  repeatability
+  `/home/kotori9/aris/logs/pipeline/core_pipeline_repeatability_20260622T084856Z.json`.
+- Next:         Continue strengthening headless simulation and embedded dry-run reproducibility on
+  `milestone/headless-simulation-embedded`.
