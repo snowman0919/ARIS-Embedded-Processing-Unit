@@ -744,9 +744,31 @@ Entry format:
   `check_v6_semantic_review.sh`, `check_v3_semantic_map.sh`, and `check_core_readiness.sh`;
   targeted V6/evidence tests passed (`3 passed`); full `./scripts/check_python_tests.sh` passed
   (`89 passed`); `git diff --check` passed.
-- Commit:       Pending V6 semantic review gate commit.
+- Commit:       `6625314` — `Add V6 semantic review evidence gate`.
 - Stubbed/blocked: This is deterministic offline review over simulation map artifacts. It is not
   yet a real multimodal model, camera-image review UI, operator approval workflow, or field map
   promotion process.
 - Next:         Commit and push the V6 review gate to `origin/v3`; then connect V6 review to real
   logged images/map deltas and add an operator approval artifact.
+
+## 2026-06-22 14:15 KST — Readiness: Full No-Skip Gazebo Stack — WIP
+- Built:        No product code change. Ran the default `./scripts/run_core_readiness_report.sh`
+  without `ARIS_CORE_READINESS_SKIP_GAZEBO`, exercising the V2 Gazebo stack together with V3 map
+  artifacts, V6 semantic review, V4 goal navigation, and V5 dynamic obstacle evidence.
+- Verified:     Full core readiness passed with `skip_v3=0`, `skip_gazebo=0`, `real_actuation=0`,
+  `result=PASS`, and `ARIS core readiness passed (9 checks).` The report is
+  `/home/kotori9/aris/logs/readiness/core_readiness_20260622T051523Z.log`; the evidence index is
+  `/home/kotori9/aris/logs/readiness/evidence_index_20260622T051523Z.json`. The run included
+  Python tests (`89 passed`), MCU loopback, `/scan_cloud` contract (`width=869`, `point_step=24`),
+  operator goal, V3 semantic map snapshot/manifest/compare (`metric_overlap=0.888`,
+  `route_overlap=1.000`), V6 review (`advisory_only=True`, `control_authority=none`,
+  `review_items=3`), V4 goal navigation (`goal_error=0.720`), V5 dynamic obstacle
+  (`detour_min_steering=-0.927`, `track_age=2`), and all six V2 Gazebo stack checks:
+  LiDAR cloud, static localization, moving localization, physics motion, physics localization, and
+  drift recovery (`max_wheel_error=0.131`, `max_filtered_error=0.027`).
+- Build/tests:  The no-skip readiness report is the verification artifact for this entry.
+- Commit:       Pending no-skip readiness evidence documentation commit.
+- Stubbed/blocked: This is strong 3D/Gazebo simulation evidence, but still not real-sensor replay,
+  HIL, or field validation. Real actuation remained disabled.
+- Next:         Commit and push this evidence documentation to `origin/v3`; then focus on real or
+  replayed sensor obstacle/map scoring and HIL readiness criteria.

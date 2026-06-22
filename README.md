@@ -169,7 +169,7 @@ ARIS_BUILD_AI=1 just docker-build
 
 ```bash
 just check-host      # host tools, Docker access, architecture, ARIS paths
-just core-readiness  # headless readiness gate, including V3 map artifacts and Gazebo by default
+just core-readiness  # headless readiness gate, including V3/V6 artifacts and Gazebo by default
 just core-readiness-report # core-readiness with timestamped log under ARIS_LOGS
 just gpu-test        # CUDA/GPU visibility inside a container
 just ros2-test       # ROS2 CLI and demo pub/sub inside container
