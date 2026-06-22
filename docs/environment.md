@@ -53,11 +53,13 @@ just headless-release-candidate
 ```
 
 It runs the bootstrap, embedded dry-run, documented-command, architecture-contract, host-policy,
-branch-policy, six-stage core pipeline, repeatability, core-readiness report, and headless audit
-checks in sequence. The run writes timestamped evidence under `$ARIS_LOGS/readiness/` and updates:
+branch-policy, six-stage core pipeline, repeatability, core-readiness report, headless audit, and
+operational audit checks in sequence. The run writes timestamped evidence under
+`$ARIS_LOGS/readiness/` and updates:
 
 ```text
 $ARIS_LOGS/readiness/latest_headless_release_candidate.json
+$ARIS_LOGS/readiness/latest_operational_readiness_audit.json
 $ARIS_LOGS/readiness/latest_headless_status.json
 $ARIS_LOGS/readiness/latest_evidence_index.json
 ```

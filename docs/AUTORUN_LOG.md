@@ -2333,3 +2333,20 @@ Entry format:
   `/home/kotori9/aris/logs/maps/v3_semantic_map_20260622_134743.compare.json`.
 - Next:         Publish the release-bundle operational audit closure to remote V6 and merge it
   back to `main`, then continue tightening the hardware-free release handoff.
+
+## 2026-06-23 KST — Handoff Docs Match Release Bundle Contract
+
+- Built:        Updated `docs/HANDOFF.md`, `docs/architecture_mapping.md`, and
+  `docs/environment.md` so the documented headless release candidate sequence includes
+  `operational-readiness-audit`, `latest_operational_readiness_audit.json`, and the expected
+  operational scope split.
+- Verified:     `./scripts/check_documented_commands.sh` passed with
+  `documented_commands_valid docs=25 references=208`.
+- Evidence:     Latest release bundle remains
+  `/home/kotori9/aris/logs/readiness/headless_release_candidate_20260622T134601Z.json`;
+  latest operational audit
+  `/home/kotori9/aris/logs/readiness/operational_readiness_audit_20260622T135030Z.json`;
+  latest headless status
+  `/home/kotori9/aris/logs/readiness/headless_status_20260622T134601Z.json`.
+- Next:         Publish the documentation contract sync to remote V6 and merge it back to `main`,
+  then continue reducing hardware-free handoff gaps.

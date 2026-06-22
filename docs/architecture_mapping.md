@@ -68,8 +68,10 @@ The current hardware-free release candidate is generated with:
 just headless-release-candidate
 ```
 
-It records embedded dry-run, core pipeline flow, no-skip core readiness, and headless audit
+It records bootstrap doctor, embedded dry-run, documented command validation, architecture and
+host/branch policy gates, core pipeline flow, sampled repeatability, no-skip core readiness,
+headless readiness audit, operational readiness audit, final evidence index, and headless status
 artifacts under `$ARIS_LOGS`. This is the authoritative software-only readiness bundle for the
-current `v6-headless-simulation-embedded` branch. It also records bootstrap doctor,
-documented command validation, host/branch policy gates, and sampled repeatability evidence. It
-does not claim HIL, real sensor, real actuator, or field readiness.
+current `v6-headless-simulation-embedded` branch. The operational audit can report
+`headless_simulation_embedded_ready=true`, but the bundle does not claim HIL, real sensor, real
+actuator, or field readiness.
