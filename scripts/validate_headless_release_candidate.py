@@ -22,6 +22,17 @@ REQUIRED_STEPS = (
     "headless_readiness_audit",
 )
 
+REQUIRED_ACCEPTANCE_CRITERIA = (
+    "core_readiness_no_skip",
+    "v2_gazebo_stack",
+    "v3_v6_mapping_review",
+    "core_pipeline_flow",
+    "core_pipeline_repeatability",
+    "v5_obstacle",
+    "v5_recorded_obstacle_replay",
+    "embedded_dry_run",
+)
+
 
 def validate(report_path: Path, index_path: Path | None = None) -> list[str]:
     report = _read_json(report_path)
@@ -35,6 +46,38 @@ def validate(report_path: Path, index_path: Path | None = None) -> list[str]:
         failures.append("report exit_code must be 0")
     if report.get("hardware_scope_active") is not False:
         failures.append("hardware_scope_active must be false")
+
+    acceptance_summary = report.get("acceptance_summary")
+    if not isinstance(acceptance_summary, dict):
+        failures.append("acceptance_summary must be an object")
+        acceptance_summary = {}
+    if acceptance_summary.get("scope") != "headless_simulation_embedded":
+        failures.append("acceptance_summary.scope must be headless_simulation_embedded")
+    if acceptance_summary.get("headless_ready") is not True:
+        failures.append("acceptance_summary.headless_ready must be true")
+    if acceptance_summary.get("hardware_scope_active") is not False:
+        failures.append("acceptance_summary.hardware_scope_active must be false")
+    if acceptance_summary.get("safe_to_enable_real_actuation") is not False:
+        failures.append("acceptance_summary.safe_to_enable_real_actuation must be false")
+    blockers = acceptance_summary.get("blockers")
+    if not isinstance(blockers, list) or blockers:
+        failures.append("acceptance_summary.blockers must be an empty list")
+
+    acceptance_thresholds = report.get("acceptance_thresholds")
+    if not isinstance(acceptance_thresholds, dict) or not acceptance_thresholds:
+        failures.append("acceptance_thresholds must be a non-empty object")
+
+    acceptance_criteria = report.get("acceptance_criteria")
+    if not isinstance(acceptance_criteria, dict):
+        failures.append("acceptance_criteria must be an object")
+        acceptance_criteria = {}
+    for required in REQUIRED_ACCEPTANCE_CRITERIA:
+        criterion = acceptance_criteria.get(required)
+        if not isinstance(criterion, dict):
+            failures.append(f"missing acceptance criterion: {required}")
+            continue
+        if criterion.get("passed") is not True:
+            failures.append(f"acceptance criterion did not pass: {required}")
 
     steps = report.get("steps")
     if not isinstance(steps, list):

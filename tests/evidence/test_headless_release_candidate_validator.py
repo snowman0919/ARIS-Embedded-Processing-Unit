@@ -4,10 +4,15 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "scripts"))
 
-from validate_headless_release_candidate import REQUIRED_STEPS, validate
+from validate_headless_release_candidate import REQUIRED_ACCEPTANCE_CRITERIA, REQUIRED_STEPS, validate
 
 
-def _write_report(tmp_path: Path, *, omit_step: str | None = None) -> tuple[Path, Path]:
+def _write_report(
+    tmp_path: Path,
+    *,
+    omit_step: str | None = None,
+    failed_criterion: str | None = None,
+) -> tuple[Path, Path]:
     logs = tmp_path / "logs"
     readiness = logs / "readiness"
     embedded = logs / "embedded"
@@ -40,6 +45,30 @@ def _write_report(tmp_path: Path, *, omit_step: str | None = None) -> tuple[Path
         "valid": True,
         "exit_code": 0,
         "hardware_scope_active": False,
+        "acceptance_summary": {
+            "scope": "headless_simulation_embedded",
+            "headless_ready": True,
+            "hardware_scope_active": False,
+            "safe_to_enable_real_actuation": False,
+            "blockers": [],
+            "future_blockers_not_in_scope": ["hil_preflight", "field_validation"],
+        },
+        "acceptance_thresholds": {
+            "core_pipeline_flow": {
+                "required_stages": [
+                    "mapping",
+                    "semantic_hd_map",
+                    "route_graph",
+                    "localization",
+                    "goal_based_planning",
+                    "autonomous_driving",
+                ]
+            }
+        },
+        "acceptance_criteria": {
+            name: {"passed": name != failed_criterion, "evidence": {}, "blockers": []}
+            for name in REQUIRED_ACCEPTANCE_CRITERIA
+        },
         "steps": steps,
         "evidence": {key: str(path) for key, path in evidence_paths.items()},
     }
@@ -67,6 +96,17 @@ def test_headless_release_candidate_validator_rejects_missing_required_step(tmp_
     failures = validate(report_path, index_path)
 
     assert "missing required step: host_policy" in failures
+
+
+def test_headless_release_candidate_validator_rejects_failed_acceptance_criterion(tmp_path):
+    report_path, index_path = _write_report(
+        tmp_path,
+        failed_criterion="core_pipeline_repeatability",
+    )
+
+    failures = validate(report_path, index_path)
+
+    assert "acceptance criterion did not pass: core_pipeline_repeatability" in failures
 
 
 def test_headless_release_candidate_validator_requires_final_index_backlink(tmp_path):

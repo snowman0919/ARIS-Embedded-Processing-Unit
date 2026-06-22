@@ -107,17 +107,56 @@ if steps_path.exists():
 def resolved(path: Path) -> str | None:
     return str(path.resolve()) if path.exists() else None
 
+def read_json(path: Path | None) -> dict | None:
+    if path is None or not path.exists():
+        return None
+    data = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(data, dict):
+        return None
+    return data
+
+headless_audit_path = logs_dir / "readiness" / "latest_headless_readiness_audit.json"
+headless_audit = read_json(headless_audit_path) or {}
+acceptance_criteria = headless_audit.get("criteria") if isinstance(headless_audit.get("criteria"), dict) else {}
+acceptance_thresholds = (
+    headless_audit.get("acceptance_thresholds")
+    if isinstance(headless_audit.get("acceptance_thresholds"), dict)
+    else {}
+)
+acceptance_passed = (
+    headless_audit.get("headless_ready") is True
+    and bool(acceptance_criteria)
+    and all(
+        isinstance(criterion, dict) and criterion.get("passed") is True
+        for criterion in acceptance_criteria.values()
+    )
+)
+
 report = {
     "artifact_type": "aris_headless_release_candidate_report",
     "schema_version": 1,
     "timestamp_utc": timestamp,
     "workspace": workspace,
     "logs_dir": str(logs_dir),
-    "valid": overall_status == 0 and all(step["passed"] for step in steps),
+    "valid": overall_status == 0 and all(step["passed"] for step in steps) and acceptance_passed,
     "exit_code": overall_status,
     "hardware_scope_active": False,
     "reused_existing_evidence": os.environ.get("ARIS_HEADLESS_RELEASE_REUSE_EXISTING", "0") == "1",
     "steps": steps,
+    "acceptance_summary": {
+        "scope": headless_audit.get("scope"),
+        "headless_ready": headless_audit.get("headless_ready") is True,
+        "hardware_scope_active": headless_audit.get("hardware_scope_active") is True,
+        "safe_to_enable_real_actuation": headless_audit.get("safe_to_enable_real_actuation") is True,
+        "blockers": headless_audit.get("blockers") if isinstance(headless_audit.get("blockers"), list) else [],
+        "future_blockers_not_in_scope": (
+            headless_audit.get("future_blockers_not_in_scope")
+            if isinstance(headless_audit.get("future_blockers_not_in_scope"), list)
+            else []
+        ),
+    },
+    "acceptance_thresholds": acceptance_thresholds,
+    "acceptance_criteria": acceptance_criteria,
     "evidence": {
         "bootstrap_doctor": resolved(logs_dir / "readiness" / "latest_bootstrap_doctor.json"),
         "embedded_dry_run": resolved(logs_dir / "embedded" / "latest_embedded_dry_run.json"),

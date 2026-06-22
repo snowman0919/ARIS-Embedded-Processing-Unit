@@ -246,7 +246,10 @@ repeatability, no-skip core readiness report, and headless readiness audit in se
 refreshes `$ARIS_LOGS/readiness/latest_evidence_index.json` so the index links back to the release
 candidate report that produced it. The final report is validated by
 `scripts/validate_headless_release_candidate.py`, which requires every release step to pass and
-requires the release report and final evidence index to point at each other.
+requires the release report and final evidence index to point at each other. The release candidate
+report also copies the headless audit `acceptance_thresholds`, criterion pass/fail states, scope,
+blockers, and real-actuation safety flags so the release JSON remains self-contained evidence for
+the hardware-free simulation and embedded dry-run scope.
 
 To inspect the latest release, audit, pipeline, and repeatability evidence without opening raw JSON:
 
