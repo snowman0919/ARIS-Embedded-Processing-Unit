@@ -1,0 +1,59 @@
+.env
+.direnv/
+.pre-commit-config.yaml.local
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.venv/
+venv/
+
+# Flutter/local runtime
+.dart_tool/
+.idea/
+*.iml
+*.pid
+*.log
+src/aris_gui/build/
+src/aris_gui/linux/flutter/ephemeral/
+
+# ROS/colcon
+build/
+install/
+log/
+.colcon/
+
+# C/C++
+CMakeFiles/
+CMakeCache.txt
+compile_commands.json
+*.elf
+*.bin
+*.hex
+*.map
+
+# Rust
+target/
+
+# Local and large ARIS state at repository root
+/data/
+/logs/
+/models/
+/cache/
+*.bag
+*.db3
+*.mcap
+*.pcd
+*.ply
+*.onnx
+*.pt
+*.pth
+*.engine
+
+# Editor
+.vscode/
+.idea/
+*.swp

@@ -1,0 +1,24 @@
+[tool.pytest.ini_options]
+pythonpath = [
+  "src/aris_mcu_bridge",
+  "src/aris_localization",
+  "src/aris_planning",
+  "src/aris_vehicle_sim",
+  "src/aris_ai_semantics",
+]
+testpaths = [
+  "src/aris_mcu_bridge/test",
+  "src/aris_localization/test",
+  "src/aris_planning/test",
+  "src/aris_vehicle_sim/test",
+  "src/aris_ai_semantics/test",
+  "tests",
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.mypy]
+python_version = "3.12"
+warn_unused_configs = true
