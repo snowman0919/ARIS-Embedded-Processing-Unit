@@ -3,6 +3,9 @@ set dotenv-load := true
 check-host:
     ./scripts/check_host.sh
 
+bootstrap-doctor:
+    ./scripts/check_bootstrap_doctor.sh
+
 core-readiness:
     ./scripts/check_core_readiness.sh
 

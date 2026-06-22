@@ -36,6 +36,7 @@ run_step() {
 
 overall_status=0
 if [[ "${ARIS_HEADLESS_RELEASE_REUSE_EXISTING:-0}" == "1" ]]; then
+  printf '%s\t%s\t%s\t%s\n' bootstrap_doctor 0 "$timestamp" "$timestamp" >>"$steps_file"
   printf '%s\t%s\t%s\t%s\n' embedded_dry_run 0 "$timestamp" "$timestamp" >>"$steps_file"
   printf '%s\t%s\t%s\t%s\n' documented_commands 0 "$timestamp" "$timestamp" >>"$steps_file"
   printf '%s\t%s\t%s\t%s\n' architecture_contracts 0 "$timestamp" "$timestamp" >>"$steps_file"
@@ -45,7 +46,10 @@ if [[ "${ARIS_HEADLESS_RELEASE_REUSE_EXISTING:-0}" == "1" ]]; then
   printf '%s\t%s\t%s\t%s\n' core_readiness_report 0 "$timestamp" "$timestamp" >>"$steps_file"
   printf '%s\t%s\t%s\t%s\n' headless_readiness_audit 0 "$timestamp" "$timestamp" >>"$steps_file"
 else
-  run_step embedded_dry_run "${ARIS_WS}/scripts/check_embedded_dry_run.sh" || overall_status=$?
+  run_step bootstrap_doctor "${ARIS_WS}/scripts/check_bootstrap_doctor.sh" || overall_status=$?
+  if [[ "$overall_status" == "0" ]]; then
+    run_step embedded_dry_run "${ARIS_WS}/scripts/check_embedded_dry_run.sh" || overall_status=$?
+  fi
   if [[ "$overall_status" == "0" ]]; then
     run_step documented_commands "${ARIS_WS}/scripts/check_documented_commands.sh" || overall_status=$?
   fi
@@ -111,6 +115,7 @@ report = {
     "reused_existing_evidence": os.environ.get("ARIS_HEADLESS_RELEASE_REUSE_EXISTING", "0") == "1",
     "steps": steps,
     "evidence": {
+        "bootstrap_doctor": resolved(logs_dir / "readiness" / "latest_bootstrap_doctor.json"),
         "embedded_dry_run": resolved(logs_dir / "embedded" / "latest_embedded_dry_run.json"),
         "core_pipeline_flow": resolved(logs_dir / "pipeline" / "latest_core_pipeline_flow.json"),
         "core_pipeline_repeatability": resolved(logs_dir / "pipeline" / "latest_core_pipeline_repeatability.json"),

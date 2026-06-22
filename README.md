@@ -42,6 +42,7 @@ available.
 ```bash
 cd /home/sbeen/aris/aris-dev-env
 nix develop
+just bootstrap-doctor
 just check-host
 just docker-build
 just headless-release-candidate
@@ -52,6 +53,7 @@ directly:
 
 ```bash
 ./scripts/check_host.sh
+./scripts/check_bootstrap_doctor.sh
 ./scripts/check_headless_release_candidate.sh
 ./scripts/check_core_readiness.sh
 ./scripts/run_core_readiness_report.sh
@@ -176,6 +178,7 @@ ARIS_BUILD_AI=1 just docker-build
 
 ```bash
 just check-host      # host tools, Docker access, architecture, ARIS paths
+just bootstrap-doctor # verify ARIS env, paths, files, Nix/Docker commands, and safe defaults
 just core-readiness  # headless readiness gate, including V3/V6 artifacts and Gazebo by default
 just core-readiness-report # core-readiness with timestamped log under ARIS_LOGS
 just core-pipeline-flow # V3 semantic map artifact -> V4 route graph -> localization -> /cmd_drive

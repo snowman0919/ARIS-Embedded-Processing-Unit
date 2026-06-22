@@ -10,6 +10,7 @@ from typing import Any
 
 
 REQUIRED_STEPS = (
+    "bootstrap_doctor",
     "embedded_dry_run",
     "documented_commands",
     "architecture_contracts",
@@ -59,6 +60,7 @@ def validate(report_path: Path, index_path: Path | None = None) -> list[str]:
         evidence = {}
 
     required_evidence = (
+        "bootstrap_doctor",
         "embedded_dry_run",
         "core_pipeline_flow",
         "core_pipeline_repeatability",

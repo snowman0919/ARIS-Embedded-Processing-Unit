@@ -23,14 +23,15 @@ just headless-release-candidate
 
 It runs these gates in sequence:
 
-1. `just embedded-dry-run`
-2. `just documented-commands`
-3. `just architecture-contracts`
-4. `just host-policy`
-5. `just core-pipeline-flow`
-6. `just core-pipeline-repeatability`
-7. `just core-readiness-report`
-8. `just headless-readiness-audit`
+1. `just bootstrap-doctor`
+2. `just embedded-dry-run`
+3. `just documented-commands`
+4. `just architecture-contracts`
+5. `just host-policy`
+6. `just core-pipeline-flow`
+7. `just core-pipeline-repeatability`
+8. `just core-readiness-report`
+9. `just headless-readiness-audit`
 
 After those steps, `scripts/validate_headless_release_candidate.py` checks that the final release
 report includes every required step, points at the final evidence index, and that the final index
@@ -95,6 +96,7 @@ Build and test:
 just docker-build
 just ros2-build
 just python-test
+just bootstrap-doctor
 just documented-commands
 just architecture-contracts
 just host-policy

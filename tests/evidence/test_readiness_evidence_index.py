@@ -104,6 +104,10 @@ def test_readiness_evidence_index_collects_latest_artifacts(tmp_path):
         "valid": True,
         "hardware_required": False,
     }
+    bootstrap_report = {
+        "artifact_type": "aris_bootstrap_doctor_report",
+        "valid": True,
+    }
     pipeline_report = {
         "artifact_type": "aris_core_pipeline_flow_report",
         "valid": True,
@@ -154,6 +158,10 @@ def test_readiness_evidence_index_collects_latest_artifacts(tmp_path):
         json.dumps(embedded_report),
         encoding="utf-8",
     )
+    (readiness / "bootstrap_doctor_20260101T000000Z.json").write_text(
+        json.dumps(bootstrap_report),
+        encoding="utf-8",
+    )
     (pipeline / "core_pipeline_flow_20260101T000000Z.json").write_text(
         json.dumps(pipeline_report),
         encoding="utf-8",
@@ -192,6 +200,8 @@ def test_readiness_evidence_index_collects_latest_artifacts(tmp_path):
     assert index["headless_release_candidate"]["report_path"].endswith(".json")
     assert index["embedded_dry_run"]["report"]["valid"] is True
     assert index["embedded_dry_run"]["report_path"].endswith(".json")
+    assert index["bootstrap_doctor"]["report"]["valid"] is True
+    assert index["bootstrap_doctor"]["report_path"].endswith(".json")
     assert index["core_pipeline_flow"]["report"]["valid"] is True
     assert index["core_pipeline_flow"]["report_path"].endswith(".json")
     assert index["core_pipeline_repeatability"]["report"]["valid"] is True

@@ -17,6 +17,7 @@ def _write_report(tmp_path: Path, *, omit_step: str | None = None) -> tuple[Path
     pipeline.mkdir()
 
     evidence_paths = {
+        "bootstrap_doctor": readiness / "bootstrap.json",
         "embedded_dry_run": embedded / "embedded.json",
         "core_pipeline_flow": pipeline / "pipeline.json",
         "core_pipeline_repeatability": pipeline / "repeatability.json",
