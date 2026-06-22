@@ -24,7 +24,11 @@ def _workspace(tmp_path: Path) -> Path:
         "ARIS_ENABLE_REAL_ACTUATION=0\n",
         encoding="utf-8",
     )
-    for relative in ("scripts/check_host.sh", "scripts/check_headless_release_candidate.sh"):
+    for relative in (
+        "scripts/check_host.sh",
+        "scripts/check_branch_policy.sh",
+        "scripts/check_headless_release_candidate.sh",
+    ):
         path = workspace / relative
         path.write_text("#!/usr/bin/env bash\n", encoding="utf-8")
         path.chmod(0o755)
@@ -82,3 +86,13 @@ def test_bootstrap_doctor_rejects_workspace_mismatch(tmp_path):
 
     assert report["valid"] is False
     assert any("ARIS_WS does not match workspace" in blocker for blocker in report["blockers"])
+
+
+def test_bootstrap_doctor_requires_branch_policy_entrypoint(tmp_path):
+    workspace = _workspace(tmp_path)
+    (workspace / "scripts/check_branch_policy.sh").unlink()
+
+    report = generate_report(workspace, _env(workspace, tmp_path))
+
+    assert report["valid"] is False
+    assert "missing required file: scripts/check_branch_policy.sh" in report["blockers"]

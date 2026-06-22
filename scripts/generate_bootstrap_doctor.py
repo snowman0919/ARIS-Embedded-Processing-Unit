@@ -19,6 +19,7 @@ REQUIRED_FILES = (
     "docker/ros2.Dockerfile",
     "docker/embedded.Dockerfile",
     "scripts/check_host.sh",
+    "scripts/check_branch_policy.sh",
     "scripts/check_headless_release_candidate.sh",
 )
 REQUIRED_COMMANDS = ("git", "python3", "nix", "docker")
@@ -50,6 +51,7 @@ def generate_report(workspace: Path, env: dict[str, str] | None = None) -> dict[
         path: os.access(workspace / path, os.X_OK)
         for path in (
             "scripts/check_host.sh",
+            "scripts/check_branch_policy.sh",
             "scripts/check_headless_release_candidate.sh",
         )
     }

@@ -131,6 +131,7 @@ Important latest symlinks:
 - `$ARIS_LOGS/readiness/latest_headless_release_candidate.json`
 - `$ARIS_LOGS/readiness/latest_headless_readiness_audit.json`
 - `$ARIS_LOGS/readiness/latest_evidence_index.json`
+- `$ARIS_LOGS/readiness/latest_branch_policy.json`
 - `$ARIS_LOGS/pipeline/latest_core_pipeline_flow.json`
 - `$ARIS_LOGS/embedded/latest_embedded_dry_run.json`
 

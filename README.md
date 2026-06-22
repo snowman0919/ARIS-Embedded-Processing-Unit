@@ -238,6 +238,8 @@ audit, pipeline, and repeatability evidence, including whether that evidence was
 current Git `HEAD`. Use `./scripts/check_headless_status.sh --json` for the same summary as JSON.
 `just headless-release-candidate` runs the hardware-free evidence bundle end to end and writes
 `$ARIS_LOGS/readiness/latest_headless_release_candidate.json`.
+`just branch-policy` writes the latest local/origin branch policy check to
+`$ARIS_LOGS/readiness/latest_branch_policy.json`.
 
 The Nix shell includes Rust host tools for editing, formatting, clippy, and unit tests. This
 processing-unit repository owns the ROS 2 MCU bridge and binary protocol tests; standalone STM32

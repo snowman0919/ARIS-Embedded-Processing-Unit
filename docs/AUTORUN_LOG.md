@@ -1325,3 +1325,18 @@ Entry format:
   `/home/kotori9/aris/logs/pipeline/core_pipeline_repeatability_20260622T080315Z.json`.
 - Next:         Continue improving the hardware-free simulation and embedded dry-run workflow on
   `milestone/headless-simulation-embedded`.
+
+## 2026-06-22 KST — Bootstrap Doctor Tracks Branch Policy Entrypoint — WIP
+
+- Built:        Added `scripts/check_branch_policy.sh` to the bootstrap-doctor required file and
+  executable checks so new headless environments fail early if the branch-policy gate is missing
+  or loses executable permission.
+- Built:        Documented the latest branch-policy evidence symlink in README and HANDOFF.
+- Verified:     `./scripts/check_bootstrap_doctor.sh` passed with zero blockers. Targeted
+  bootstrap/branch-policy tests passed (`6 passed`); full `./scripts/check_python_tests.sh`
+  passed (`126 passed`); `./scripts/check_documented_commands.sh` passed
+  (`docs=25 references=188`); reuse-mode
+  `ARIS_HEADLESS_RELEASE_REUSE_EXISTING=1 ./scripts/check_headless_release_candidate.sh` passed
+  with `headless_release_candidate_valid`.
+- Next:         Commit and push this bootstrap-doctor increment, then run a full headless
+  release-candidate on the committed HEAD.
