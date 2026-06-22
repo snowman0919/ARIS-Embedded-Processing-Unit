@@ -103,7 +103,9 @@ def generate_index(workspace: Path, logs_dir: Path) -> dict[str, Any]:
     obstacle_replay_report = _latest(list((logs_dir / "obstacles").glob("v5_obstacle_bag_replay_*.json")))
     hil_preflight = _latest(list((logs_dir / "hil").glob("hil_preflight_*.json")))
     field_validation = _latest(list((logs_dir / "field").glob("field_validation_*.json")))
+    embedded_dry_run = _latest(list((logs_dir / "embedded").glob("embedded_dry_run_*.json")))
     operational_audit = _latest(list((logs_dir / "readiness").glob("operational_readiness_audit_*.json")))
+    headless_audit = _latest(list((logs_dir / "readiness").glob("headless_readiness_audit_*.json")))
     bag_metadata = _latest_bag_metadata(logs_dir)
 
     readiness_values = _read_key_values(readiness_log) if readiness_log else {}
@@ -144,9 +146,17 @@ def generate_index(workspace: Path, logs_dir: Path) -> dict[str, Any]:
             "report": _read_json(field_validation),
             "report_path": str(field_validation) if field_validation else None,
         },
+        "embedded_dry_run": {
+            "report": _read_json(embedded_dry_run),
+            "report_path": str(embedded_dry_run) if embedded_dry_run else None,
+        },
         "operational_readiness_audit": {
             "report": _read_json(operational_audit),
             "report_path": str(operational_audit) if operational_audit else None,
+        },
+        "headless_readiness_audit": {
+            "report": _read_json(headless_audit),
+            "report_path": str(headless_audit) if headless_audit else None,
         },
     }
 

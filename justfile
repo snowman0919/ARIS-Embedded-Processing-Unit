@@ -189,11 +189,17 @@ hil-preflight:
 operational-readiness-audit:
     ./scripts/check_operational_readiness_audit.sh
 
+headless-readiness-audit:
+    ./scripts/check_headless_readiness_audit.sh
+
 field-validation manifest:
     ./scripts/check_field_validation.sh "{{manifest}}"
 
 firmware-test:
     ./scripts/firmware_test.sh
+
+embedded-dry-run:
+    ./scripts/check_embedded_dry_run.sh
 
 clean:
     ./scripts/clean.sh

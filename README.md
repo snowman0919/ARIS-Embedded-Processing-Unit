@@ -179,6 +179,7 @@ ARIS_BUILD_AI=1 just docker-build
 just check-host      # host tools, Docker access, architecture, ARIS paths
 just core-readiness  # headless readiness gate, including V3/V6 artifacts and Gazebo by default
 just core-readiness-report # core-readiness with timestamped log under ARIS_LOGS
+just headless-readiness-audit # aggregate current headless simulation + embedded dry-run evidence
 just gpu-test        # CUDA/GPU visibility inside a container
 just ros2-test       # ROS2 CLI and demo pub/sub inside container
 just python-test     # ROS-free Python unit tests on the host
@@ -206,9 +207,10 @@ just v6-semantic-review-smoke # V6 advisory-only semantic map review report
 just scan-cloud-contract # validate /scan_cloud PointCloud2 fields, frame, and TF
 just operator-goal-smoke # operator JSON goal -> /goal_pose -> V4 planner smoke
 just hil-preflight # hardware/HIL readiness inventory without enabling actuators
-just operational-readiness-audit # aggregate evidence and report achieved/practical-use status
+just operational-readiness-audit # aggregate final HIL/field evidence and report practical-use status
 just field-validation /path/to/manifest.json # validate closed-site field-run evidence
-just firmware-test   # Rust STM32 safety-core tests and thumbv7em-none-eabihf build
+just embedded-dry-run # MCU bridge/protocol tests plus timestamped hardware-free evidence report
+just firmware-test   # standalone STM32 crate test path if firmware/ is present in this checkout
 ```
 
 `just core-readiness-report` writes both a text report and a machine-readable evidence index under
@@ -216,8 +218,12 @@ just firmware-test   # Rust STM32 safety-core tests and thumbv7em-none-eabihf bu
 `$ARIS_LOGS/readiness/latest_evidence_index.json`.
 `just operational-readiness-audit` writes the current completion audit to
 `$ARIS_LOGS/readiness/latest_operational_readiness_audit.json`.
+`just headless-readiness-audit` writes the current hardware-free simulation and embedded software
+audit to `$ARIS_LOGS/readiness/latest_headless_readiness_audit.json`.
 
-The Nix shell includes Rust host tools for editing, formatting, clippy, and unit tests. The embedded Docker image installs the STM32 Rust target `thumbv7em-none-eabihf` and is the canonical path for firmware target builds.
+The Nix shell includes Rust host tools for editing, formatting, clippy, and unit tests. This
+processing-unit repository owns the ROS 2 MCU bridge and binary protocol tests; standalone STM32
+firmware sources live in `snowman0919/ARIS-Embedded-MCU`.
 
 ## Simulation
 

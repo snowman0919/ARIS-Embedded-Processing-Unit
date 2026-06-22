@@ -926,3 +926,25 @@ Entry format:
   documents remain future evidence contracts only.
 - Next:         Continue headless simulation and embedded dry-run work on the relevant milestone
   branch, currently `v6`.
+
+## 2026-06-22 15:33 KST — Headless Scope Audit: Simulation + Embedded Dry-Run — WIP
+- Built:        Added `scripts/check_embedded_dry_run.sh`,
+  `scripts/generate_headless_readiness_audit.py`, `scripts/check_headless_readiness_audit.sh`,
+  `just embedded-dry-run`, and `just headless-readiness-audit`. The new audit evaluates only the
+  current hardware-free scope: no-skip core readiness, V2 Gazebo/LiDAR bag evidence, V3/V6 semantic
+  map review evidence, V5 obstacle smoke and recorded replay evidence, and MCU bridge/protocol
+  dry-run evidence. HIL preflight and field validation are explicitly recorded as future blockers
+  outside the current scope.
+- Verified:     `./scripts/check_embedded_dry_run.sh` passed and wrote
+  `/home/kotori9/aris/logs/embedded/embedded_dry_run_20260622T063342Z.json` with `valid=true`.
+  `./scripts/check_headless_readiness_audit.sh` wrote
+  `/home/kotori9/aris/logs/readiness/headless_readiness_audit_20260622T063348Z.json` with
+  `headless_ready=true` and zero blockers. A refreshed evidence index at
+  `/home/kotori9/aris/logs/readiness/evidence_index_20260622T063356Z.json` links the latest
+  embedded dry-run and headless audit evidence.
+- Build/tests:  Targeted evidence tests passed (`9 passed`); full `./scripts/check_python_tests.sh`
+  passed (`103 passed`); `python3 -m py_compile`, `bash -n`, and `git diff --check` passed.
+- Commit:       Pending headless readiness audit commit.
+- Scope note:   This does not claim real-actuation readiness. No hardware is connected; HIL and
+  field validation remain inactive until the project enters a hardware-attached milestone.
+- Next:         Commit and push to `v6`.

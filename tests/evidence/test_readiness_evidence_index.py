@@ -15,12 +15,14 @@ def test_readiness_evidence_index_collects_latest_artifacts(tmp_path):
     obstacles = logs / "obstacles"
     hil = logs / "hil"
     field = logs / "field"
+    embedded = logs / "embedded"
     readiness.mkdir(parents=True)
     bags.mkdir(parents=True)
     maps.mkdir(parents=True)
     obstacles.mkdir(parents=True)
     hil.mkdir(parents=True)
     field.mkdir(parents=True)
+    embedded.mkdir(parents=True)
 
     (readiness / "core_readiness_20260101T000000Z.log").write_text(
         "timestamp_utc=20260101T000000Z\n"
@@ -87,6 +89,15 @@ def test_readiness_evidence_index_collects_latest_artifacts(tmp_path):
         "achieved": False,
         "practical_use_ready": False,
     }
+    headless_audit = {
+        "artifact_type": "aris_headless_readiness_audit",
+        "headless_ready": True,
+    }
+    embedded_report = {
+        "artifact_type": "aris_embedded_dry_run_report",
+        "valid": True,
+        "hardware_required": False,
+    }
     field_report = {
         "artifact_type": "aris_field_validation_report",
         "valid": False,
@@ -115,6 +126,14 @@ def test_readiness_evidence_index_collects_latest_artifacts(tmp_path):
         json.dumps(operational_audit),
         encoding="utf-8",
     )
+    (readiness / "headless_readiness_audit_20260101T000000Z.json").write_text(
+        json.dumps(headless_audit),
+        encoding="utf-8",
+    )
+    (embedded / "embedded_dry_run_20260101T000000Z.json").write_text(
+        json.dumps(embedded_report),
+        encoding="utf-8",
+    )
 
     index = generate_index(tmp_path / "workspace", logs)
 
@@ -139,3 +158,7 @@ def test_readiness_evidence_index_collects_latest_artifacts(tmp_path):
     assert index["field_validation"]["report_path"].endswith(".json")
     assert index["operational_readiness_audit"]["report"]["achieved"] is False
     assert index["operational_readiness_audit"]["report_path"].endswith(".json")
+    assert index["headless_readiness_audit"]["report"]["headless_ready"] is True
+    assert index["headless_readiness_audit"]["report_path"].endswith(".json")
+    assert index["embedded_dry_run"]["report"]["valid"] is True
+    assert index["embedded_dry_run"]["report_path"].endswith(".json")

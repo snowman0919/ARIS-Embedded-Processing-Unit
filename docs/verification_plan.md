@@ -154,10 +154,27 @@ $ARIS_LOGS/readiness/latest_evidence_index.json
 The index points at the latest readiness report, latest V2 LiDAR bag metadata, latest V3 semantic
 map manifest, latest V3 repeat-pass compare report, latest V5 dynamic-obstacle report plus
 detour/slow/stop metrics with persistent-track evidence, and latest V6 semantic review report when
-present. It also links the latest HIL preflight report when available. It is the quick
+present. It also links the latest embedded dry-run, HIL preflight, operational audit, and headless
+readiness audit reports when available. It is the quick
 machine-readable view of the current software evidence bundle.
 
-## 12. Operational Readiness Audit
+## 12. Headless Simulation And Embedded Audit
+
+The current hardware-free completion audit command is:
+
+```bash
+just embedded-dry-run
+just headless-readiness-audit
+```
+
+It writes `$ARIS_LOGS/readiness/headless_readiness_audit_<timestamp>.json` and updates
+`$ARIS_LOGS/readiness/latest_headless_readiness_audit.json`. The audit requires no-skip core
+readiness, V2 Gazebo/LiDAR bag evidence, V3/V6 semantic map review evidence, V5 obstacle smoke and
+recorded replay evidence, and a valid embedded dry-run report from `just embedded-dry-run`. HIL
+preflight and field validation are recorded as future blockers outside the current headless scope,
+not as active blockers.
+
+## 13. Operational Readiness Audit
 
 The current completion audit command is:
 
@@ -175,7 +192,7 @@ states, and blockers. This audit is the machine-readable guardrail for deciding 
 project can be considered practically usable; current simulation evidence can pass while HIL or
 field criteria still keep `achieved=false`.
 
-## 13. HIL Preflight Gate
+## 14. HIL Preflight Gate
 
 Before hardware-in-the-loop or bench work, run:
 
@@ -190,7 +207,7 @@ availability, Docker access, user groups, visible serial/video/GPU/CAN/input dev
 no-skip readiness evidence, latest V5 obstacle report, and latest V6 semantic review report. Missing
 hardware is reported as blockers instead of causing destructive setup actions.
 
-## 14. Recorded LiDAR Acceptance Gate
+## 15. Recorded LiDAR Acceptance Gate
 
 The current reproducible recorded-data command is:
 
@@ -233,7 +250,7 @@ This records the Gazebo physics-localization path, validates the new bag metadat
 newly written bag under `$ARIS_LOGS/bags`, and immediately replay-scores it. Operator-provided
 real LiDAR bags should pass `v2-lidar-bag-contract` before `v2-lidar-bag-replay`.
 
-## 15. V5 Obstacle Bag Replay Gate
+## 16. V5 Obstacle Bag Replay Gate
 
 The operator-data obstacle replay command is:
 
@@ -264,7 +281,7 @@ distance, max track age, thresholds, and failures. This is the bridge between si
 evidence and real/operator obstacle recordings. A missing or invalid replay score keeps the
 operational readiness audit from claiming practical-use readiness.
 
-## 16. Semantic Map Snapshot Acceptance Gate
+## 17. Semantic Map Snapshot Acceptance Gate
 
 The current reproducible V3 simulation map-generation command is:
 
@@ -313,7 +330,7 @@ This is simulation-only V3 map artifact evidence. Production V3 still requires c
 segmentation model selection, calibrated camera/LiDAR projection, review tooling, and real
 repeat-pass map data.
 
-## 17. Closed-Site Field Validation Gate
+## 18. Closed-Site Field Validation Gate
 
 The field validation command is:
 
