@@ -1454,5 +1454,20 @@ Entry format:
   `./scripts/check_python_tests.sh` passed (`128 passed`); reuse-mode
   `ARIS_HEADLESS_RELEASE_REUSE_EXISTING=1 ./scripts/check_headless_release_candidate.sh` passed
   with `headless_release_candidate_valid`.
-- Next:         Commit and push the verification-document refresh, then run full
-  `./scripts/check_headless_release_candidate.sh` on the committed HEAD.
+- Verified:     Full `./scripts/check_headless_release_candidate.sh` passed on
+  `milestone/headless-simulation-embedded@ce3a53a` with `headless_release_candidate_valid`.
+  The gate executed branch-policy validation, sampled repeatability floors, the semantic map and
+  review checks, V4 goal navigation, V5 dynamic-obstacle advisory behavior, and the V2 Gazebo
+  LiDAR/localization/physics stack without attached hardware.
+- Evidence:     Release report
+  `/home/kotori9/aris/logs/readiness/headless_release_candidate_20260622T083944Z.json`;
+  final evidence index
+  `/home/kotori9/aris/logs/readiness/evidence_index_20260622T083944Z_release.json`;
+  core readiness
+  `/home/kotori9/aris/logs/readiness/core_readiness_20260622T084102Z.log`;
+  headless audit
+  `/home/kotori9/aris/logs/readiness/headless_readiness_audit_20260622T084411Z.json`;
+  repeatability
+  `/home/kotori9/aris/logs/pipeline/core_pipeline_repeatability_20260622T084010Z.json`.
+- Next:         Continue building only the headless simulation and embedded dry-run surface until
+  hardware becomes available; keep feature work on named milestone branches.
