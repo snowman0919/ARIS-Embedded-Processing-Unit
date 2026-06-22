@@ -3,7 +3,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "scripts"))
 
-from check_branch_policy import validate_refs
+from check_branch_policy import generate_report, validate_refs
 
 
 def test_branch_policy_accepts_version_context_branches():
@@ -43,3 +43,40 @@ def test_branch_policy_rejects_version_and_task_branches():
     assert "unexpected local branch: milestone/headless-simulation-embedded" in blockers
     assert "unexpected origin branch: codex/v3-map" in blockers
     assert "unexpected origin branch: v6" in blockers
+
+
+def test_branch_policy_report_includes_main_sync(tmp_path, monkeypatch):
+    def fake_current_branch(workspace):
+        return "v6-headless-simulation-embedded"
+
+    def fake_branch_refs(workspace):
+        return (
+            ["main", "v6-headless-simulation-embedded"],
+            ["main", "v6-headless-simulation-embedded"],
+        )
+
+    def fake_main_sync(workspace):
+        return {
+            "base": "origin/main",
+            "head": "origin/v6-headless-simulation-embedded",
+            "available": True,
+            "main_ahead": 1,
+            "v6_ahead": 1,
+            "main_contains_v6": False,
+        }
+
+    monkeypatch.setattr("check_branch_policy._current_branch", fake_current_branch)
+    monkeypatch.setattr("check_branch_policy._branch_refs", fake_branch_refs)
+    monkeypatch.setattr("check_branch_policy._main_sync", fake_main_sync)
+
+    report = generate_report(tmp_path)
+
+    assert report["valid"] is True
+    assert report["main_sync"] == {
+        "base": "origin/main",
+        "head": "origin/v6-headless-simulation-embedded",
+        "available": True,
+        "main_ahead": 1,
+        "v6_ahead": 1,
+        "main_contains_v6": False,
+    }

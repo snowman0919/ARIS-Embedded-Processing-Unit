@@ -47,6 +47,7 @@ def validate_refs(
 def generate_report(workspace: Path) -> dict[str, Any]:
     current_branch = _current_branch(workspace)
     local_branches, remote_branches = _branch_refs(workspace)
+    main_sync = _main_sync(workspace)
     blockers = validate_refs(
         current_branch=current_branch,
         local_branches=local_branches,
@@ -61,6 +62,7 @@ def generate_report(workspace: Path) -> dict[str, Any]:
         "current_branch": current_branch,
         "local_branches": local_branches,
         "origin_branches": remote_branches,
+        "main_sync": main_sync,
         "blockers": blockers,
     }
 
@@ -107,6 +109,48 @@ def _git_refs(workspace: Path, prefix: str) -> list[str]:
     return names
 
 
+def _main_sync(workspace: Path) -> dict[str, Any]:
+    base = "refs/remotes/origin/main"
+    head = "refs/remotes/origin/v6-headless-simulation-embedded"
+    if not _ref_exists(workspace, base) or not _ref_exists(workspace, head):
+        return {
+            "base": "origin/main",
+            "head": "origin/v6-headless-simulation-embedded",
+            "available": False,
+            "main_ahead": None,
+            "v6_ahead": None,
+            "main_contains_v6": False,
+        }
+    result = subprocess.run(
+        ["git", "rev-list", "--left-right", "--count", "origin/main...origin/v6-headless-simulation-embedded"],
+        cwd=workspace,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=True,
+    )
+    main_ahead_text, v6_ahead_text = result.stdout.split()
+    main_ahead = int(main_ahead_text)
+    v6_ahead = int(v6_ahead_text)
+    return {
+        "base": "origin/main",
+        "head": "origin/v6-headless-simulation-embedded",
+        "available": True,
+        "main_ahead": main_ahead,
+        "v6_ahead": v6_ahead,
+        "main_contains_v6": v6_ahead == 0,
+    }
+
+
+def _ref_exists(workspace: Path, ref: str) -> bool:
+    result = subprocess.run(
+        ["git", "show-ref", "--verify", "--quiet", ref],
+        cwd=workspace,
+        check=False,
+    )
+    return result.returncode == 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--workspace", type=Path, required=True)
@@ -119,11 +163,14 @@ def main(argv: list[str] | None = None) -> int:
         args.out.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
     if report["valid"]:
+        main_sync = report["main_sync"]
         print(
-            "branch_policy_valid current={} local={} origin={}".format(
+            "branch_policy_valid current={} local={} origin={} main_ahead={} v6_ahead={}".format(
                 report["current_branch"],
                 len(report["local_branches"]),
                 len(report["origin_branches"]),
+                main_sync["main_ahead"],
+                main_sync["v6_ahead"],
             )
         )
         return 0
