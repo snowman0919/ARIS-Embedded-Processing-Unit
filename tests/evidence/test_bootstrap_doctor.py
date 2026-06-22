@@ -52,6 +52,7 @@ def _workspace(tmp_path: Path) -> Path:
         "scripts/check_v2_gazebo_drift_recovery.sh",
         "scripts/check_core_pipeline_flow.sh",
         "scripts/check_core_pipeline_repeatability.sh",
+        "scripts/summarize_core_pipeline_repeatability.py",
         "scripts/run_core_readiness_report.sh",
         "scripts/check_headless_readiness_audit.sh",
     ):
