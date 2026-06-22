@@ -2175,3 +2175,39 @@ Entry format:
 - Next:         Publish the bootstrap-doctor helper guard to remote V6 and merge it back to
   `main`, then continue V6 headless simulation and embedded dry-run hardening from the major
   milestone branch.
+
+## 2026-06-22 KST — Headless Bootstrap Reproducibility Documented
+
+- Built:        Expanded `docs/environment.md` from a shell-entry note into the reproducible
+  headless bootstrap path: `nix develop`, `just bootstrap-doctor`, `just branch-policy`,
+  `just headless-release-candidate`, and `just headless-status`.
+- Built:        Updated `scripts/generate_bootstrap_doctor.py` so bootstrap now requires the
+  top-level README plus `docs/environment.md` and `docs/verification_plan.md`. A fresh checkout
+  missing the operator-facing reproducibility docs now fails before heavier checks run.
+- Built:        Added bootstrap-doctor test coverage for required reproducibility docs.
+- Verified:     Targeted bootstrap-doctor tests passed (`9 passed`);
+  `./scripts/check_bootstrap_doctor.sh` passed with `bootstrap_doctor_valid valid=True blockers=0`;
+  full `./scripts/check_python_tests.sh` passed (`144 passed`);
+  `./scripts/check_documented_commands.sh` passed (`docs=25 references=207`).
+- Verified:     Full `./scripts/check_headless_release_candidate.sh` passed on
+  `v6-headless-simulation-embedded@6725b0c` with `headless_release_candidate_valid`.
+  The captured headless status reports `evidence_freshness_reason=matching_head`,
+  `headless_ready=yes`, `release_valid=yes`, `local_ahead=1`, `upstream_ahead=0`,
+  `main_ahead=0`, and `v6_ahead=0`.
+- Evidence:     Release report
+  `/home/kotori9/aris/logs/readiness/headless_release_candidate_20260622T131811Z.json`;
+  final evidence index
+  `/home/kotori9/aris/logs/readiness/evidence_index_20260622T131811Z_release.json`;
+  headless status
+  `/home/kotori9/aris/logs/readiness/headless_status_20260622T131811Z.json`;
+  core readiness
+  `/home/kotori9/aris/logs/readiness/core_readiness_20260622T131930Z.log`;
+  headless audit
+  `/home/kotori9/aris/logs/readiness/headless_readiness_audit_20260622T132243Z.json`;
+  repeatability
+  `/home/kotori9/aris/logs/pipeline/core_pipeline_repeatability_20260622T131838Z.json`;
+  V3 compare
+  `/home/kotori9/aris/logs/maps/v3_semantic_map_20260622_131955.compare.json`.
+- Next:         Publish the reproducibility-doc gate to remote V6 and merge it back to `main`,
+  then continue closing remaining gaps between headless simulation evidence and practical
+  deployment readiness.
