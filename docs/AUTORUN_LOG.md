@@ -1307,5 +1307,21 @@ Entry format:
   passed (`docs=25 references=187`); reuse-mode
   `ARIS_HEADLESS_RELEASE_REUSE_EXISTING=1 ./scripts/check_headless_release_candidate.sh` passed
   and produced a report containing the `branch_policy` step and evidence link.
-- Next:         Commit and push the branch-policy gate, then run a full headless release-candidate
-  on the committed HEAD.
+- Verified:     Full `./scripts/check_headless_release_candidate.sh` passed on
+  `milestone/headless-simulation-embedded@66f8598` with `headless_release_candidate_valid`.
+  The run executed the new `branch_policy` gate before core pipeline flow and then passed
+  repeatability, core readiness, and headless readiness audit.
+- Evidence:     Release report
+  `/home/kotori9/aris/logs/readiness/headless_release_candidate_20260622T080248Z.json`;
+  final evidence index
+  `/home/kotori9/aris/logs/readiness/evidence_index_20260622T080248Z_release.json`;
+  branch policy
+  `/home/kotori9/aris/logs/readiness/branch_policy_20260622T080249Z.json`;
+  headless audit
+  `/home/kotori9/aris/logs/readiness/headless_readiness_audit_20260622T080711Z.json`;
+  core readiness
+  `/home/kotori9/aris/logs/readiness/core_readiness_20260622T080406Z.log`;
+  repeatability
+  `/home/kotori9/aris/logs/pipeline/core_pipeline_repeatability_20260622T080315Z.json`.
+- Next:         Continue improving the hardware-free simulation and embedded dry-run workflow on
+  `milestone/headless-simulation-embedded`.
