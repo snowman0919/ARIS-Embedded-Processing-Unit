@@ -1402,5 +1402,17 @@ Entry format:
   passed (`docs=25 references=188`); reuse-mode
   `ARIS_HEADLESS_RELEASE_REUSE_EXISTING=1 ./scripts/check_headless_release_candidate.sh` passed
   with `headless_release_candidate_valid`.
-- Next:         Commit and push the status visibility improvement, then run a full headless
-  release-candidate on the committed HEAD.
+- Verified:     Full `./scripts/check_headless_release_candidate.sh` passed on
+  `milestone/headless-simulation-embedded@eabe368` with `headless_release_candidate_valid`.
+  The repeatability summary includes sampled-run floors and `./scripts/check_headless_status.sh`
+  exposes them in the human-readable status.
+- Evidence:     Release report
+  `/home/kotori9/aris/logs/readiness/headless_release_candidate_20260622T082501Z.json`;
+  final evidence index
+  `/home/kotori9/aris/logs/readiness/evidence_index_20260622T082501Z_release.json`;
+  repeatability
+  `/home/kotori9/aris/logs/pipeline/core_pipeline_repeatability_20260622T082528Z.json`;
+  headless audit
+  `/home/kotori9/aris/logs/readiness/headless_readiness_audit_20260622T082929Z.json`.
+- Next:         Continue improving headless release evidence and developer-facing diagnostics on
+  `milestone/headless-simulation-embedded`.
