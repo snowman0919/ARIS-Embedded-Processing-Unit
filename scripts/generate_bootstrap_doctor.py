@@ -22,6 +22,7 @@ REQUIRED_FILES = (
     "scripts/check_bootstrap_doctor.sh",
     "scripts/docker_build.sh",
     "scripts/check_branch_policy.sh",
+    "scripts/check_headless_status.sh",
     "scripts/check_headless_release_candidate.sh",
     "scripts/check_embedded_dry_run.sh",
     "scripts/check_documented_commands.sh",
@@ -45,7 +46,10 @@ REQUIRED_FILES = (
     "scripts/check_v2_gazebo_drift_recovery.sh",
     "scripts/check_core_pipeline_flow.sh",
     "scripts/check_core_pipeline_repeatability.sh",
+    "scripts/generate_readiness_evidence_index.py",
     "scripts/summarize_core_pipeline_repeatability.py",
+    "scripts/summarize_headless_status.py",
+    "scripts/validate_headless_release_candidate.py",
     "scripts/run_core_readiness_report.sh",
     "scripts/check_headless_readiness_audit.sh",
 )
