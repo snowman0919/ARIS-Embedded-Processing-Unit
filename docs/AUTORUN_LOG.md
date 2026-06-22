@@ -1175,3 +1175,24 @@ Entry format:
 - Scope note:   This does not fail existing stale evidence; it makes staleness explicit so a full
   headless release run can be triggered before claiming current-HEAD evidence.
 - Next:         Commit and push to `v6`.
+
+## 2026-06-22 16:29 KST — Fresh Headless Release Candidate Evidence — WIP
+- Built:        Re-ran the full `./scripts/check_headless_release_candidate.sh` on current `v6`
+  HEAD after adding freshness reporting. No code changes were required.
+- Verified:     Full headless release-candidate passed and wrote
+  `/home/kotori9/aris/logs/readiness/headless_release_candidate_20260622T072432Z.json` with
+  `valid=true`, `exit_code=0`, and `headless_release_candidate_valid`. The final evidence index
+  `/home/kotori9/aris/logs/readiness/evidence_index_20260622T072432Z_release.json` records
+  `git.branch=v6` and `git.commit=a1a1a16`, matching the current `HEAD`. `just headless-status`
+  now reports `evidence_fresh_for_head: yes`, `headless_ready: yes`, `release_valid: yes`, and
+  repeatability `runs_completed=2`, `goal_error_max_m=0.7294855922156234`,
+  `goal_error_spread_m=0.0032395771528658246`. `./scripts/check_operational_readiness_audit.sh`
+  wrote `/home/kotori9/aris/logs/readiness/operational_readiness_audit_20260622T072910Z.json`
+  with `achieved=false` and blockers limited to `hil_preflight` and `field_validation`, which is
+  expected for the current no-hardware scope. Full `./scripts/check_python_tests.sh` passed
+  (`118 passed`), and `./scripts/check_documented_commands.sh` passed with `docs=25` and
+  `references=175`.
+- Commit:       Pending fresh headless release-candidate evidence log commit.
+- Scope note:   This proves current-HEAD headless simulation and embedded dry-run readiness only.
+  It still does not claim HIL, real-sensor, real-actuator, or field readiness.
+- Next:         Commit and push to `v6`.
