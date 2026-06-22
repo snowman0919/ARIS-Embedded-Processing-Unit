@@ -107,6 +107,21 @@ goal_errors = [
     for item in run_reports
     if item.get("goal_error_m") is not None and math.isfinite(float(item["goal_error_m"]))
 ]
+scan_cloud_samples = [
+    int(item["scan_cloud_samples"])
+    for item in run_reports
+    if item.get("scan_cloud_samples") is not None
+]
+global_path_points = [
+    int(item["global_path_points"])
+    for item in run_reports
+    if item.get("global_path_points") is not None
+]
+cmd_samples = [
+    int(item["cmd_samples"])
+    for item in run_reports
+    if item.get("cmd_samples") is not None
+]
 route_signatures = [
     tuple(item.get("route_signature") or [])
     for item in run_reports
@@ -122,6 +137,12 @@ route_signature_stable = (
 
 if len(goal_errors) != expected_runs:
     failures.append("every run must report goal_error_m")
+if len(scan_cloud_samples) != expected_runs:
+    failures.append("every run must report scan_cloud_samples")
+if len(global_path_points) != expected_runs:
+    failures.append("every run must report global_path_points")
+if len(cmd_samples) != expected_runs:
+    failures.append("every run must report cmd_samples")
 if goal_error_max > 1.3:
     failures.append(f"max goal error too high: {goal_error_max:.3f}")
 if goal_error_spread > 0.75:
@@ -137,6 +158,9 @@ summary = {
     "route_signature": list(route_signatures[0]) if route_signatures else [],
     "goal_error_max_m": None if math.isinf(goal_error_max) else goal_error_max,
     "goal_error_spread_m": None if math.isinf(goal_error_spread) else goal_error_spread,
+    "scan_cloud_samples_min": min(scan_cloud_samples) if scan_cloud_samples else None,
+    "global_path_points_min": min(global_path_points) if global_path_points else None,
+    "cmd_samples_min": min(cmd_samples) if cmd_samples else None,
 }
 result = {
     "artifact_type": "aris_core_pipeline_repeatability_report",

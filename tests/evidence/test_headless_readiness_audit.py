@@ -70,7 +70,18 @@ def _write_index(logs: Path, *, embedded: bool = True) -> None:
                     "goal_error_max_m": 0.8,
                     "goal_error_spread_m": 0.1,
                 },
-                "runs": [],
+                "runs": [
+                    {
+                        "scan_cloud_samples": 12,
+                        "global_path_points": 6,
+                        "cmd_samples": 24,
+                    },
+                    {
+                        "scan_cloud_samples": 11,
+                        "global_path_points": 6,
+                        "cmd_samples": 23,
+                    },
+                ],
             },
             "report_path": str(logs / "pipeline" / "core_pipeline_repeatability.json"),
         },
@@ -152,6 +163,23 @@ def test_headless_audit_requires_core_pipeline_repeatability(tmp_path):
 
     assert report["headless_ready"] is False
     assert report["criteria"]["core_pipeline_repeatability"]["passed"] is False
+    assert any("core_pipeline_repeatability" in blocker for blocker in report["blockers"])
+
+
+def test_headless_audit_requires_sampled_repeatability_runs(tmp_path):
+    logs = tmp_path / "logs"
+    _write_index(logs)
+    index_path = logs / "readiness" / "evidence_index_20260101T000000Z.json"
+    index = json.loads(index_path.read_text(encoding="utf-8"))
+    index["core_pipeline_repeatability"]["report"]["runs"][0]["cmd_samples"] = 3
+    index_path.write_text(json.dumps(index), encoding="utf-8")
+
+    report = generate_audit(tmp_path / "workspace", logs)
+
+    assert report["headless_ready"] is False
+    criterion = report["criteria"]["core_pipeline_repeatability"]
+    assert criterion["passed"] is False
+    assert criterion["evidence"]["cmd_samples_min"] == 3
     assert any("core_pipeline_repeatability" in blocker for blocker in report["blockers"])
 
 

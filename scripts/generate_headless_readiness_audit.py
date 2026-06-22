@@ -45,6 +45,40 @@ def _int_value(value: Any, default: int = 0) -> int:
         return default
 
 
+def _repeatability_sample_summary(repeat_report: dict[str, Any]) -> dict[str, Any]:
+    runs = repeat_report.get("runs")
+    if not isinstance(runs, list) or not runs:
+        return {
+            "runs_with_samples": 0,
+            "scan_cloud_samples_min": None,
+            "global_path_points_min": None,
+            "cmd_samples_min": None,
+            "sample_floor_passed": False,
+        }
+    scan_cloud = [_int_value(run.get("scan_cloud_samples")) for run in runs if isinstance(run, dict)]
+    global_path = [_int_value(run.get("global_path_points")) for run in runs if isinstance(run, dict)]
+    cmd = [_int_value(run.get("cmd_samples")) for run in runs if isinstance(run, dict)]
+    runs_with_samples = min(len(scan_cloud), len(global_path), len(cmd))
+    scan_min = min(scan_cloud) if scan_cloud else None
+    path_min = min(global_path) if global_path else None
+    cmd_min = min(cmd) if cmd else None
+    return {
+        "runs_with_samples": runs_with_samples,
+        "scan_cloud_samples_min": scan_min,
+        "global_path_points_min": path_min,
+        "cmd_samples_min": cmd_min,
+        "sample_floor_passed": (
+            runs_with_samples >= 2
+            and scan_min is not None
+            and scan_min >= 5
+            and path_min is not None
+            and path_min >= 2
+            and cmd_min is not None
+            and cmd_min >= 20
+        ),
+    }
+
+
 def generate_audit(workspace: Path, logs_dir: Path) -> dict[str, Any]:
     index_path, index = _latest_json(logs_dir, "readiness", "evidence_index_*.json")
     embedded_path, embedded_report = _latest_json(logs_dir, "embedded", "embedded_dry_run_*.json")
@@ -151,12 +185,14 @@ def generate_audit(workspace: Path, logs_dir: Path) -> dict[str, Any]:
     repeat_index = (index or {}).get("core_pipeline_repeatability") or {}
     repeat_report = repeat_index.get("report") or latest_repeat_report or {}
     repeat_summary = repeat_report.get("summary") or {}
+    repeat_samples = _repeatability_sample_summary(repeat_report)
     repeat_passed = (
         repeat_report.get("valid") is True
         and _int_value(repeat_summary.get("runs_completed")) >= 2
         and repeat_summary.get("node_path_stable") is True
         and repeat_summary.get("goal_error_max_m") is not None
         and float(repeat_summary.get("goal_error_max_m")) <= 1.3
+        and repeat_samples["sample_floor_passed"] is True
     )
     criteria["core_pipeline_repeatability"] = _criterion(
         repeat_passed,
@@ -167,8 +203,14 @@ def generate_audit(workspace: Path, logs_dir: Path) -> dict[str, Any]:
             "node_path_stable": repeat_summary.get("node_path_stable"),
             "goal_error_max_m": repeat_summary.get("goal_error_max_m"),
             "goal_error_spread_m": repeat_summary.get("goal_error_spread_m"),
+            "runs_with_samples": repeat_samples["runs_with_samples"],
+            "scan_cloud_samples_min": repeat_samples["scan_cloud_samples_min"],
+            "global_path_points_min": repeat_samples["global_path_points_min"],
+            "cmd_samples_min": repeat_samples["cmd_samples_min"],
         },
-        [] if repeat_passed else ["valid core pipeline repeatability report with at least 2 stable runs is missing"],
+        []
+        if repeat_passed
+        else ["valid core pipeline repeatability report with at least 2 stable sampled runs is missing"],
     )
 
     v5 = (index or {}).get("v5_dynamic_obstacle") or {}

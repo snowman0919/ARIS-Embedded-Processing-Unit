@@ -1356,3 +1356,23 @@ Entry format:
   `/home/kotori9/aris/logs/pipeline/core_pipeline_repeatability_20260622T081007Z.json`.
 - Next:         Continue headless simulation and embedded dry-run reproducibility work on
   `milestone/headless-simulation-embedded`.
+
+## 2026-06-22 KST — Repeatability Sample-Floor Evidence — WIP
+
+- Built:        Extended `scripts/check_core_pipeline_repeatability.sh` so repeatability reports
+  include minimum `/scan_cloud` samples, `/global_path` points, and `/cmd_drive` samples across
+  repeated core-pipeline runs.
+- Built:        Tightened `scripts/generate_headless_readiness_audit.py` so headless readiness
+  requires at least two sampled repeatability runs, with per-run floors of 5 scan-cloud samples,
+  2 global-path points, and 20 command samples.
+- Verified:     Targeted headless-readiness tests passed (`6 passed`). A fresh
+  `./scripts/check_core_pipeline_repeatability.sh` passed and wrote
+  `/home/kotori9/aris/logs/pipeline/core_pipeline_repeatability_20260622T081640Z.json` with
+  `scan_cloud_samples_min=180`, `global_path_points_min=35`, `cmd_samples_min=152`,
+  `goal_error_max_m=0.735131221194036`, and `goal_error_spread_m=0.007613088928338119`.
+  Full `./scripts/check_python_tests.sh` passed (`127 passed`); `./scripts/check_documented_commands.sh`
+  passed (`docs=25 references=188`); reuse-mode
+  `ARIS_HEADLESS_RELEASE_REUSE_EXISTING=1 ./scripts/check_headless_release_candidate.sh` passed
+  with `headless_release_candidate_valid`.
+- Next:         Commit and push the repeatability sample-floor gate, then run full
+  `./scripts/check_headless_release_candidate.sh` on the committed HEAD.
