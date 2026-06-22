@@ -22,10 +22,11 @@ Milestone order:
 V0 manual control -> V1 trajectory replay -> V2 LiDAR localization -> V3 Semantic HD Map -> V4 goal-based navigation -> V5 dynamic obstacle avoidance -> V6 multimodal semantic update
 ```
 
-Remote branches use descriptive milestone names instead of version-only branch names:
+Remote branches use descriptive `v{num}-{context}` names instead of task branches or version-only
+aliases:
 
 ```text
-milestone/teach-repeat-route-replay -> milestone/lidar-localization-gazebo -> milestone/semantic-hd-map -> milestone/goal-based-navigation -> milestone/dynamic-obstacle-advisory -> milestone/headless-simulation-embedded
+v1-teach-repeat-route-replay -> v2-lidar-localization-gazebo -> v3-semantic-hd-map -> v4-goal-based-navigation -> v5-dynamic-obstacle-advisory -> v6-headless-simulation-embedded
 ```
 
 The branch policy gate is:

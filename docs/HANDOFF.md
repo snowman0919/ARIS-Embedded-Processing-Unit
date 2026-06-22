@@ -6,11 +6,11 @@ handoff notes.
 ## Current State
 
 - Repository: `ARIS-Embedded-Processing-Unit`, local path `/home/sbeen/aris/aris-dev-env`.
-- Active milestone branch: `milestone/headless-simulation-embedded`.
-- Remote branch policy: keep ARIS feature/milestone branches only:
-  `milestone/teach-repeat-route-replay`, `milestone/lidar-localization-gazebo`,
-  `milestone/semantic-hd-map`, `milestone/goal-based-navigation`,
-  `milestone/dynamic-obstacle-advisory`, `milestone/headless-simulation-embedded`, plus `main`.
+- Active branch: `v6-headless-simulation-embedded`.
+- Remote branch policy: keep ARIS `v{num}-{context}` branches only:
+  `v1-teach-repeat-route-replay`, `v2-lidar-localization-gazebo`, `v3-semantic-hd-map`,
+  `v4-goal-based-navigation`, `v5-dynamic-obstacle-advisory`,
+  `v6-headless-simulation-embedded`, plus `main`.
 - Current execution scope: headless simulation, recorded/replayed data, ROS 2 processing software,
   and embedded-interface dry-run software.
 - No vehicle hardware is attached. HIL and field validation are future evidence contracts, not
@@ -84,8 +84,8 @@ planner or teleop -> /cmd_drive -> HAL -> simulator or STM32
 - AI/advisory code must not publish `/cmd_drive`, clear faults, release E-stop, or enable
   actuation.
 - Prefer Nix and repo scripts/Just targets for reproducibility.
-- Commit and push meaningful changes to the relevant ARIS milestone branch, currently
-  `milestone/headless-simulation-embedded`.
+- Commit and push meaningful changes to the relevant ARIS vN-context branch, currently
+  `v6-headless-simulation-embedded`.
 
 ## Primary Commands
 
@@ -154,7 +154,7 @@ The full project goal is not complete. Remaining work for practical real-world u
 
 Until hardware is attached, continue improving headless simulation, recorded/replayed evidence,
 embedded-interface dry-runs, documentation, and release-candidate reproducibility on
-`milestone/headless-simulation-embedded`.
+`v6-headless-simulation-embedded`.
 
 ## Update Discipline
 

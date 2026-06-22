@@ -47,7 +47,7 @@ just architecture-contracts
 ```bash
 just host-policy
 ```
-- Local and `origin/*` branches use approved ARIS feature/milestone names:
+- Local and `origin/*` branches use approved ARIS `v{num}-{context}` names:
 
 ```bash
 just branch-policy
@@ -137,20 +137,21 @@ A milestone is complete only when its acceptance evidence exists. A compiling bu
 
 ## 10. Branch Policy
 
-Remote branches are ARIS feature/milestone baselines, not task branches:
+Remote branches are ARIS version-context baselines, not task branches:
 
 | Branch | Meaning |
 |---|---|
-| `milestone/teach-repeat-route-replay` | V1 teach-and-repeat route replay baseline |
-| `milestone/lidar-localization-gazebo` | V2 LiDAR localization, Gazebo, and recorded-bag evidence baseline |
-| `milestone/semantic-hd-map` | V3 semantic map artifact, manifest, and repeat-pass compare baseline |
-| `milestone/goal-based-navigation` | V4 route graph and goal-based navigation baseline |
-| `milestone/dynamic-obstacle-advisory` | V5 dynamic obstacle advisory, tracking, and recorded replay baseline |
-| `milestone/headless-simulation-embedded` | Current hardware-free simulation and embedded-software integration baseline |
+| `v1-teach-repeat-route-replay` | V1 teach-and-repeat route replay baseline |
+| `v2-lidar-localization-gazebo` | V2 LiDAR localization, Gazebo, and recorded-bag evidence baseline |
+| `v3-semantic-hd-map` | V3 semantic map artifact, manifest, and repeat-pass compare baseline |
+| `v4-goal-based-navigation` | V4 route graph and goal-based navigation baseline |
+| `v5-dynamic-obstacle-advisory` | V5 dynamic obstacle advisory, tracking, and recorded replay baseline |
+| `v6-headless-simulation-embedded` | Current hardware-free simulation and embedded-software integration baseline |
 
-Task-level remote branches such as `codex/v2-*` or `codex/v3-*`, and version-only branches such as
-`v6`, should not be kept. New changes advance the relevant ARIS milestone branch after their
-evidence is recorded. The `just branch-policy` gate enforces this local/origin branch set.
+Task-level remote branches such as `codex/v2-*` or `codex/v3-*`, version-only branches such as
+`v6`, and stale `milestone/*` branches should not be kept. New changes advance the relevant ARIS
+vN-context branch after their evidence is recorded. The `just branch-policy` gate enforces this
+local/origin branch set.
 
 Current hardware scope is headless. No serial, CAN, camera, LiDAR, actuator, or vehicle bench
 hardware is assumed to be attached. HIL and field sections below define future evidence contracts;

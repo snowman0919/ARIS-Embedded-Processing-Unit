@@ -18,19 +18,19 @@ See `docs/codebase_boundaries.md` for the local directory conventions.
 
 ## Branch Policy
 
-Use ARIS feature/milestone branches only:
+Use ARIS `v{num}-{context}` branches only:
 
-- `milestone/teach-repeat-route-replay`: teach-and-repeat route replay baseline.
-- `milestone/lidar-localization-gazebo`: LiDAR localization, Gazebo, and recorded-bag evidence baseline.
-- `milestone/semantic-hd-map`: semantic map artifact, manifest, and repeat-pass compare baseline.
-- `milestone/goal-based-navigation`: route graph and goal-based navigation baseline.
-- `milestone/dynamic-obstacle-advisory`: dynamic obstacle advisory, tracking, and recorded replay baseline.
-- `milestone/headless-simulation-embedded`: current hardware-free simulation and embedded-software integration baseline.
+- `v1-teach-repeat-route-replay`: teach-and-repeat route replay baseline.
+- `v2-lidar-localization-gazebo`: LiDAR localization, Gazebo, and recorded-bag evidence baseline.
+- `v3-semantic-hd-map`: semantic map artifact, manifest, and repeat-pass compare baseline.
+- `v4-goal-based-navigation`: route graph and goal-based navigation baseline.
+- `v5-dynamic-obstacle-advisory`: dynamic obstacle advisory, tracking, and recorded replay baseline.
+- `v6-headless-simulation-embedded`: current hardware-free simulation and embedded-software integration baseline.
 
-Do not create task-level remote branches such as `codex/v2-*` or version-only branches such as
-`v6`. New work should advance the relevant ARIS milestone branch. The current active branch is
-`milestone/headless-simulation-embedded` because no hardware is attached and it carries the latest
-headless simulation and embedded dry-run state.
+Do not create task-level remote branches such as `codex/v2-*`, version-only branches such as `v6`,
+or stale `milestone/*` branches. New work should advance the relevant ARIS vN-context branch. The
+current active branch is `v6-headless-simulation-embedded` because no hardware is attached and it
+carries the latest headless simulation and embedded dry-run state.
 
 Current execution scope is headless: no vehicle hardware is assumed to be attached. HIL and field
 documents remain as future evidence contracts, but active development should prioritize simulation,
@@ -195,7 +195,7 @@ just python-test     # ROS-free Python unit tests on the host
 just documented-commands # verify README/docs command references resolve to local recipes/scripts
 just architecture-contracts # static guardrails for /cmd_drive, HAL, and AI advisory boundaries
 just host-policy    # verify host entrypoints keep the no-sudo/no-apt policy
-just branch-policy  # verify local/origin branches use ARIS feature/milestone names only
+just branch-policy  # verify local/origin branches use ARIS vN-context names only
 just ros2-build      # colcon build for starter packages
 just protocol-test   # Python MCU protocol tests on host dev shell
 just mcu-serial-loopback # PTY serial loopback for MCU binary transport

@@ -12,12 +12,12 @@ from typing import Any
 
 ALLOWED_BRANCHES = (
     "main",
-    "milestone/teach-repeat-route-replay",
-    "milestone/lidar-localization-gazebo",
-    "milestone/semantic-hd-map",
-    "milestone/goal-based-navigation",
-    "milestone/dynamic-obstacle-advisory",
-    "milestone/headless-simulation-embedded",
+    "v1-teach-repeat-route-replay",
+    "v2-lidar-localization-gazebo",
+    "v3-semantic-hd-map",
+    "v4-goal-based-navigation",
+    "v5-dynamic-obstacle-advisory",
+    "v6-headless-simulation-embedded",
 )
 
 
@@ -31,7 +31,7 @@ def validate_refs(
     blockers: list[str] = []
 
     if current_branch not in allowed:
-        blockers.append(f"current branch is not an ARIS milestone branch: {current_branch or '<detached>'}")
+        blockers.append(f"current branch is not an ARIS vN-context branch: {current_branch or '<detached>'}")
 
     unexpected_local = sorted(branch for branch in local_branches if branch not in allowed)
     unexpected_remote = sorted(branch for branch in remote_branches if branch not in allowed)
