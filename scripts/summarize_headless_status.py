@@ -6,10 +6,11 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
+import subprocess
 from typing import Any
 
 
-def summarize(logs_dir: Path) -> dict[str, Any]:
+def summarize(logs_dir: Path, workspace: Path | None = None) -> dict[str, Any]:
     readiness_dir = logs_dir / "readiness"
     pipeline_dir = logs_dir / "pipeline"
     release_path = _resolve(readiness_dir / "latest_headless_release_candidate.json")
@@ -21,6 +22,15 @@ def summarize(logs_dir: Path) -> dict[str, Any]:
     audit = _read_json(audit_path)
     index = _read_json(index_path)
     repeat = _read_json(repeat_path)
+    current_git = _current_git(workspace) if workspace else {"branch": None, "commit": None}
+    evidence_git = (index or {}).get("git") or {}
+    evidence_commit = evidence_git.get("commit")
+    current_commit = current_git.get("commit")
+    evidence_fresh = bool(
+        evidence_commit
+        and current_commit
+        and str(current_commit).startswith(str(evidence_commit))
+    )
 
     criteria = (audit or {}).get("criteria") or {}
     pipeline = (index or {}).get("core_pipeline_flow", {}).get("report") or {}
@@ -41,6 +51,12 @@ def summarize(logs_dir: Path) -> dict[str, Any]:
         "artifact_type": "aris_headless_status_summary",
         "schema_version": 1,
         "logs_dir": str(logs_dir),
+        "workspace": str(workspace) if workspace else None,
+        "git": {
+            "current": current_git,
+            "evidence": evidence_git,
+            "evidence_fresh_for_head": evidence_fresh,
+        },
         "headless_ready": (audit or {}).get("headless_ready") is True,
         "release_valid": (release or {}).get("valid") is True and all_release_steps_passed,
         "hardware_scope_active": (audit or {}).get("hardware_scope_active") is True,
@@ -95,6 +111,28 @@ def _read_json(path: Path | None) -> dict[str, Any] | None:
     return data
 
 
+def _current_git(workspace: Path | None) -> dict[str, str | None]:
+    if workspace is None:
+        return {"branch": None, "commit": None}
+    return {
+        "branch": _git(workspace, "branch", "--show-current"),
+        "commit": _git(workspace, "rev-parse", "--short", "HEAD"),
+    }
+
+
+def _git(workspace: Path, *args: str) -> str | None:
+    try:
+        result = subprocess.run(
+            ("git", "-C", str(workspace), *args),
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+    except (OSError, subprocess.CalledProcessError):
+        return None
+    return result.stdout.strip() or None
+
+
 def _format_bool(value: bool) -> str:
     return "yes" if value else "no"
 
@@ -102,10 +140,16 @@ def _format_bool(value: bool) -> str:
 def format_text(summary: dict[str, Any]) -> str:
     pipeline = summary["core_pipeline"]
     repeat = summary["repeatability"]
+    git = summary.get("git") or {}
+    current_git = git.get("current") or {}
+    evidence_git = git.get("evidence") or {}
     lines = [
         "ARIS headless status",
         f"  headless_ready: {_format_bool(bool(summary['headless_ready']))}",
         f"  release_valid: {_format_bool(bool(summary['release_valid']))}",
+        f"  evidence_fresh_for_head: {_format_bool(bool(git.get('evidence_fresh_for_head')))}",
+        f"  current_git: {current_git.get('branch')}@{current_git.get('commit')}",
+        f"  evidence_git: {evidence_git.get('branch')}@{evidence_git.get('commit')}",
         f"  real_actuation_enabled: {_format_bool(bool(summary['safe_to_enable_real_actuation']))}",
         f"  blockers: {len(summary['blockers'])}",
         "",
@@ -136,16 +180,22 @@ def format_text(summary: dict[str, Any]) -> str:
         lines.append("")
         lines.append("Blockers")
         lines.extend(f"  - {blocker}" for blocker in summary["blockers"])
+    if not (git.get("evidence_fresh_for_head")):
+        lines.append("")
+        lines.append("Freshness")
+        lines.append("  latest evidence was not generated from the current HEAD")
+        lines.append("  run: just headless-release-candidate")
     return "\n".join(lines)
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--logs-dir", type=Path, required=True)
+    parser.add_argument("--workspace", type=Path)
     parser.add_argument("--json", action="store_true", help="Emit machine-readable JSON")
     args = parser.parse_args(argv)
 
-    summary = summarize(args.logs_dir)
+    summary = summarize(args.logs_dir, args.workspace)
     if args.json:
         print(json.dumps(summary, indent=2, sort_keys=True))
     else:

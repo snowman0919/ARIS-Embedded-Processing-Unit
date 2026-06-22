@@ -36,6 +36,7 @@ def test_headless_status_summary_collects_latest_evidence(tmp_path):
         },
     }
     index = {
+        "git": {"branch": "v6", "commit": "abc1234"},
         "core_pipeline_flow": {
             "report": {
                 "valid": True,
@@ -67,11 +68,51 @@ def test_headless_status_summary_collects_latest_evidence(tmp_path):
 
     assert summary["headless_ready"] is True
     assert summary["release_valid"] is True
+    assert summary["git"]["evidence_fresh_for_head"] is False
     assert summary["safe_to_enable_real_actuation"] is False
     assert summary["core_pipeline"]["node_path"] == ["approach", "goal"]
     assert summary["repeatability"]["runs_completed"] == 2
     assert "headless_ready: yes" in text
+    assert "evidence_fresh_for_head: no" in text
+    assert "run: just headless-release-candidate" in text
     assert "node_path: approach -> goal" in text
+
+
+def test_headless_status_summary_marks_fresh_evidence_for_matching_head(tmp_path, monkeypatch):
+    logs = tmp_path / "logs"
+    readiness = logs / "readiness"
+    pipeline = logs / "pipeline"
+    readiness.mkdir(parents=True)
+    pipeline.mkdir()
+    (readiness / "latest_headless_release_candidate.json").write_text(
+        json.dumps({"valid": True, "steps": [{"name": "ok", "passed": True, "exit_code": 0}]}),
+        encoding="utf-8",
+    )
+    (readiness / "latest_headless_readiness_audit.json").write_text(
+        json.dumps({"headless_ready": True, "blockers": []}),
+        encoding="utf-8",
+    )
+    (readiness / "latest_evidence_index.json").write_text(
+        json.dumps({"git": {"branch": "v6", "commit": "abc1234"}}),
+        encoding="utf-8",
+    )
+    (pipeline / "latest_core_pipeline_repeatability.json").write_text(
+        json.dumps({"valid": True, "summary": {}}),
+        encoding="utf-8",
+    )
+
+    def fake_git(workspace, *args):
+        if args == ("branch", "--show-current"):
+            return "v6"
+        if args == ("rev-parse", "--short", "HEAD"):
+            return "abc1234"
+        raise AssertionError(args)
+
+    monkeypatch.setattr("summarize_headless_status._git", fake_git)
+
+    summary = summarize(logs, tmp_path / "workspace")
+
+    assert summary["git"]["evidence_fresh_for_head"] is True
 
 
 def test_headless_status_summary_reports_missing_evidence_as_not_ready(tmp_path):
