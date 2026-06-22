@@ -26,6 +26,8 @@
           buildToolsVersions = [ "36.0.0" "35.0.0" "28.0.3" ];
           includeNDK = true;
           ndkVersions = [ "28.2.13676358" ];
+          includeCmake = true;
+          cmakeVersions = [ "3.22.1" ];
           includeEmulator = false;
           includeSystemImages = false;
         };
