@@ -55,8 +55,15 @@ def test_readiness_evidence_index_collects_latest_artifacts(tmp_path):
         "valid": True,
         "metric_overlap_ratio": 1.0,
     }
+    review = {
+        "artifact_type": "aris_v6_semantic_review_report",
+        "advisory_only": True,
+        "control_authority": "none",
+        "summary": {"review_item_count": 1},
+    }
     (maps / "v3_semantic_map_20260101.manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
     (maps / "v3_semantic_map_20260101.compare.json").write_text(json.dumps(compare), encoding="utf-8")
+    (maps / "v3_semantic_map_20260101.v6_review.json").write_text(json.dumps(review), encoding="utf-8")
 
     index = generate_index(tmp_path / "workspace", logs)
 
@@ -69,3 +76,5 @@ def test_readiness_evidence_index_collects_latest_artifacts(tmp_path):
     assert index["v5_dynamic_obstacle"]["detour_min_steering"] == -0.2
     assert index["v5_dynamic_obstacle"]["stop_min_accel"] == -1.0
     assert index["v5_dynamic_obstacle"]["track_age"] == 2
+    assert index["v6_semantic_review"]["report"]["advisory_only"]
+    assert index["v6_semantic_review"]["report_path"].endswith(".v6_review.json")

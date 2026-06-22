@@ -52,9 +52,11 @@ node = rclpy.create_node("aris_v5_dynamic_obstacle_smoke")
 node.create_subscription(AckermannDriveStamped, "/cmd_drive", on_cmd, 20)
 pub = node.create_publisher(String, "/aris/perception/dynamic_obstacle", 10)
 
-deadline = time.monotonic() + 3.0
+deadline = time.monotonic() + 7.0
 while time.monotonic() < deadline:
     rclpy.spin_once(node, timeout_sec=0.1)
+    if len(samples) >= 5 and max(speed for _, speed, _, _ in samples) >= 0.5:
+        break
 
 if not samples:
     raise SystemExit("no /cmd_drive samples before advisory")

@@ -150,6 +150,16 @@ Current simulation gate:
 4. Present suggestions to an operator or map review process.
 5. Commit reviewed map changes with provenance.
 
+Current offline gate:
+
+1. `just v6-semantic-review-smoke` reads the latest V3 semantic map manifest and repeat-pass
+   compare report.
+2. It writes `v3_semantic_map_<timestamp>.v6_review.json`.
+3. The report is `advisory_only=true` and `control_authority=none`.
+4. It creates operator review items for high-risk traversability cells, semantic review queue
+   entries, and repeat-pass map changes.
+5. The readiness evidence index links to the latest V6 review report.
+
 Prohibited: AI publishing `/cmd_drive`, releasing E-stop, clearing safety faults, or enabling real actuation.
 
 ## 11. Safety Validation Workflow

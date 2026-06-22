@@ -192,6 +192,7 @@ just v2-gazebo-stack-smoke # run all headless Gazebo V2 checks
 just v3-semantic-smoke # generate and validate a five-layer semantic map snapshot
 just v4-goal-smoke # semantic route-graph goal navigation smoke
 just v5-dynamic-obstacle-smoke # V5 advisory detours/slows/stops the local planner
+just v6-semantic-review-smoke # V6 advisory-only semantic map review report
 just scan-cloud-contract # validate /scan_cloud PointCloud2 fields, frame, and TF
 just operator-goal-smoke # operator JSON goal -> /goal_pose -> V4 planner smoke
 just firmware-test   # Rust STM32 safety-core tests and thumbv7em-none-eabihf build

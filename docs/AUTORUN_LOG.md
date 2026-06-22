@@ -717,9 +717,36 @@ Entry format:
 - Build/tests:  `python3 -m py_compile` passed for changed V5/evidence modules; `bash -n
   scripts/check_v5_dynamic_obstacle.sh` passed; targeted V5/evidence tests passed (`8 passed`);
   full `./scripts/check_python_tests.sh` passed (`87 passed`); `git diff --check` passed.
-- Commit:       Pending V5 persistent obstacle track evidence commit.
+- Commit:       `45a67ba` — `Add V5 persistent obstacle tracking evidence`.
 - Stubbed/blocked: This is a nearest-neighbor single-corridor tracker for simulation evidence. It
   is not yet a production multi-object tracker, static-map differencer, route-graph replan scorer,
   real LiDAR replay gate, HIL, or field validation.
 - Next:         Commit and push the tracking increment to `origin/v3`; then add recorded/replayed
   obstacle-bag scoring and route-graph replan evidence.
+
+## 2026-06-22 14:11 KST — V6: Advisory-Only Semantic Review Gate — WIP
+- Built:        Added `aris_ai_semantics.review_report` and
+  `scripts/generate_v6_semantic_review.py` to turn V3 semantic map manifest/compare artifacts into
+  an advisory-only operator review report. Added `check_v6_semantic_review.sh`,
+  `just v6-semantic-review-smoke`, included the V6 gate in default core readiness after V3 map
+  generation, and linked the latest V6 review report from the readiness evidence index. Hardened
+  `check_v3_semantic_map.sh` so V6 review JSON files are not accidentally selected as baseline
+  semantic map snapshots.
+- Verified:     `./scripts/check_v6_semantic_review.sh` passed and wrote
+  `/home/kotori9/aris/logs/maps/v3_semantic_map_20260622_050838.v6_review.json` with
+  `advisory_only=True`, `control_authority=none`, and `review_items=3`. Then
+  `ARIS_CORE_READINESS_SKIP_GAZEBO=1 ./scripts/run_core_readiness_report.sh` passed with
+  `skip_v3=0`, `skip_gazebo=1`, `result=PASS`, and `ARIS core readiness passed (8 checks).` The
+  final report is `/home/kotori9/aris/logs/readiness/core_readiness_20260622T051147Z.log`; the
+  evidence index is `/home/kotori9/aris/logs/readiness/evidence_index_20260622T051147Z.json` and
+  includes the latest V6 semantic review report with `control_authority=none`.
+- Build/tests:  `python3 -m py_compile` passed for V6/evidence modules; `bash -n` passed for
+  `check_v6_semantic_review.sh`, `check_v3_semantic_map.sh`, and `check_core_readiness.sh`;
+  targeted V6/evidence tests passed (`3 passed`); full `./scripts/check_python_tests.sh` passed
+  (`89 passed`); `git diff --check` passed.
+- Commit:       Pending V6 semantic review gate commit.
+- Stubbed/blocked: This is deterministic offline review over simulation map artifacts. It is not
+  yet a real multimodal model, camera-image review UI, operator approval workflow, or field map
+  promotion process.
+- Next:         Commit and push the V6 review gate to `origin/v3`; then connect V6 review to real
+  logged images/map deltas and add an operator approval artifact.

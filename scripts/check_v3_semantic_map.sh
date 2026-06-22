@@ -22,7 +22,7 @@ aris_compose run --rm aris-ros2-dev bash -lc '
   mkdir -p /aris/logs/maps
   baseline_snapshot="$(
     find /aris/logs/maps -maxdepth 1 -type f -name "v3_semantic_map_*.json" \
-      ! -name "*.manifest.json" ! -name "*.compare.json" \
+      ! -name "*.manifest.json" ! -name "*.compare.json" ! -name "*.v6_review.json" \
       -printf "%T@ %p\n" 2>/dev/null \
       | sort -n \
       | tail -1 \

@@ -98,6 +98,7 @@ def generate_index(workspace: Path, logs_dir: Path) -> dict[str, Any]:
     readiness_log = _latest(list((logs_dir / "readiness").glob("core_readiness_*.log")))
     map_manifest = _latest(list((logs_dir / "maps").glob("v3_semantic_map_*.manifest.json")))
     map_compare = _latest(list((logs_dir / "maps").glob("v3_semantic_map_*.compare.json")))
+    semantic_review = _latest(list((logs_dir / "maps").glob("v3_semantic_map_*.v6_review.json")))
     bag_metadata = _latest_bag_metadata(logs_dir)
 
     readiness_values = _read_key_values(readiness_log) if readiness_log else {}
@@ -118,6 +119,10 @@ def generate_index(workspace: Path, logs_dir: Path) -> dict[str, Any]:
             "compare_path": str(map_compare) if map_compare else None,
         },
         "v5_dynamic_obstacle": _read_v5_dynamic_obstacle(readiness_log),
+        "v6_semantic_review": {
+            "report": _read_json(semantic_review),
+            "report_path": str(semantic_review) if semantic_review else None,
+        },
     }
 
     if readiness_log:

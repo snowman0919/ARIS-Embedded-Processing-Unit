@@ -15,6 +15,7 @@ checks=(
 
 if [[ "${ARIS_CORE_READINESS_SKIP_V3:-0}" != "1" ]]; then
   checks+=("check_v3_semantic_map.sh")
+  checks+=("check_v6_semantic_review.sh")
 fi
 
 checks+=("check_v4_goal_nav.sh")
