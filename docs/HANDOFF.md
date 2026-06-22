@@ -36,19 +36,24 @@ It runs these gates in sequence:
 8. `just core-pipeline-repeatability`
 9. `just core-readiness-report`
 10. `just headless-readiness-audit`
+11. `just operational-readiness-audit`
 
 After those steps, `scripts/validate_headless_release_candidate.py` checks that the final release
-report includes every required step, points at the final evidence index, and that the final index
-points back to the release report.
+report includes every required step, points at the final evidence index, includes operational audit
+evidence, and that the final index points back to the release report.
 
-The most recent full run passed and wrote:
+The most recent full run writes the current bundle to:
 
-- `/home/kotori9/aris/logs/readiness/headless_release_candidate_20260622T074238Z.json`
-- `/home/kotori9/aris/logs/readiness/headless_readiness_audit_20260622T074708Z.json`
-- `/home/kotori9/aris/logs/readiness/evidence_index_20260622T074238Z_release.json`
+- `$ARIS_LOGS/readiness/latest_headless_release_candidate.json`
+- `$ARIS_LOGS/readiness/latest_headless_readiness_audit.json`
+- `$ARIS_LOGS/readiness/latest_operational_readiness_audit.json`
+- `$ARIS_LOGS/readiness/latest_headless_status.json`
+- `$ARIS_LOGS/readiness/latest_evidence_index.json`
 
 The current `headless_ready` result is true for the hardware-free scope. This is not real-actuation
-readiness.
+readiness. The operational audit scope status is expected to show
+`headless_simulation_embedded_ready=true`, `hardware_evidence_ready=false`, and
+`full_operational_ready=false` until HIL and field evidence exist.
 
 ## Core Pipeline Evidence
 
@@ -130,6 +135,8 @@ Important latest symlinks:
 
 - `$ARIS_LOGS/readiness/latest_headless_release_candidate.json`
 - `$ARIS_LOGS/readiness/latest_headless_readiness_audit.json`
+- `$ARIS_LOGS/readiness/latest_operational_readiness_audit.json`
+- `$ARIS_LOGS/readiness/latest_headless_status.json`
 - `$ARIS_LOGS/readiness/latest_evidence_index.json`
 - `$ARIS_LOGS/readiness/latest_branch_policy.json`
 - `$ARIS_LOGS/pipeline/latest_core_pipeline_flow.json`
