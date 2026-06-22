@@ -1668,3 +1668,26 @@ Entry format:
   `/home/kotori9/aris/logs/pipeline/core_pipeline_repeatability_20260622T103619Z.json`.
 - Next:         Commit and push the repeatability suffix fix and evidence log on
   `milestone/headless-simulation-embedded`.
+
+## 2026-06-22 KST — Repeatability Suffix Criteria Documented
+
+- Built:        Updated `docs/verification_plan.md` and `docs/workflows.md` to state that
+  core-pipeline route stability is evaluated on the final detour suffix. The docs now explain why
+  progress from `detour_a -> detour_b` to `detour_b -> detour_c -> goal` is stable, while a
+  genuinely different final detour still fails.
+- Verified:     `./scripts/check_documented_commands.sh` passed (`docs=25 references=190`).
+  `./scripts/check_headless_status.sh` reported fresh evidence after the full release refresh.
+- Verified:     Full `./scripts/check_headless_release_candidate.sh` passed on
+  `milestone/headless-simulation-embedded@87f2fdf` with `headless_release_candidate_valid`.
+- Evidence:     Release report
+  `/home/kotori9/aris/logs/readiness/headless_release_candidate_20260622T104315Z.json`;
+  final evidence index
+  `/home/kotori9/aris/logs/readiness/evidence_index_20260622T104315Z_release.json`;
+  core readiness
+  `/home/kotori9/aris/logs/readiness/core_readiness_20260622T104435Z.log`;
+  headless audit
+  `/home/kotori9/aris/logs/readiness/headless_readiness_audit_20260622T104756Z.json`;
+  repeatability
+  `/home/kotori9/aris/logs/pipeline/core_pipeline_repeatability_20260622T104343Z.json`.
+- Next:         Continue improving documented acceptance criteria and headless operator
+  diagnostics on `milestone/headless-simulation-embedded`.
