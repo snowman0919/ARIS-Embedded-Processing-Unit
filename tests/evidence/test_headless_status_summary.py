@@ -222,14 +222,31 @@ def test_headless_status_summary_marks_fresh_evidence_for_matching_head(tmp_path
             return "v6"
         if args == ("rev-parse", "--short", "HEAD"):
             return "abc1234"
+        if args == ("rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}"):
+            return "origin/v6"
+        if args == ("rev-list", "--left-right", "--count", "origin/v6...HEAD"):
+            return "3\t5"
         raise AssertionError(args)
 
     monkeypatch.setattr("summarize_headless_status._git", fake_git)
 
     summary = summarize(logs, tmp_path / "workspace")
+    text = format_text(summary)
 
     assert summary["git"]["evidence_fresh_for_head"] is True
     assert summary["git"]["freshness_reason"] == "matching_head"
+    assert summary["git"]["upstream_sync"] == {
+        "available": True,
+        "upstream": "origin/v6",
+        "head": "v6",
+        "upstream_ahead": 3,
+        "local_ahead": 5,
+        "local_contains_upstream": False,
+    }
+    assert "Upstream sync" in text
+    assert "upstream_ahead: 3" in text
+    assert "local_ahead: 5" in text
+    assert "local_contains_upstream: no" in text
 
 
 def test_headless_status_summary_accepts_autorun_log_only_changes(tmp_path, monkeypatch):
