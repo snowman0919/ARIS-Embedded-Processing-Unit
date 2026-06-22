@@ -994,3 +994,23 @@ Entry format:
 - Scope note:   This is still hardware-free headless evidence only. HIL, real sensor, real
   actuator, and field validation remain outside the current active scope.
 - Next:         Commit and push to `v6`.
+
+## 2026-06-22 15:51 KST — Release Candidate Evidence Index Closure — WIP
+- Built:        Updated `scripts/check_headless_release_candidate.sh` so the gate refreshes a final
+  readiness evidence index after writing the release-candidate report. The release report now points
+  at that final index, and the final index points back at the release report. Added
+  `ARIS_HEADLESS_RELEASE_REUSE_EXISTING=1` for low-cost index/report closure checks using existing
+  latest evidence.
+- Verified:     `ARIS_HEADLESS_RELEASE_REUSE_EXISTING=1 ./scripts/check_headless_release_candidate.sh`
+  passed and wrote
+  `/home/kotori9/aris/logs/readiness/headless_release_candidate_20260622T065130Z.json` with
+  `valid=true` and `reused_existing_evidence=true`. It refreshed
+  `/home/kotori9/aris/logs/readiness/evidence_index_20260622T065130Z_release.json`; the release
+  report's `readiness_evidence_index` points to that file, and that index's
+  `headless_release_candidate.report_path` points back to the release report.
+- Build/tests:  Full `./scripts/check_python_tests.sh` passed (`106 passed`); targeted evidence
+  index test passed; `bash -n`, `python3 -m py_compile`, and `git diff --check` passed.
+- Commit:       Pending release-candidate evidence-index closure commit.
+- Scope note:   The reuse mode is only for report/index plumbing; normal
+  `just headless-release-candidate` still runs the full headless evidence bundle.
+- Next:         Commit and push to `v6`.

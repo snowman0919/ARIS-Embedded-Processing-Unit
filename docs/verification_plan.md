@@ -194,7 +194,9 @@ just headless-release-candidate
 It runs embedded dry-run, core pipeline flow, no-skip core readiness report, and headless readiness
 audit in sequence. It writes
 `$ARIS_LOGS/readiness/headless_release_candidate_<timestamp>.json` and updates
-`$ARIS_LOGS/readiness/latest_headless_release_candidate.json`.
+`$ARIS_LOGS/readiness/latest_headless_release_candidate.json`. At the end of the run it also
+refreshes `$ARIS_LOGS/readiness/latest_evidence_index.json` so the index links back to the release
+candidate report that produced it.
 
 ## 13. Operational Readiness Audit
 

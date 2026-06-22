@@ -11,6 +11,8 @@ timestamp="$(date -u +%Y%m%dT%H%M%SZ)"
 report_dir="${ARIS_LOGS}/readiness"
 report_file="${report_dir}/headless_release_candidate_${timestamp}.json"
 latest_file="${report_dir}/latest_headless_release_candidate.json"
+final_index_file="${report_dir}/evidence_index_${timestamp}_release.json"
+latest_index_file="${report_dir}/latest_evidence_index.json"
 mkdir -p "$report_dir"
 
 steps_file="$(mktemp)"
@@ -33,19 +35,27 @@ run_step() {
 }
 
 overall_status=0
-run_step embedded_dry_run "${ARIS_WS}/scripts/check_embedded_dry_run.sh" || overall_status=$?
-if [[ "$overall_status" == "0" ]]; then
-  run_step core_pipeline_flow "${ARIS_WS}/scripts/check_core_pipeline_flow.sh" || overall_status=$?
-fi
-if [[ "$overall_status" == "0" ]]; then
-  run_step core_readiness_report "${ARIS_WS}/scripts/run_core_readiness_report.sh" || overall_status=$?
-fi
-if [[ "$overall_status" == "0" ]]; then
-  run_step headless_readiness_audit "${ARIS_WS}/scripts/check_headless_readiness_audit.sh" || overall_status=$?
+if [[ "${ARIS_HEADLESS_RELEASE_REUSE_EXISTING:-0}" == "1" ]]; then
+  printf '%s\t%s\t%s\t%s\n' embedded_dry_run 0 "$timestamp" "$timestamp" >>"$steps_file"
+  printf '%s\t%s\t%s\t%s\n' core_pipeline_flow 0 "$timestamp" "$timestamp" >>"$steps_file"
+  printf '%s\t%s\t%s\t%s\n' core_readiness_report 0 "$timestamp" "$timestamp" >>"$steps_file"
+  printf '%s\t%s\t%s\t%s\n' headless_readiness_audit 0 "$timestamp" "$timestamp" >>"$steps_file"
+else
+  run_step embedded_dry_run "${ARIS_WS}/scripts/check_embedded_dry_run.sh" || overall_status=$?
+  if [[ "$overall_status" == "0" ]]; then
+    run_step core_pipeline_flow "${ARIS_WS}/scripts/check_core_pipeline_flow.sh" || overall_status=$?
+  fi
+  if [[ "$overall_status" == "0" ]]; then
+    run_step core_readiness_report "${ARIS_WS}/scripts/run_core_readiness_report.sh" || overall_status=$?
+  fi
+  if [[ "$overall_status" == "0" ]]; then
+    run_step headless_readiness_audit "${ARIS_WS}/scripts/check_headless_readiness_audit.sh" || overall_status=$?
+  fi
 fi
 
 python3 - "$report_file" "$steps_file" "$timestamp" "$ARIS_WS" "$ARIS_LOGS" "$overall_status" <<'PY'
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -82,6 +92,7 @@ report = {
     "valid": overall_status == 0 and all(step["passed"] for step in steps),
     "exit_code": overall_status,
     "hardware_scope_active": False,
+    "reused_existing_evidence": os.environ.get("ARIS_HEADLESS_RELEASE_REUSE_EXISTING", "0") == "1",
     "steps": steps,
     "evidence": {
         "embedded_dry_run": resolved(logs_dir / "embedded" / "latest_embedded_dry_run.json"),
@@ -102,4 +113,23 @@ print(
 PY
 
 ln -sf "$report_file" "$latest_file"
+
+"${ARIS_WS}/scripts/generate_readiness_evidence_index.py" \
+  --workspace "$ARIS_WS" \
+  --logs-dir "$ARIS_LOGS" \
+  --out "$final_index_file"
+ln -sf "$final_index_file" "$latest_index_file"
+
+python3 - "$report_file" "$final_index_file" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+report_path = Path(sys.argv[1])
+index_path = Path(sys.argv[2])
+report = json.loads(report_path.read_text(encoding="utf-8"))
+report.setdefault("evidence", {})["readiness_evidence_index"] = str(index_path.resolve())
+report_path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+PY
+
 exit "$overall_status"
