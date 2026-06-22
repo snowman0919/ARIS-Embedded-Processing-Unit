@@ -40,14 +40,11 @@ available.
 ## Quick Start
 
 ```bash
-cd ~/aris-dev-env
+cd /home/sbeen/aris/aris-dev-env
 nix develop
 just check-host
 just docker-build
-just gpu-test
-just ros2-build
-just protocol-test
-just sim
+just headless-release-candidate
 ```
 
 If `just` is not available yet, the same checks can be run through the scripts
@@ -55,8 +52,10 @@ directly:
 
 ```bash
 ./scripts/check_host.sh
+./scripts/check_headless_release_candidate.sh
 ./scripts/check_core_readiness.sh
 ./scripts/run_core_readiness_report.sh
+./scripts/check_core_pipeline_flow.sh
 ./scripts/check_python_tests.sh
 ./scripts/check_v2_gazebo_lidar.sh
 ./scripts/check_v2_gazebo_localization.sh

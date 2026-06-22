@@ -1014,3 +1014,18 @@ Entry format:
 - Scope note:   The reuse mode is only for report/index plumbing; normal
   `just headless-release-candidate` still runs the full headless evidence bundle.
 - Next:         Commit and push to `v6`.
+
+## 2026-06-22 15:55 KST — Current Handoff And Mapping Refresh — WIP
+- Built:        Replaced the stale V0/V1-era `docs/HANDOFF.md` with the current `v6` continuation
+  guide: milestone branch policy, headless execution scope, release-candidate gate, evidence
+  locations, hard rules, and remaining real-world scope. Updated `docs/architecture_mapping.md` so
+  it reflects the verified headless V2-V6 evidence instead of describing those paths as only early
+  scaffolds. Updated README quick start to use the actual local workspace path and
+  `just headless-release-candidate` as the current reproducibility entry point.
+- Verified:     Removed stale handoff claims such as V1 being next, no-push mode, initial main-only
+  branch state, Python-only simulation, and 13-test baseline. Targeted evidence/planner tests
+  passed (`7 passed`), full `./scripts/check_python_tests.sh` passed (`106 passed`), and
+  `git diff --check` passed.
+- Commit:       Pending handoff refresh commit.
+- Scope note:   Documentation-only change; no runtime behavior changed.
+- Next:         Commit and push to `v6`.
