@@ -6,7 +6,15 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib.sh"
 aris_load_env
 export ROS_DOMAIN_ID="${ARIS_V5_SMOKE_ROS_DOMAIN_ID:-143}"
 
-aris_compose run --rm aris-ros2-dev bash -lc '
+timestamp="$(date -u +%Y%m%dT%H%M%SZ)"
+report_dir="${ARIS_LOGS}/obstacles"
+report_file="${report_dir}/v5_dynamic_obstacle_${timestamp}.json"
+mkdir -p "$report_dir"
+container_report_file="${report_file/#$ARIS_LOGS/\/aris\/logs}"
+
+aris_compose run --rm \
+  -e ARIS_V5_OBSTACLE_REPORT="$container_report_file" \
+  aris-ros2-dev bash -lc '
   set -euo pipefail
   colcon build --symlink-install
   set +u
@@ -23,6 +31,8 @@ aris_compose run --rm aris-ros2-dev bash -lc '
 
   python3 - <<PY
 import json
+import os
+from pathlib import Path
 import time
 
 import rclpy
@@ -194,6 +204,52 @@ if track.persistence_s < 0.19:
     failures.append(f"tracker persistence too short: {track.persistence_s:.3f}")
 if track.velocity_x_mps >= 0.0:
     failures.append(f"tracker did not estimate closing obstacle velocity: {track.velocity_x_mps:.3f}")
+metrics = {
+    "baseline_speed": baseline_speed,
+    "baseline_min_steering": baseline_min_steering,
+    "detour_min_speed": detour_min_speed,
+    "detour_min_accel": detour_min_accel,
+    "detour_min_steering": detour_min_steering,
+    "slow_min_speed": slow_min_speed,
+    "slow_min_accel": slow_min_accel,
+    "stop_min_speed": stop_min_speed,
+    "stop_min_accel": stop_min_accel,
+    "track_age": track.age,
+    "track_persistence_s": track.persistence_s,
+    "track_velocity_x_mps": track.velocity_x_mps,
+}
+report_path = os.environ.get("ARIS_V5_OBSTACLE_REPORT", "")
+if report_path:
+    path = Path(report_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps(
+            {
+                "artifact_type": "aris_v5_dynamic_obstacle_report",
+                "schema_version": 1,
+                "valid": not failures,
+                "metrics": metrics,
+                "failures": failures,
+                "thresholds": {
+                    "min_baseline_speed": 0.5,
+                    "max_detour_speed": 0.35,
+                    "max_detour_accel": -0.09,
+                    "max_detour_steering": -0.05,
+                    "max_slow_speed": 0.35,
+                    "max_slow_accel": -0.19,
+                    "max_stop_speed": 0.05,
+                    "max_stop_accel": -0.99,
+                    "min_track_age": 2,
+                    "min_track_persistence_s": 0.19,
+                },
+            },
+            indent=2,
+            sort_keys=True,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    print(f"v5_dynamic_obstacle_report path={path}")
 if failures:
     raise SystemExit("; ".join(failures))
 PY

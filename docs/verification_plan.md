@@ -145,9 +145,9 @@ $ARIS_LOGS/readiness/latest_evidence_index.json
 ```
 
 The index points at the latest readiness report, latest V2 LiDAR bag metadata, latest V3 semantic
-map manifest, latest V3 repeat-pass compare report, and V5 dynamic-obstacle detour/slow/stop
-metrics with persistent-track evidence, and latest V6 semantic review report when present. It is
-the quick machine-readable view of the current software evidence bundle.
+map manifest, latest V3 repeat-pass compare report, latest V5 dynamic-obstacle report plus
+detour/slow/stop metrics with persistent-track evidence, and latest V6 semantic review report when
+present. It is the quick machine-readable view of the current software evidence bundle.
 
 ## 12. Recorded LiDAR Acceptance Gate
 

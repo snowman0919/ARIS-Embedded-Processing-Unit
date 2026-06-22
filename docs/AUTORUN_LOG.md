@@ -772,3 +772,24 @@ Entry format:
   HIL, or field validation. Real actuation remained disabled.
 - Next:         Commit and push this evidence documentation to `origin/v3`; then focus on real or
   replayed sensor obstacle/map scoring and HIL readiness criteria.
+
+## 2026-06-22 14:23 KST — V5: Dynamic Obstacle Report Artifact — WIP
+- Built:        Extended `check_v5_dynamic_obstacle.sh` so each run writes
+  `$ARIS_LOGS/obstacles/v5_dynamic_obstacle_<timestamp>.json` with schema version, pass/fail
+  status, thresholds, failures, detour/slow/stop command metrics, and persistent-track metrics.
+  The readiness evidence index now links the latest V5 obstacle report in addition to parsing the
+  readiness log metric line.
+- Verified:     `./scripts/check_v5_dynamic_obstacle.sh` passed and wrote
+  `/home/kotori9/aris/logs/obstacles/v5_dynamic_obstacle_20260622T052333Z.json` with
+  `valid=true`, `detour_min_steering=-0.927`, `slow_min_speed=0.320`,
+  `stop_min_speed=0.000`, `track_age=2`, and `track_velocity_x_mps=-1.000`. Standalone
+  `generate_readiness_evidence_index.py` included this report under `v5_dynamic_obstacle.report`.
+- Build/tests:  `python3 -m py_compile scripts/generate_readiness_evidence_index.py` passed;
+  `bash -n scripts/check_v5_dynamic_obstacle.sh` passed;
+  `./scripts/check_python_tests.sh tests/evidence/test_readiness_evidence_index.py` passed
+  (`1 passed`); `git diff --check` passed.
+- Commit:       Pending V5 obstacle report artifact commit.
+- Stubbed/blocked: This is still simulation obstacle evidence. It is not yet a real recorded
+  obstacle bag replay score or HIL/field obstacle-avoidance validation.
+- Next:         Commit and push the V5 report artifact increment to `origin/v3`; then add
+  operator/real-bag obstacle replay scoring.

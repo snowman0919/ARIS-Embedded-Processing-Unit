@@ -141,6 +141,8 @@ Current simulation gate:
    `slow` caps speed, and `stop` commands full braking through the same `/cmd_drive` contract used
    by the simulator and HAL. It also records persistent-track age, persistence time, and approach
    velocity in readiness evidence.
+7. The smoke writes `$ARIS_LOGS/obstacles/v5_dynamic_obstacle_<timestamp>.json`, and the readiness
+   evidence index links to the latest V5 obstacle report.
 
 ## 10. V6 Multimodal Semantic Update Workflow
 

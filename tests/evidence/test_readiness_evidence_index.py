@@ -12,9 +12,11 @@ def test_readiness_evidence_index_collects_latest_artifacts(tmp_path):
     readiness = logs / "readiness"
     bags = logs / "bags" / "bag1"
     maps = logs / "maps"
+    obstacles = logs / "obstacles"
     readiness.mkdir(parents=True)
     bags.mkdir(parents=True)
     maps.mkdir(parents=True)
+    obstacles.mkdir(parents=True)
 
     (readiness / "core_readiness_20260101T000000Z.log").write_text(
         "timestamp_utc=20260101T000000Z\n"
@@ -61,9 +63,18 @@ def test_readiness_evidence_index_collects_latest_artifacts(tmp_path):
         "control_authority": "none",
         "summary": {"review_item_count": 1},
     }
+    obstacle_report = {
+        "artifact_type": "aris_v5_dynamic_obstacle_report",
+        "valid": True,
+        "metrics": {"track_age": 2, "detour_min_steering": -0.2},
+    }
     (maps / "v3_semantic_map_20260101.manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
     (maps / "v3_semantic_map_20260101.compare.json").write_text(json.dumps(compare), encoding="utf-8")
     (maps / "v3_semantic_map_20260101.v6_review.json").write_text(json.dumps(review), encoding="utf-8")
+    (obstacles / "v5_dynamic_obstacle_20260101T000000Z.json").write_text(
+        json.dumps(obstacle_report),
+        encoding="utf-8",
+    )
 
     index = generate_index(tmp_path / "workspace", logs)
 
@@ -72,9 +83,11 @@ def test_readiness_evidence_index_collects_latest_artifacts(tmp_path):
     assert index["v2_lidar_bag"]["topics"]["/scan_cloud"]["count"] == 12
     assert index["v3_semantic_map"]["manifest"]["valid"]
     assert index["v3_semantic_map"]["compare"]["metric_overlap_ratio"] == 1.0
-    assert index["v5_dynamic_obstacle"]["baseline_speed"] == 1.28
-    assert index["v5_dynamic_obstacle"]["detour_min_steering"] == -0.2
-    assert index["v5_dynamic_obstacle"]["stop_min_accel"] == -1.0
-    assert index["v5_dynamic_obstacle"]["track_age"] == 2
+    assert index["v5_dynamic_obstacle"]["metrics"]["baseline_speed"] == 1.28
+    assert index["v5_dynamic_obstacle"]["metrics"]["detour_min_steering"] == -0.2
+    assert index["v5_dynamic_obstacle"]["metrics"]["stop_min_accel"] == -1.0
+    assert index["v5_dynamic_obstacle"]["metrics"]["track_age"] == 2
+    assert index["v5_dynamic_obstacle"]["report"]["valid"]
+    assert index["v5_dynamic_obstacle"]["report_path"].endswith(".json")
     assert index["v6_semantic_review"]["report"]["advisory_only"]
     assert index["v6_semantic_review"]["report_path"].endswith(".v6_review.json")
