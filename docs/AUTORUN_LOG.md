@@ -1099,3 +1099,24 @@ Entry format:
 - Scope note:   This closes the software-only release bundle; it does not change the active
   hardware-free scope or claim HIL/field readiness.
 - Next:         Commit and push to `v6`.
+
+## 2026-06-22 16:12 KST — Core Pipeline Repeatability Gate — WIP
+- Built:        Added `scripts/check_core_pipeline_repeatability.sh` and
+  `just core-pipeline-repeatability`. The gate reruns `core-pipeline-flow` at least twice, records
+  each six-stage pipeline report, requires stable route-graph node paths, and bounds goal-error
+  spread. Wired the report into the readiness evidence index, headless readiness audit, and
+  headless release-candidate closure. Updated README, HANDOFF, workflows, and the verification plan.
+- Verified:     `./scripts/check_core_pipeline_repeatability.sh` passed and wrote
+  `/home/kotori9/aris/logs/pipeline/core_pipeline_repeatability_20260622T071138Z.json` with
+  `valid=true`, `runs=2`, `goal_error_max=0.7276347068379565`, and
+  `goal_error_spread=0.0038878756466690367`. The two runs selected the same detour node path
+  `approach -> detour_a -> detour_b -> detour_c -> goal`. Refreshed the readiness evidence index,
+  then `./scripts/check_headless_readiness_audit.sh` passed with `headless_ready=True` and zero
+  blockers. Reuse-mode `./scripts/check_headless_release_candidate.sh` passed and printed
+  `headless_release_candidate_valid`. Full `./scripts/check_python_tests.sh` passed (`113 passed`);
+  `./scripts/check_documented_commands.sh`, `./scripts/check_architecture_contracts.sh`,
+  `./scripts/check_host_policy.sh`, and `git diff --check` passed.
+- Commit:       Pending core-pipeline repeatability gate commit.
+- Scope note:   This strengthens repeated headless simulation evidence. It does not claim real
+  sensor, HIL, actuator, or field readiness.
+- Next:         Commit and push to `v6`.

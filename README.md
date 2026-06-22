@@ -179,6 +179,7 @@ just check-host      # host tools, Docker access, architecture, ARIS paths
 just core-readiness  # headless readiness gate, including V3/V6 artifacts and Gazebo by default
 just core-readiness-report # core-readiness with timestamped log under ARIS_LOGS
 just core-pipeline-flow # V3 semantic map artifact -> V4 route graph -> localization -> /cmd_drive
+just core-pipeline-repeatability # repeat core-pipeline-flow and summarize stability
 just headless-readiness-audit # aggregate current headless simulation + embedded dry-run evidence
 just headless-release-candidate # run the full hardware-free release-candidate evidence bundle
 just gpu-test        # CUDA/GPU visibility inside a container

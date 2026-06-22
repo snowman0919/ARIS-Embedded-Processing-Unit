@@ -162,6 +162,17 @@ that snapshot as `semantic_map_file`, and verifies Mapping -> Semantic HD Map ->
 Localization -> Goal Based Planning -> Autonomous Driving evidence in one JSON report under
 `$ARIS_LOGS/pipeline/`.
 
+To verify repeatability of that same headless flow:
+
+```bash
+just core-pipeline-repeatability
+```
+
+By default it runs `core-pipeline-flow` twice, requires both runs to pass all six stages, requires
+the route-graph node path to remain stable, and bounds final goal-error spread. Set
+`ARIS_CORE_PIPELINE_REPEAT_RUNS=<N>` to increase the repeat count. It writes
+`$ARIS_LOGS/pipeline/core_pipeline_repeatability_<timestamp>.json`.
+
 To store timestamped evidence:
 
 ```bash
@@ -207,8 +218,8 @@ just headless-release-candidate
 ```
 
 It runs embedded dry-run, documented-command validation, architecture-contract validation,
-host-policy validation, core pipeline flow, no-skip core readiness report, and headless readiness
-audit in sequence. It writes
+host-policy validation, core pipeline flow, core pipeline repeatability, no-skip core readiness
+report, and headless readiness audit in sequence. It writes
 `$ARIS_LOGS/readiness/headless_release_candidate_<timestamp>.json` and updates
 `$ARIS_LOGS/readiness/latest_headless_release_candidate.json`. At the end of the run it also
 refreshes `$ARIS_LOGS/readiness/latest_evidence_index.json` so the index links back to the release

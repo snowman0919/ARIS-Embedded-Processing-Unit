@@ -109,6 +109,11 @@ def test_readiness_evidence_index_collects_latest_artifacts(tmp_path):
         "valid": True,
         "stages": {"autonomous_driving": {"passed": True}},
     }
+    repeatability_report = {
+        "artifact_type": "aris_core_pipeline_repeatability_report",
+        "valid": True,
+        "summary": {"runs_completed": 2, "node_path_stable": True},
+    }
     field_report = {
         "artifact_type": "aris_field_validation_report",
         "valid": False,
@@ -153,6 +158,10 @@ def test_readiness_evidence_index_collects_latest_artifacts(tmp_path):
         json.dumps(pipeline_report),
         encoding="utf-8",
     )
+    (pipeline / "core_pipeline_repeatability_20260101T000000Z.json").write_text(
+        json.dumps(repeatability_report),
+        encoding="utf-8",
+    )
 
     index = generate_index(tmp_path / "workspace", logs)
 
@@ -185,3 +194,6 @@ def test_readiness_evidence_index_collects_latest_artifacts(tmp_path):
     assert index["embedded_dry_run"]["report_path"].endswith(".json")
     assert index["core_pipeline_flow"]["report"]["valid"] is True
     assert index["core_pipeline_flow"]["report_path"].endswith(".json")
+    assert index["core_pipeline_repeatability"]["report"]["valid"] is True
+    assert index["core_pipeline_repeatability"]["report"]["summary"]["runs_completed"] == 2
+    assert index["core_pipeline_repeatability"]["report_path"].endswith(".json")

@@ -15,6 +15,7 @@ REQUIRED_STEPS = (
     "architecture_contracts",
     "host_policy",
     "core_pipeline_flow",
+    "core_pipeline_repeatability",
     "core_readiness_report",
     "headless_readiness_audit",
 )
@@ -60,6 +61,7 @@ def validate(report_path: Path, index_path: Path | None = None) -> list[str]:
     required_evidence = (
         "embedded_dry_run",
         "core_pipeline_flow",
+        "core_pipeline_repeatability",
         "core_readiness_report",
         "headless_readiness_audit",
         "readiness_evidence_index",

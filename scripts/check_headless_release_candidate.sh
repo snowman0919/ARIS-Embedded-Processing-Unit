@@ -41,6 +41,7 @@ if [[ "${ARIS_HEADLESS_RELEASE_REUSE_EXISTING:-0}" == "1" ]]; then
   printf '%s\t%s\t%s\t%s\n' architecture_contracts 0 "$timestamp" "$timestamp" >>"$steps_file"
   printf '%s\t%s\t%s\t%s\n' host_policy 0 "$timestamp" "$timestamp" >>"$steps_file"
   printf '%s\t%s\t%s\t%s\n' core_pipeline_flow 0 "$timestamp" "$timestamp" >>"$steps_file"
+  printf '%s\t%s\t%s\t%s\n' core_pipeline_repeatability 0 "$timestamp" "$timestamp" >>"$steps_file"
   printf '%s\t%s\t%s\t%s\n' core_readiness_report 0 "$timestamp" "$timestamp" >>"$steps_file"
   printf '%s\t%s\t%s\t%s\n' headless_readiness_audit 0 "$timestamp" "$timestamp" >>"$steps_file"
 else
@@ -56,6 +57,9 @@ else
   fi
   if [[ "$overall_status" == "0" ]]; then
     run_step core_pipeline_flow "${ARIS_WS}/scripts/check_core_pipeline_flow.sh" || overall_status=$?
+  fi
+  if [[ "$overall_status" == "0" ]]; then
+    run_step core_pipeline_repeatability "${ARIS_WS}/scripts/check_core_pipeline_repeatability.sh" || overall_status=$?
   fi
   if [[ "$overall_status" == "0" ]]; then
     run_step core_readiness_report "${ARIS_WS}/scripts/run_core_readiness_report.sh" || overall_status=$?
@@ -109,6 +113,7 @@ report = {
     "evidence": {
         "embedded_dry_run": resolved(logs_dir / "embedded" / "latest_embedded_dry_run.json"),
         "core_pipeline_flow": resolved(logs_dir / "pipeline" / "latest_core_pipeline_flow.json"),
+        "core_pipeline_repeatability": resolved(logs_dir / "pipeline" / "latest_core_pipeline_repeatability.json"),
         "core_readiness_report": resolved(logs_dir / "readiness" / "latest.log"),
         "readiness_evidence_index": resolved(logs_dir / "readiness" / "latest_evidence_index.json"),
         "headless_readiness_audit": resolved(logs_dir / "readiness" / "latest_headless_readiness_audit.json"),

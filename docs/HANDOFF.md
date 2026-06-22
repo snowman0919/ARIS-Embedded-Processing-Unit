@@ -28,8 +28,9 @@ It runs these gates in sequence:
 3. `just architecture-contracts`
 4. `just host-policy`
 5. `just core-pipeline-flow`
-6. `just core-readiness-report`
-7. `just headless-readiness-audit`
+6. `just core-pipeline-repeatability`
+7. `just core-readiness-report`
+8. `just headless-readiness-audit`
 
 After those steps, `scripts/validate_headless_release_candidate.py` checks that the final release
 report includes every required step, points at the final evidence index, and that the final index
@@ -99,6 +100,7 @@ just architecture-contracts
 just host-policy
 just core-readiness-report
 just core-pipeline-flow
+just core-pipeline-repeatability
 just headless-release-candidate
 ```
 

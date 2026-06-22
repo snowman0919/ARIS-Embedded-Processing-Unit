@@ -56,6 +56,11 @@ def generate_audit(workspace: Path, logs_dir: Path) -> dict[str, Any]:
     )
     v6_path, latest_v6_report = _latest_json(logs_dir, "maps", "v3_semantic_map_*.v6_review.json")
     pipeline_path, latest_pipeline_report = _latest_json(logs_dir, "pipeline", "core_pipeline_flow_*.json")
+    repeat_path, latest_repeat_report = _latest_json(
+        logs_dir,
+        "pipeline",
+        "core_pipeline_repeatability_*.json",
+    )
 
     criteria: dict[str, dict[str, Any]] = {}
     readiness = (index or {}).get("readiness") or {}
@@ -141,6 +146,29 @@ def generate_audit(workspace: Path, logs_dir: Path) -> dict[str, Any]:
             },
         },
         [] if pipeline_passed else ["valid core pipeline flow report is missing"],
+    )
+
+    repeat_index = (index or {}).get("core_pipeline_repeatability") or {}
+    repeat_report = repeat_index.get("report") or latest_repeat_report or {}
+    repeat_summary = repeat_report.get("summary") or {}
+    repeat_passed = (
+        repeat_report.get("valid") is True
+        and _int_value(repeat_summary.get("runs_completed")) >= 2
+        and repeat_summary.get("node_path_stable") is True
+        and repeat_summary.get("goal_error_max_m") is not None
+        and float(repeat_summary.get("goal_error_max_m")) <= 1.3
+    )
+    criteria["core_pipeline_repeatability"] = _criterion(
+        repeat_passed,
+        {
+            "report_path": repeat_index.get("report_path") or (str(repeat_path) if repeat_path else None),
+            "valid": repeat_report.get("valid"),
+            "runs_completed": repeat_summary.get("runs_completed"),
+            "node_path_stable": repeat_summary.get("node_path_stable"),
+            "goal_error_max_m": repeat_summary.get("goal_error_max_m"),
+            "goal_error_spread_m": repeat_summary.get("goal_error_spread_m"),
+        },
+        [] if repeat_passed else ["valid core pipeline repeatability report with at least 2 stable runs is missing"],
     )
 
     v5 = (index or {}).get("v5_dynamic_obstacle") or {}

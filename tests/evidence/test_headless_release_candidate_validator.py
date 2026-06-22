@@ -19,6 +19,7 @@ def _write_report(tmp_path: Path, *, omit_step: str | None = None) -> tuple[Path
     evidence_paths = {
         "embedded_dry_run": embedded / "embedded.json",
         "core_pipeline_flow": pipeline / "pipeline.json",
+        "core_pipeline_repeatability": pipeline / "repeatability.json",
         "core_readiness_report": readiness / "core.log",
         "headless_readiness_audit": readiness / "audit.json",
         "readiness_evidence_index": readiness / "index.json",

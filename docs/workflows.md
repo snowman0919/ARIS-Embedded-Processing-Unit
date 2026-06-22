@@ -58,6 +58,16 @@ launches the V4 goal-navigation stack with that snapshot as the planner map sour
 LiDAR localization, `/global_path`, and `/cmd_drive` samples through the simulator. The report is
 written to `$ARIS_LOGS/pipeline/core_pipeline_flow_<timestamp>.json`.
 
+For repeated headless verification of the same flow:
+
+```bash
+just core-pipeline-repeatability
+```
+
+This reruns the complete pipeline, checks that every run passes the six-stage flow, and records
+route-path stability plus goal-error spread in
+`$ARIS_LOGS/pipeline/core_pipeline_repeatability_<timestamp>.json`.
+
 ## 3. Boot Workflow
 
 1. Power on.
