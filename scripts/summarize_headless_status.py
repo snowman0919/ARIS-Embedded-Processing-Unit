@@ -25,12 +25,14 @@ def summarize(logs_dir: Path, workspace: Path | None = None) -> dict[str, Any]:
     pipeline_dir = logs_dir / "pipeline"
     release_path = _resolve(readiness_dir / "latest_headless_release_candidate.json")
     audit_path = _resolve(readiness_dir / "latest_headless_readiness_audit.json")
+    operational_audit_path = _resolve(readiness_dir / "latest_operational_readiness_audit.json")
     index_path = _resolve(readiness_dir / "latest_evidence_index.json")
     branch_policy_path = _resolve(readiness_dir / "latest_branch_policy.json")
     repeat_path = _resolve(pipeline_dir / "latest_core_pipeline_repeatability.json")
 
     release = _read_json(release_path)
     audit = _read_json(audit_path)
+    operational_audit = _read_json(operational_audit_path)
     index = _read_json(index_path)
     branch_policy = _read_json(branch_policy_path)
     repeat = _read_json(repeat_path)
@@ -141,6 +143,7 @@ def summarize(logs_dir: Path, workspace: Path | None = None) -> dict[str, Any]:
             "real_actuation_enabled": real_actuation_enabled,
             "safe_to_enable_real_actuation": safe_to_enable_real_actuation,
         },
+        "operational_scope": (operational_audit or {}).get("scope_status") or {},
         "blockers": (audit or {}).get("blockers") or [],
         "criteria": {
             name: {
@@ -160,6 +163,7 @@ def summarize(logs_dir: Path, workspace: Path | None = None) -> dict[str, Any]:
         "evidence_age": {
             "headless_release_candidate": _artifact_age(release_path, now),
             "headless_readiness_audit": _artifact_age(audit_path, now),
+            "operational_readiness_audit": _artifact_age(operational_audit_path, now),
             "readiness_evidence_index": _artifact_age(index_path, now),
             "branch_policy": _artifact_age(branch_policy_path, now),
             "core_pipeline_repeatability": _artifact_age(repeat_path, now),
@@ -167,6 +171,7 @@ def summarize(logs_dir: Path, workspace: Path | None = None) -> dict[str, Any]:
         "evidence": {
             "headless_release_candidate": str(release_path) if release_path else None,
             "headless_readiness_audit": str(audit_path) if audit_path else None,
+            "operational_readiness_audit": str(operational_audit_path) if operational_audit_path else None,
             "readiness_evidence_index": str(index_path) if index_path else None,
             "branch_policy": str(branch_policy_path) if branch_policy_path else None,
             "core_pipeline_repeatability": str(repeat_path) if repeat_path else None,
@@ -443,8 +448,38 @@ def format_text(summary: dict[str, Any]) -> str:
         f"  safe_to_enable_real_actuation: {_format_bool(bool(summary['safe_to_enable_real_actuation']))}",
         f"  blockers: {len(summary['blockers'])}",
         "",
+        "Operational scope",
+    ]
+    operational_scope = summary.get("operational_scope") or {}
+    if operational_scope:
+        lines.extend([
+            f"  current_scope: {operational_scope.get('current_scope')}",
+            "  headless_simulation_embedded_ready: {}".format(
+                _format_bool(operational_scope.get("headless_simulation_embedded_ready") is True)
+            ),
+            "  hardware_evidence_ready: {}".format(
+                _format_bool(operational_scope.get("hardware_evidence_ready") is True)
+            ),
+            "  full_operational_ready: {}".format(
+                _format_bool(operational_scope.get("full_operational_ready") is True)
+            ),
+        ])
+        remaining = operational_scope.get("remaining_evidence") or []
+        if remaining:
+            lines.append(
+                "  remaining_evidence: {}".format(
+                    ", ".join(str(item.get("criterion")) for item in remaining if isinstance(item, dict))
+                )
+            )
+        else:
+            lines.append("  remaining_evidence: none")
+    else:
+        lines.append("  n/a")
+    lines.extend([
+        "",
         "Upstream sync",
     ]
+    )
     upstream_sync = git.get("upstream_sync") or {}
     if upstream_sync and upstream_sync.get("available") is True:
         lines.extend([

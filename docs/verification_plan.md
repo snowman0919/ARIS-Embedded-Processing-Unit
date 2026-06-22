@@ -271,7 +271,10 @@ just headless-status
 
 The same summary is available as JSON with `./scripts/check_headless_status.sh --json`.
 The text and JSON summaries include repeatability sample floors so operators can see whether the
-latest repeated run observed enough LiDAR clouds, global-path points, and command samples.
+latest repeated run observed enough LiDAR clouds, global-path points, and command samples. When an
+operational-readiness audit exists, the same status summary also includes `scope_status` so the
+current headless software readiness, full operational readiness, and remaining HIL/field evidence
+can be reviewed together.
 
 ## 13. Operational Readiness Audit
 

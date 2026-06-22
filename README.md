@@ -242,9 +242,11 @@ audit to `$ARIS_LOGS/readiness/latest_headless_readiness_audit.json`.
 audit, pipeline, and repeatability evidence, including whether that evidence was generated from the
 current Git `HEAD`, why the evidence is fresh or stale, each release step pass/fail result, the
 per-step evidence paths, the headless audit acceptance thresholds, and whether hardware scope or
-real actuation is active. It also reports the modification time and age of the latest release,
-audit, branch policy, index, and repeatability evidence, plus repeatability margins against the
-thresholds, the local branch versus upstream sync delta, and the `origin/main` versus
+real actuation is active. It also reports the operational audit `scope_status` so headless software
+readiness and remaining HIL/field evidence are visible in the same handoff summary. It also reports
+the modification time and age of the latest release, audit, branch policy, index, and repeatability
+evidence, plus repeatability margins against the thresholds, the local branch versus upstream sync
+delta, and the `origin/main` versus
 `origin/v6-headless-simulation-embedded` sync delta. This lets headless operators judge when a
 fresh release-candidate run, push, or mainline PR merge is needed. Use
 `./scripts/check_headless_status.sh --json` for the same summary as JSON.
