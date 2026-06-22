@@ -291,6 +291,17 @@ states, and blockers. This audit is the machine-readable guardrail for deciding 
 project can be considered practically usable; current simulation evidence can pass while HIL or
 field criteria still keep `achieved=false`.
 
+The audit also records `scope_status` so software-only progress is visible without weakening the
+final readiness bar:
+
+- `headless_simulation_embedded_ready=true` means the currently active headless software scope has
+  enough evidence, including the six-stage simulation pipeline, repeatability, V5 replay, and
+  current build/run docs.
+- `hardware_evidence_ready=false` means HIL and closed-site field evidence are still missing or not
+  accepted.
+- `remaining_evidence` lists the hardware-scope criteria that still block full operational
+  readiness.
+
 ## 14. HIL Preflight Gate
 
 Before hardware-in-the-loop or bench work, run:

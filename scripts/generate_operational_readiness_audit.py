@@ -236,6 +236,32 @@ def generate_audit(workspace: Path, logs_dir: Path) -> dict[str, Any]:
             continue
         blockers.extend(f"{name}: {blocker}" for blocker in criterion["blockers"])
 
+    headless_scope_criteria = (
+        "docs_build_run",
+        "core_pipeline_3d_sim",
+        "v2_gazebo_stack",
+        "core_pipeline_repeatability",
+        "v3_v6_mapping_review",
+        "v5_obstacle",
+        "v5_obstacle_bag_replay",
+    )
+    hardware_scope_criteria = (
+        "hil_preflight",
+        "field_validation",
+    )
+    headless_simulation_embedded_ready = all(
+        criteria[name]["passed"] for name in headless_scope_criteria
+    )
+    hardware_evidence_ready = all(criteria[name]["passed"] for name in hardware_scope_criteria)
+    remaining_evidence = [
+        {
+            "criterion": name,
+            "blockers": criteria[name]["blockers"],
+        }
+        for name in hardware_scope_criteria
+        if not criteria[name]["passed"]
+    ]
+
     safe_to_enable = bool(hil_report.get("safe_to_enable_real_actuation")) and field_passed
     achieved = all(criterion["passed"] for criterion in criteria.values()) and safe_to_enable
 
@@ -247,6 +273,14 @@ def generate_audit(workspace: Path, logs_dir: Path) -> dict[str, Any]:
         "achieved": achieved,
         "practical_use_ready": achieved,
         "safe_to_enable_real_actuation": safe_to_enable,
+        "scope_status": {
+            "current_scope": "headless_simulation_embedded",
+            "headless_simulation_embedded_ready": headless_simulation_embedded_ready,
+            "hardware_scope_active": hardware_evidence_ready,
+            "hardware_evidence_ready": hardware_evidence_ready,
+            "full_operational_ready": achieved,
+            "remaining_evidence": remaining_evidence,
+        },
         "criteria": criteria,
         "blockers": blockers,
         "evidence": {
