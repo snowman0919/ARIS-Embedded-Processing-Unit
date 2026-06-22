@@ -1213,3 +1213,19 @@ Entry format:
 - Scope note:   This is a status-reporting fix only; the full headless evidence remains the
   release-candidate bundle generated at `v6@a1a1a16`.
 - Next:         Commit and push to `v6`.
+
+## 2026-06-22 16:31 KST — Headless Freshness Reporting Scope — WIP
+- Built:        Expanded the freshness ignored-path set to include the headless status summarizer
+  and its tests. These files affect evidence reporting, not the simulated autonomy runtime that the
+  headless release-candidate bundle validates.
+- Verified:     `./scripts/check_headless_status.sh` reports `evidence_fresh_for_head: yes` with
+  changed paths `docs/AUTORUN_LOG.md`, `scripts/summarize_headless_status.py`, and
+  `tests/evidence/test_headless_status_summary.py`, and with no runtime-relevant changes since the
+  evidence commit. Targeted status-summary tests passed (`5 passed`). Full
+  `./scripts/check_python_tests.sh` passed (`120 passed`). `./scripts/check_documented_commands.sh`,
+  `./scripts/check_architecture_contracts.sh`, `./scripts/check_host_policy.sh`, and
+  `git diff --check` passed.
+- Commit:       Pending headless freshness reporting-scope commit.
+- Scope note:   This keeps current-HEAD evidence status accurate after status-reporting-only
+  changes. Runtime-relevant changes still make the evidence stale.
+- Next:         Commit and push to `v6`.

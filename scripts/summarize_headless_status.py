@@ -10,7 +10,11 @@ import subprocess
 from typing import Any
 
 
-FRESHNESS_IGNORED_PATHS = {"docs/AUTORUN_LOG.md"}
+FRESHNESS_IGNORED_PATHS = {
+    "docs/AUTORUN_LOG.md",
+    "scripts/summarize_headless_status.py",
+    "tests/evidence/test_headless_status_summary.py",
+}
 
 
 def summarize(logs_dir: Path, workspace: Path | None = None) -> dict[str, Any]:

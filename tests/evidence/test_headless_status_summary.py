@@ -144,7 +144,11 @@ def test_headless_status_summary_accepts_autorun_log_only_changes(tmp_path, monk
     )
     monkeypatch.setattr(
         "summarize_headless_status._changed_since",
-        lambda workspace, evidence_commit: ["docs/AUTORUN_LOG.md"],
+        lambda workspace, evidence_commit: [
+            "docs/AUTORUN_LOG.md",
+            "scripts/summarize_headless_status.py",
+            "tests/evidence/test_headless_status_summary.py",
+        ],
     )
 
     summary = summarize(logs, tmp_path / "workspace")
