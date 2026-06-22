@@ -133,6 +133,10 @@ v3-semantic-smoke:
 v4-goal-smoke:
     ./scripts/check_v4_goal_nav.sh
 
+# V5 simulation gate: dynamic obstacle advisory slows/stops the local planner.
+v5-dynamic-obstacle-smoke:
+    ./scripts/check_v5_dynamic_obstacle.sh
+
 operator-goal-smoke:
     ./scripts/check_operator_goal.sh
 

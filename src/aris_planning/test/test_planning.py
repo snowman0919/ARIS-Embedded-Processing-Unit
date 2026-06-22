@@ -1,6 +1,10 @@
 import pytest
 
 from aris_planning.astar import CellCost, GridPlanner
+from aris_planning.dynamic_obstacle_advisory import (
+    apply_dynamic_obstacle_advisory,
+    parse_dynamic_obstacle_advisory,
+)
 from aris_planning.pure_pursuit import Pose2D, PurePursuit
 from aris_planning.route import (
     RouteWaypoint,
@@ -88,6 +92,37 @@ def test_local_plan_to_ackermann_full_brake_zero_speed():
     fields = local_plan_to_ackermann(cmd)
     assert fields.speed_mps == 0.0
     assert ackermann_to_brake(fields.acceleration_mps2) == 1.0
+
+
+def test_dynamic_obstacle_stop_advisory_overrides_local_plan():
+    from aris_planning.pure_pursuit import LocalPlanCommand
+
+    advisory = parse_dynamic_obstacle_advisory(
+        '{"action":"stop","closest_distance_m":0.9,"point_count":5}'
+    )
+    command = apply_dynamic_obstacle_advisory(
+        LocalPlanCommand(0.2, 1.4, 0.0, dry_run=True), advisory
+    )
+
+    assert command.target_steering_rad == 0.2
+    assert command.target_velocity_mps == 0.0
+    assert command.brake == 1.0
+
+
+def test_dynamic_obstacle_slow_advisory_caps_local_plan():
+    from aris_planning.pure_pursuit import LocalPlanCommand
+
+    advisory = parse_dynamic_obstacle_advisory(
+        '{"action":"slow","closest_distance_m":2.5,"point_count":5}'
+    )
+    command = apply_dynamic_obstacle_advisory(
+        LocalPlanCommand(0.2, 1.4, 0.0, dry_run=True),
+        advisory,
+        slow_speed_mps=0.35,
+    )
+
+    assert command.target_velocity_mps == 0.35
+    assert command.brake == 0.2
 
 
 def test_ackermann_to_brake_is_clamped():

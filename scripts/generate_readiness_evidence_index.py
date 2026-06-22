@@ -48,6 +48,24 @@ def _read_json(path: Path | None) -> dict[str, Any] | None:
     return data
 
 
+def _read_v5_dynamic_obstacle(readiness_log: Path | None) -> dict[str, float] | None:
+    if not readiness_log or not readiness_log.exists():
+        return None
+    pattern = re.compile(
+        r"^v5_dynamic_obstacle "
+        r"baseline_speed=(?P<baseline_speed>[0-9.]+) "
+        r"slow_min_speed=(?P<slow_min_speed>[0-9.]+) "
+        r"slow_min_accel=(?P<slow_min_accel>-?[0-9.]+) "
+        r"stop_min_speed=(?P<stop_min_speed>[0-9.]+) "
+        r"stop_min_accel=(?P<stop_min_accel>-?[0-9.]+)"
+    )
+    for line in readiness_log.read_text(encoding="utf-8", errors="replace").splitlines():
+        match = pattern.match(line)
+        if match:
+            return {key: float(value) for key, value in match.groupdict().items()}
+    return None
+
+
 def _latest_bag_metadata(logs_dir: Path) -> Path | None:
     return _latest(list((logs_dir / "bags").glob("*/metadata.yaml")))
 
@@ -100,6 +118,7 @@ def generate_index(workspace: Path, logs_dir: Path) -> dict[str, Any]:
             "compare": _read_json(map_compare),
             "compare_path": str(map_compare) if map_compare else None,
         },
+        "v5_dynamic_obstacle": _read_v5_dynamic_obstacle(readiness_log),
     }
 
     if readiness_log:

@@ -3,6 +3,7 @@ from pathlib import Path
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
@@ -12,6 +13,7 @@ from launch_ros.parameter_descriptions import ParameterValue
 def generate_launch_description():
     route_file = LaunchConfiguration("route_file")
     use_demo_graph = LaunchConfiguration("use_demo_graph")
+    enable_dynamic_obstacles = LaunchConfiguration("enable_dynamic_obstacles")
     description_launch = str(
         Path(get_package_share_directory("aris_description")) / "launch" / "description.launch.py"
     )
@@ -26,6 +28,11 @@ def generate_launch_description():
                 "use_demo_graph",
                 default_value="true",
                 description="true = built-in semantic demo graph; false = route_file CSV graph.",
+            ),
+            DeclareLaunchArgument(
+                "enable_dynamic_obstacles",
+                default_value="false",
+                description="Enable V5 /scan_cloud dynamic-obstacle advisory publishing.",
             ),
             IncludeLaunchDescription(
                 PythonLaunchDescriptionSource(description_launch),
@@ -60,6 +67,21 @@ def generate_launch_description():
                         "yaw_window_rad": 0.0,
                         "prior_weight": 0.2,
                         "min_improvement_m": 0.0,
+                    }
+                ],
+            ),
+            Node(
+                package="aris_perception",
+                executable="dynamic_obstacle_node",
+                output="screen",
+                condition=IfCondition(enable_dynamic_obstacles),
+                parameters=[
+                    {
+                        "corridor_half_width_m": 0.7,
+                        "slow_distance_m": 3.0,
+                        "stop_distance_m": 1.0,
+                        "min_points": 4,
+                        "sample_stride": 2,
                     }
                 ],
             ),

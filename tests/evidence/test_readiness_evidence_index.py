@@ -24,7 +24,9 @@ def test_readiness_evidence_index_collects_latest_artifacts(tmp_path):
         "skip_gazebo=1\n"
         "real_actuation=0\n"
         "result=PASS\n"
-        "exit_code=0\n",
+        "exit_code=0\n"
+        "v5_dynamic_obstacle baseline_speed=1.280 slow_min_speed=0.320 "
+        "slow_min_accel=-0.200 stop_min_speed=0.000 stop_min_accel=-1.000\n",
         encoding="utf-8",
     )
     (bags / "metadata.yaml").write_text(
@@ -60,3 +62,5 @@ def test_readiness_evidence_index_collects_latest_artifacts(tmp_path):
     assert index["v2_lidar_bag"]["topics"]["/scan_cloud"]["count"] == 12
     assert index["v3_semantic_map"]["manifest"]["valid"]
     assert index["v3_semantic_map"]["compare"]["metric_overlap_ratio"] == 1.0
+    assert index["v5_dynamic_obstacle"]["baseline_speed"] == 1.28
+    assert index["v5_dynamic_obstacle"]["stop_min_accel"] == -1.0

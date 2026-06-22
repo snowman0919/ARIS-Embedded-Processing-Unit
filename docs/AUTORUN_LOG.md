@@ -639,8 +639,35 @@ Entry format:
   `./scripts/check_python_tests.sh tests/evidence/test_readiness_evidence_index.py
   tests/mapping/test_semantic_map_snapshot_compare.py
   tests/mapping/test_semantic_map_snapshot_validator.py` passed (`5 passed`).
-- Commit:       Pending evidence-index commit.
+- Commit:       `7e6d246` — `Add readiness evidence index`.
 - Stubbed/blocked: This is a skip-Gazebo readiness run, so it does not replace a future no-skip
   Gazebo readiness report or real-sensor/HIL/field promotion evidence.
 - Next:         Commit and push this evidence-index increment to `origin/v3`, then run a full
   no-skip readiness report when the Gazebo stack runtime is acceptable.
+
+## 2026-06-22 12:41 KST — V5: Dynamic Obstacle Slow/Stop Advisory Gate — WIP
+- Built:        Added ROS-free `aris_perception.dynamic_obstacles`, `dynamic_obstacle_node`, and
+  the `/aris/perception/dynamic_obstacle` JSON advisory contract. Wired `local_planner_node` to
+  apply `clear`/`slow`/`stop` advisories before publishing `/cmd_drive`. Added
+  `check_v5_dynamic_obstacle.sh`, `just v5-dynamic-obstacle-smoke`, and included the V5 smoke in
+  default headless core readiness. The readiness evidence index now parses V5 slow/stop metrics
+  from readiness logs.
+- Verified:     `./scripts/check_v5_dynamic_obstacle.sh` passed with
+  `baseline_speed=1.285`, `slow_min_speed=0.320`, `slow_min_accel=-0.200`,
+  `stop_min_speed=0.000`, and `stop_min_accel=-1.000`. Then
+  `ARIS_CORE_READINESS_SKIP_GAZEBO=1 ./scripts/run_core_readiness_report.sh` passed with
+  `skip_v3=0`, `skip_gazebo=1`, `result=PASS`, and `ARIS core readiness passed (7 checks).` The
+  report is `/home/kotori9/aris/logs/readiness/core_readiness_20260622T034114Z.log`; the evidence
+  index path is `/home/kotori9/aris/logs/readiness/evidence_index_20260622T034114Z.json`. That run
+  included Python tests (`82 passed`), MCU serial loopback, `/scan_cloud` contract, operator goal,
+  V3 map snapshot/manifest/compare (`metric_overlap=0.980`, `route_overlap=1.000`), V4 goal
+  navigation, and V5 dynamic-obstacle slow/stop.
+- Build/tests:  `python3 -m py_compile` passed for the new V5/evidence modules; `bash -n` passed
+  for `check_v5_dynamic_obstacle.sh` and `check_core_readiness.sh`; `./scripts/check_python_tests.sh`
+  passed (`82 passed`); `git diff --check` passed. Targeted V5/evidence tests passed (`23 passed`).
+- Commit:       Pending V5 dynamic-obstacle advisory commit.
+- Stubbed/blocked: This is simulation evidence for speed limiting and stop braking through the
+  existing `/cmd_drive` contract. It is not yet a tracked multi-object dynamic obstacle system,
+  full local replan, real LiDAR/camera validation, HIL, or field evidence.
+- Next:         Commit and push the V5 advisory gate to `origin/v3`; then extend V5 from slow/stop
+  advisory into local detour/replan and real sensor replay scoring.

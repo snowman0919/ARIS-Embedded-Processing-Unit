@@ -128,6 +128,16 @@ Acceptance: localization owns `/odometry/filtered` and `map -> odom`; planner no
 5. Local planner slows, stops, or detours.
 6. If blocked, report event to GUI.
 
+Current simulation gate:
+
+1. `dynamic_obstacle_node` reads `/scan_cloud`.
+2. It filters points inside the forward driving corridor.
+3. It publishes `/aris/perception/dynamic_obstacle` as a JSON advisory with `clear`, `slow`, or
+   `stop`.
+4. `local_planner_node` applies the advisory before publishing `/cmd_drive`.
+5. `just v5-dynamic-obstacle-smoke` verifies that `slow` caps speed and `stop` commands full
+   braking through the same `/cmd_drive` contract used by the simulator and HAL.
+
 ## 10. V6 Multimodal Semantic Update Workflow
 
 1. Collect logs, images, map deltas, and change candidates.

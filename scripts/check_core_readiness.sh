@@ -18,6 +18,7 @@ if [[ "${ARIS_CORE_READINESS_SKIP_V3:-0}" != "1" ]]; then
 fi
 
 checks+=("check_v4_goal_nav.sh")
+checks+=("check_v5_dynamic_obstacle.sh")
 
 if [[ "${ARIS_CORE_READINESS_SKIP_GAZEBO:-0}" != "1" ]]; then
   checks+=("check_v2_gazebo_stack.sh")
