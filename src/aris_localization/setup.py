@@ -13,6 +13,7 @@ setup(
         ("share/ament_index/resource_index/packages", [f"resource/{package_name}"]),
         (f"share/{package_name}", ["package.xml"]),
         (join("share", package_name, "launch"), glob("launch/*.launch.py")),
+        (join("share", package_name, "maps"), glob("maps/*.yaml")),
         (join("share", package_name, "worlds"), glob("worlds/*.sdf")),
     ],
     install_requires=["setuptools"],
@@ -24,6 +25,7 @@ setup(
     tests_require=["pytest"],
     entry_points={
         "console_scripts": [
+            "gazebo_pose_sync_node = aris_localization.gazebo_pose_sync_node:main",
             "lidar_localization_node = aris_localization.lidar_localization_node:main",
         ],
     },

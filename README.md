@@ -17,6 +17,35 @@ just protocol-test
 just sim
 ```
 
+If `just` is not available yet, the same checks can be run through the scripts
+directly:
+
+```bash
+./scripts/check_host.sh
+./scripts/check_python_tests.sh
+./scripts/check_v2_gazebo_lidar.sh
+./scripts/check_v2_gazebo_localization.sh
+./scripts/check_v2_gazebo_moving_localization.sh
+./scripts/check_lidar_sim.sh
+./scripts/check_scan_cloud_contract.sh
+./scripts/check_operator_goal.sh
+./scripts/check_mcu_serial_loopback.sh
+```
+
+
+## Architecture Documents
+
+The final framework derived from `260617 - AI System Architecture Specification v1.0.pdf` is maintained in:
+
+- `docs/README.md`
+- `docs/FINAL_ARCHITECTURE_SPEC.md`
+- `docs/architecture_framework.md`
+- `docs/communication_protocol.md`
+- `docs/internal_structure.md`
+- `docs/workflows.md`
+- `docs/architecture_mapping.md`
+- `docs/verification_plan.md`
+
 ## Host Assumptions
 
 - NVIDIA DGX Spark, Arm/aarch64 Linux.
@@ -107,9 +136,16 @@ ARIS_BUILD_AI=1 just docker-build
 just check-host      # host tools, Docker access, architecture, ARIS paths
 just gpu-test        # CUDA/GPU visibility inside a container
 just ros2-test       # ROS2 CLI and demo pub/sub inside container
+just python-test     # ROS-free Python unit tests on the host
 just ros2-build      # colcon build for starter packages
 just protocol-test   # Python MCU protocol tests on host dev shell
+just mcu-serial-loopback # PTY serial loopback for MCU binary transport
 just sim             # build and launch pure simulation smoke path
+just v2-lidar-smoke  # Gazebo gpu_lidar -> normalized /scan_cloud smoke
+just v2-gazebo-localization-smoke # Gazebo /scan_cloud -> localization smoke
+just v2-gazebo-moving-smoke # moving sim pose -> Gazebo entity -> localization smoke
+just scan-cloud-contract # validate /scan_cloud PointCloud2 fields, frame, and TF
+just operator-goal-smoke # operator JSON goal -> /goal_pose -> V4 planner smoke
 just firmware-test   # Rust STM32 safety-core tests and thumbv7em-none-eabihf build
 ```
 

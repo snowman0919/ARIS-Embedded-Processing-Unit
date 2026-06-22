@@ -2,7 +2,8 @@
 
 This launch is intentionally a verification scaffold, not a completed V2
 localization stack. It preserves the single URDF as the vehicle source of truth
-and bridges the Gazebo gpu_lidar point cloud to the contract topic /scan_cloud.
+and normalizes the Gazebo gpu_lidar point cloud to the contract topic
+/scan_cloud.
 """
 
 from pathlib import Path
@@ -67,7 +68,21 @@ def generate_launch_description():
             "/scan_cloud/points@sensor_msgs/msg/PointCloud2@gz.msgs.PointCloudPacked",
         ],
         remappings=[
-            ("/scan_cloud/points", "/scan_cloud"),
+            ("/scan_cloud/points", "/gazebo/scan_cloud"),
+        ],
+        output="screen",
+    )
+
+    cloud_adapter = Node(
+        package="aris_perception",
+        executable="gazebo_cloud_adapter_node",
+        parameters=[
+            {
+                "input_topic": "/gazebo/scan_cloud",
+                "output_topic": "/scan_cloud",
+                "target_frame": "lidar_link",
+                "scan_period_s": 0.1,
+            }
         ],
         output="screen",
     )
@@ -81,5 +96,6 @@ def generate_launch_description():
             ),
             spawn_aris,
             scan_bridge,
+            cloud_adapter,
         ]
     )

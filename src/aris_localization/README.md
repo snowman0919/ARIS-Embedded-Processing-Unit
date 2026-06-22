@@ -13,11 +13,39 @@ V2 adds:
 
 - ROS-free transform/error helpers in `aris_localization/localization_core.py`.
 - A bounded Gazebo gpu_lidar probe: `nix develop -c just v2-lidar-smoke`.
-- A launch scaffold that keeps the shared ARIS URDF as the vehicle source of truth and bridges the
-  simulated gpu_lidar point cloud toward `/scan_cloud`.
+- A launch scaffold that keeps the shared ARIS URDF as the vehicle source of truth, spawns it into
+  Gazebo, bridges the simulated gpu_lidar raw cloud, and normalizes it onto `/scan_cloud`.
 
-Current blocker: in the headless container, the Gazebo world create service is not discoverable by
-`ros_gz_sim create`, so the scaffold cannot yet spawn the URDF or produce `/scan_cloud`.
+The current Gazebo smoke verifies that a headless `ros_gz` world can spawn the shared URDF and
+publish a normalized PointCloud2 sample with the ARIS `/scan_cloud` contract:
+
+```bash
+nix develop -c just v2-lidar-smoke
+```
+
+The static Gazebo localization smoke extends that path into `lidar_localization_node`:
+
+```bash
+nix develop -c just v2-gazebo-localization-smoke
+```
+
+It verifies `/scan_cloud`, `/odometry/filtered`, and `map->odom` in one launch. It does not yet
+move the vehicle.
+
+The moving Gazebo smoke adds `gazebo_pose_sync_node`, synchronizing `/wheel_odom` into the Gazebo
+ARIS entity through the Gazebo `/world/aris_lidar_smoke/set_pose` service:
+
+```bash
+nix develop -c just v2-gazebo-moving-smoke
+```
+
+This verifies that a commanded vehicle simulation movement also moves the Gazebo entity and keeps
+the Gazebo gpu_lidar -> `/scan_cloud` -> localization path alive. The smoke also checks that the
+front LiDAR range shrinks as the vehicle approaches the Gazebo target. Gazebo physics is not yet
+the motion authority.
+
+This is still a V2 scaffold, not production localization. Full V2 still needs real Unitree profile
+values, recorded LiDAR data, map generation, NDT/EKF selection, and hardware validation.
 
 Mitigation path now available: `aris_vehicle_sim` provides a spec-driven 3D LiDAR surrogate that
 publishes `/scan_cloud` as `sensor_msgs/PointCloud2` from a YAML LiDAR profile and 3D box map:

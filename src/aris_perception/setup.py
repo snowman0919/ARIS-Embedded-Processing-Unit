@@ -19,6 +19,7 @@ setup(
     tests_require=["pytest"],
     entry_points={
         "console_scripts": [
+            "gazebo_cloud_adapter_node = aris_perception.gazebo_cloud_adapter_node:main",
             "simulated_segmentation_node = aris_perception.simulated_segmentation_node:main",
         ],
     },

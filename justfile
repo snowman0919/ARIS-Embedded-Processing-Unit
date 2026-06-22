@@ -27,6 +27,9 @@ ros2-build:
 ros2-test:
     ./scripts/check_ros2.sh
 
+python-test:
+    ./scripts/check_python_tests.sh
+
 sim:
     ./scripts/check_sim.sh
 
@@ -57,9 +60,20 @@ v1-smoke:
 v2-lidar-smoke:
     ./scripts/check_v2_gazebo_lidar.sh
 
+# V2 probe: Gazebo gpu_lidar -> /scan_cloud -> localization-owned odometry.
+v2-gazebo-localization-smoke:
+    ./scripts/check_v2_gazebo_localization.sh
+
+# V2 probe: moving sim odom syncs Gazebo entity pose and drives gpu_lidar localization.
+v2-gazebo-moving-smoke:
+    ./scripts/check_v2_gazebo_moving_localization.sh
+
 # V2 algorithm-development sensor surrogate: spec-driven 3D LiDAR sim -> /scan_cloud.
 lidar-sim-smoke:
     ./scripts/check_lidar_sim.sh
+
+scan-cloud-contract:
+    ./scripts/check_scan_cloud_contract.sh
 
 # V2A: LiDAR surrogate + known-map scan matching owns /odometry/filtered and map->odom.
 v2a-localization-smoke:
@@ -80,6 +94,9 @@ v3-semantic-smoke:
 # V4 simulation gate: semantic global path is followed to the goal.
 v4-goal-smoke:
     ./scripts/check_v4_goal_nav.sh
+
+operator-goal-smoke:
+    ./scripts/check_operator_goal.sh
 
 # Interactive V4 demo, step 1: drive manually while recording a route CSV.
 v4-teach route="manual_v4_route.csv":
@@ -108,6 +125,9 @@ gazebo:
 
 protocol-test:
     python3 -m pytest src/aris_mcu_bridge/test tests/protocol
+
+mcu-serial-loopback:
+    ./scripts/check_mcu_serial_loopback.sh
 
 firmware-test:
     ./scripts/firmware_test.sh

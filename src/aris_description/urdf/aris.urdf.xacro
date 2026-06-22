@@ -11,6 +11,11 @@
   <xacro:property name="wheelbase" value="1.25"/>   <!-- m, rear axle to front axle -->
   <xacro:property name="max_steer" value="0.6"/>    <!-- rad, steering limit -->
   <xacro:property name="track" value="0.9"/>        <!-- m, approximate wheel track -->
+  <xacro:property name="body_length" value="${wheelbase + 0.4}"/>
+  <xacro:property name="body_width" value="${track}"/>
+  <xacro:property name="body_height" value="0.4"/>
+  <xacro:property name="body_mass" value="80.0"/>
+  <xacro:property name="sensor_mass" value="0.5"/>
 
   <!-- Injects simulation-only additions (Gazebo sensor plugins) without touching
        the kinematics/TF that the real vehicle also relies on. -->
@@ -19,22 +24,44 @@
   <material name="aris_body"><color rgba="0.15 0.18 0.22 1.0"/></material>
   <material name="aris_sensor"><color rgba="0.85 0.40 0.15 1.0"/></material>
 
+  <xacro:macro name="box_inertial" params="mass x y z">
+    <inertial>
+      <mass value="${mass}"/>
+      <inertia
+        ixx="${mass * (y * y + z * z) / 12.0}"
+        ixy="0.0"
+        ixz="0.0"
+        iyy="${mass * (x * x + z * z) / 12.0}"
+        iyz="0.0"
+        izz="${mass * (x * x + y * y) / 12.0}"/>
+    </inertial>
+  </xacro:macro>
+
   <!-- Vehicle base frame: origin at the rear axle on the ground plane. -->
   <link name="base_link">
+    <xacro:box_inertial mass="${body_mass}" x="${body_length}" y="${body_width}" z="${body_height}"/>
     <visual>
       <origin xyz="${wheelbase/2} 0 0.25" rpy="0 0 0"/>
-      <geometry><box size="${wheelbase + 0.4} ${track} 0.4"/></geometry>
+      <geometry><box size="${body_length} ${body_width} ${body_height}"/></geometry>
       <material name="aris_body"/>
     </visual>
+    <collision>
+      <origin xyz="${wheelbase/2} 0 0.25" rpy="0 0 0"/>
+      <geometry><box size="${body_length} ${body_width} ${body_height}"/></geometry>
+    </collision>
   </link>
 
   <!-- Fixed sensor frame with a small visual marker. -->
   <xacro:macro name="sensor_frame" params="name xyz rpy">
     <link name="${name}">
+      <xacro:box_inertial mass="${sensor_mass}" x="0.08" y="0.08" z="0.08"/>
       <visual>
         <geometry><box size="0.08 0.08 0.08"/></geometry>
         <material name="aris_sensor"/>
       </visual>
+      <collision>
+        <geometry><box size="0.08 0.08 0.08"/></geometry>
+      </collision>
     </link>
     <joint name="${name}_joint" type="fixed">
       <parent link="base_link"/>
