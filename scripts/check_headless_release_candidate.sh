@@ -48,6 +48,7 @@ if [[ "${ARIS_HEADLESS_RELEASE_REUSE_EXISTING:-0}" == "1" ]]; then
   printf '%s\t%s\t%s\t%s\n' core_pipeline_repeatability 0 "$timestamp" "$timestamp" >>"$steps_file"
   printf '%s\t%s\t%s\t%s\n' core_readiness_report 0 "$timestamp" "$timestamp" >>"$steps_file"
   printf '%s\t%s\t%s\t%s\n' headless_readiness_audit 0 "$timestamp" "$timestamp" >>"$steps_file"
+  printf '%s\t%s\t%s\t%s\n' operational_readiness_audit 0 "$timestamp" "$timestamp" >>"$steps_file"
 else
   run_step bootstrap_doctor "${ARIS_WS}/scripts/check_bootstrap_doctor.sh" || overall_status=$?
   if [[ "$overall_status" == "0" ]]; then
@@ -76,6 +77,9 @@ else
   fi
   if [[ "$overall_status" == "0" ]]; then
     run_step headless_readiness_audit "${ARIS_WS}/scripts/check_headless_readiness_audit.sh" || overall_status=$?
+  fi
+  if [[ "$overall_status" == "0" ]]; then
+    run_step operational_readiness_audit "${ARIS_WS}/scripts/check_operational_readiness_audit.sh" || overall_status=$?
   fi
 fi
 
@@ -168,6 +172,7 @@ report = {
         "core_readiness_report": resolved(logs_dir / "readiness" / "latest.log"),
         "readiness_evidence_index": resolved(logs_dir / "readiness" / "latest_evidence_index.json"),
         "headless_readiness_audit": resolved(logs_dir / "readiness" / "latest_headless_readiness_audit.json"),
+        "operational_readiness_audit": resolved(logs_dir / "readiness" / "latest_operational_readiness_audit.json"),
     },
 }
 report_path.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
