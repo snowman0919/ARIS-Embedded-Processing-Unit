@@ -306,9 +306,9 @@ It uses a privileged helper container only for virtual CAN setup and is not part
 ## Android Tablet GUI Bridge
 
 The Flutter tablet app lives at `/home/sbeen/aris/aris-flutter-interface`. The Nix dev shell
-provides Flutter, Dart, JDK 17, Android platform tools, and an accepted Android SDK composition for
-local tablet builds. Dev-env can export route or V3 SemanticHDMap artifacts into the GUI snapshot
-schema and serve them over HTTP for Android lab testing:
+provides Flutter, Dart, JDK 17, Android platform tools, and an accepted Android SDK/NDK composition
+for local tablet builds. Dev-env can export route or V3 SemanticHDMap artifacts into the GUI
+snapshot schema and serve them over HTTP for Android lab testing:
 
 ```bash
 nix develop --command just gui-snapshot-route /path/to/route.csv /tmp/aris_gui_snapshot.json

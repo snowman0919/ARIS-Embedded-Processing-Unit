@@ -24,6 +24,8 @@
         androidComposition = pkgs.androidenv.composeAndroidPackages {
           platformVersions = [ "36" ];
           buildToolsVersions = [ "36.0.0" "35.0.0" "28.0.3" ];
+          includeNDK = true;
+          ndkVersions = [ "28.2.13676358" ];
           includeEmulator = false;
           includeSystemImages = false;
         };
@@ -96,6 +98,8 @@
             export ARIS_ENABLE_REAL_ACTUATION="''${ARIS_ENABLE_REAL_ACTUATION:-0}"
             export ANDROID_HOME="${androidComposition.androidsdk}/libexec/android-sdk"
             export ANDROID_SDK_ROOT="$ANDROID_HOME"
+            export ANDROID_NDK_ROOT="$ANDROID_HOME/ndk-bundle"
+            export ANDROID_NDK_HOME="$ANDROID_NDK_ROOT"
             export JAVA_HOME="${pkgs.jdk17.home}"
             export PATH="${pkgs.android-tools}/bin:$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH"
 
